@@ -1,0 +1,64 @@
+﻿@page "/login"
+@inject AuthenticationStateProvider customAuthenticationStateProvider
+@inject NavigationManager navManager
+@inject IJSRuntime js
+@inject IUserService userClientService
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <EditForm Enhance Model="User" OnValidSubmit="HandleLogin">
+                 <DataAnnotationsValidator />
+                 <ValidationSummary />
+
+                 <div class="card">
+                     <div class="card-header">Login An Account</div>
+                     <div class="card-body">
+
+                         <!-- Email Address -->
+                         <div class="form-group mb-3">
+                             <input @bind="User.Email"
+                                    class="form-control"
+                                    type="email"
+                                    placeholder="Email Address" />
+                         </div>
+
+                         <!-- Password -->
+                         <div class="form-group">
+                             <div class="input-group mb-3">
+                                 <input class="form-control"
+                                        @bind="User.Password"
+                                        placeholder="Password"
+                                        aria-label="Password"
+                                        aria-describedby="Password" />
+                             </div>
+                         </div>
+
+                     </div>
+                     <div class="card-footer">
+                         <button class="btn btn-primary float-end" type="submit">Login</button>
+                     </div>
+                 </div>
+             </EditForm>
+         </div>
+     </div>
+ </div>
+ @code {
+    public LoginDTO User { get; set; } = new ();
+
+    async Task HandleLogin()
+    {
+        var (flag, token, message) = await userClientService.LoginAccount(User);
+        if (flag)
+        {
+            //string customMessage = $"{message}{Environment.NewLine}{token}";
+            //await js.InvokeVoidAsync("alert", customMessage);
+            var customAuthStateProvider = (CustomAuthenticationStateProvider)customAuthenticationStateProvider;
+            await customAuthStateProvider.UpdateAuthenticationState(token); //Lấy thông tin từ JWT token, tạo ClaimsPrincipal và lưu token vào local storage
+            navManager.NavigateTo("/", forceLoad: true);
+            await js.InvokeVoidAsync("alert", message);
+        }
+        else
+            await js.InvokeVoidAsync("alert", message);
+    }
+}
