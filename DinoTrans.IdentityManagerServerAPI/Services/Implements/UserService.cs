@@ -1,8 +1,10 @@
 ﻿using DinoTrans.Shared.Contracts;
 using DinoTrans.Shared.DTOs;
 using DinoTrans.Shared.Entities;
+using DinoTrans.Shared.Repositories.Implements;
 using DinoTrans.Shared.Repositories.Interfaces;
 using DinoTrans.Shared.Services.Interfaces;
+using DinoTrans.Shared.DTOs.UserResponse;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.Data;
@@ -22,13 +24,19 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILocationRepository _locationRepository;
         private readonly ICompanyRepository _companyRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
+        private readonly IUserRoleRepository _userRoleRepository;
 
         public UserService(IConfiguration configuration,
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
             IUnitOfWork unitOfWork,
             ILocationRepository locationRepository,
-            ICompanyRepository companyRepository)
+            ICompanyRepository companyRepository,
+            IUserRepository userRepository,
+            IRoleRepository roleRepository,
+            IUserRoleRepository userRoleRepository)
         {
             _userManager = userManager;
             _configuration = configuration;
@@ -36,8 +44,29 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             _unitOfWork = unitOfWork;
             _locationRepository = locationRepository;
             _companyRepository = companyRepository;
+            _userRepository = userRepository;
+            _roleRepository = roleRepository;
+            _userRoleRepository = userRoleRepository;
         }
-
+        public async Task<GeneralResponse> ChangeUserPassword(ChangePasswordDTO changePasswordDTO)
+        {
+            var getUser = await _userManager.FindByIdAsync(changePasswordDTO.UserId.ToString());
+            if (getUser == null)
+            {
+                return new GeneralResponse(false, "Can't find user to change password");
+            }
+            var result = await _userManager.ChangePasswordAsync(getUser, changePasswordDTO.CurrentPassword, changePasswordDTO.NewPassword);
+            if (!result.Succeeded)
+            {
+                var errors = "";
+                foreach (var itemError in result.Errors)
+                {
+                    errors += itemError.Description.ToString() + "\n";
+                }
+                return new GeneralResponse(false, errors);
+            }
+            return new GeneralResponse(true, "Change password successfully");
+        }
         // Phương thức tạo tài khoản người dùng do admin của công ty
         public async Task<GeneralResponse> CreateAccount(UserDTO userDTO)
         {
@@ -193,6 +222,78 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             expires: DateTime.Now.AddHours(2),
             signingCredentials: credentials);
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<ResponseModel<UserInfoResponseDTO>> GetAllUserInfo(GetAllUserInfoDTO userInfo)
+        {
+            var user = _userRepository
+                .AsNoTracking()
+                .Where(u => u.Id == userInfo.UserId)
+                .FirstOrDefault();
+            if (user == null)
+            {
+                return new ResponseModel<UserInfoResponseDTO>
+                {
+                    Success = false,
+                    ResponseCode = "404",
+                };
+            }
+            var locations = _locationRepository
+                .AsNoTracking()
+                .Where(l => l.CompanyId == userInfo.CompanyId)
+                .Select(l => new LocationInfo
+                {
+                    LocationId = l.Id,
+                    LocationName = l.LocationName,
+                    LocationAddress = l.LocationAddress,
+                    IsMyLocation = userInfo.LocationId == l.Id ? true : false,
+                })
+                .ToList();
+            var company = _companyRepository
+                .AsNoTracking()
+                .Where(c => c.Id == userInfo.CompanyId)
+                .FirstOrDefault();
+            var roleId = _userRoleRepository
+                .AsNoTracking()
+                .Where(u => u.UserId == userInfo.UserId)
+                .Select(u => u.RoleId)
+                .FirstOrDefault();
+            var roleName = _roleRepository
+                .AsNoTracking()
+                .Where(r => r.Id == roleId)
+                .Select(r => r.Name)
+                .FirstOrDefault();
+            var response = new UserInfoResponseDTO
+            {
+                UserInfo = new UserInfo
+                {
+                    UserId = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    Address = user.Address,
+                    Role = roleName
+                },
+                Company = new CompanyInfo
+                {
+                    CompanyId = company.Id,
+                    CompanyName = company.CompanyName,
+                    CompanyEmail = company.Email,
+                    CompanyPhoneNumber = company.PhoneNumber,
+                    CompanyRole = company.Role,
+                    CompanyRoleName = company.Role.ToString(),
+                    CompanyAddress = company.Address,
+                    Locations = locations
+                }
+            };
+
+            return new ResponseModel<UserInfoResponseDTO>
+            {
+                Success = true,
+                ResponseCode = "200",
+                Data = response
+            };
         }
     }
 }
