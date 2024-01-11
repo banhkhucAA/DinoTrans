@@ -1,4 +1,5 @@
 ﻿using DinoTrans.Shared.DTOs;
+using DinoTrans.Shared.DTOs.UserResponse;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,7 @@ namespace DinoTrans.Shared.Services.Interfaces
     {
         Task<GeneralResponse> CreateAccount(UserDTO userDTO);
         Task<LoginResponse> LoginAccount(LoginDTO loginDTO);
+        Task<ResponseModel<UserInfoResponseDTO>> GetAllUserInfo(GetAllUserInfoDTO userInfo);
+        Task<GeneralResponse> ChangeUserPassword(ChangePasswordDTO changePasswordDTO);
     }
 }
