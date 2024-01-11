@@ -7,10 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="Pages\Counter.razor" />
+    <None Include="Pages\Home.razor" />
+    <None Include="Pages\Login.razor" />
+    <None Include="Pages\Register.razor" />
+    <None Include="Pages\Weather.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0" PrivateAssets="all" />
+    <PackageReference Include="MudBlazor" Version="6.12.0" />
+    <PackageReference Include="Radzen.Blazor" Version="4.23.8" />
   </ItemGroup>
 
   <ItemGroup>
