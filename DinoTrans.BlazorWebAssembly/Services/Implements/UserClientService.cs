@@ -2,6 +2,7 @@
 using DinoTrans.Shared.DTOs;
 using DinoTrans.Shared.GenericModels;
 using DinoTrans.Shared.Services.Interfaces;
+using DinoTrans.Shared.DTOs.UserResponse;
 using static DinoTrans.Shared.DTOs.ServiceResponses;
 
 namespace DinoTrans.BlazorWebAssembly.Services.Implements
@@ -10,17 +11,17 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
     public class UserClientService : IUserService
     {
         private readonly HttpClient _httpClient;
-/*        private readonly IConfiguration _configuration;
+        private readonly IConfiguration _configuration;
         private readonly ILocalStorageService _localStorageService;
-*/        private const string BaseUrl = "api/User";
+        private const string BaseUrl = "api/User";
 
         // Constructor nhận các dependency thông qua dependency injection
-        public UserClientService(HttpClient httpClient/*, IConfiguration configuration, ILocalStorageService localStorageService*/)
+        public UserClientService(HttpClient httpClient, IConfiguration configuration, ILocalStorageService localStorageService)
         {
             _httpClient = httpClient;
-/*            _configuration = configuration;
+            _configuration = configuration;
             _localStorageService = localStorageService;
-*/        }
+        }
 
         // Phương thức để tạo tài khoản người dùng thông qua API
         public async Task<GeneralResponse> CreateAccount(UserDTO userDTO)
@@ -56,6 +57,40 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
 
             var apiResponse = await response.Content.ReadAsStringAsync();
             return Generics.DeserializeJsonString<LoginResponse>(apiResponse);
+        }
+
+        public async Task<ResponseModel<UserInfoResponseDTO>> GetAllUserInfo(GetAllUserInfoDTO userDTO)
+        {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var response = await _httpClient
+                .GetAsync($"{BaseUrl}/GetAllUserInfo?UserId={userDTO.UserId}&LocationId={userDTO.LocationId}&CompanyId={userDTO.CompanyId}");
+
+            //Read Response
+            if (!response.IsSuccessStatusCode) return new ResponseModel<UserInfoResponseDTO>
+            {
+                Success = false,
+                ResponseCode = "500",
+                Message = "Internal Server Error"
+            };
+
+            var apiResponse = await response.Content.ReadAsStringAsync();
+            return Generics.DeserializeJsonString<ResponseModel<UserInfoResponseDTO>>(apiResponse);
+        }
+
+        public async Task<GeneralResponse> ChangeUserPassword(ChangePasswordDTO changePasswordDTO)
+        {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var response = await _httpClient
+                .PutAsync($"{BaseUrl}/ChangePassword",
+                Generics.GenerateStringContent(Generics.SerializeObj(changePasswordDTO)));
+
+            //Read Response
+            if (!response.IsSuccessStatusCode) return new GeneralResponse(false, "Internal server error");
+
+            var apiResponse = await response.Content.ReadAsStringAsync();
+            return Generics.DeserializeJsonString<GeneralResponse>(apiResponse);
         }
     }
 }

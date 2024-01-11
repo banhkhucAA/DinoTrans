@@ -11,4 +11,13 @@ namespace DinoTrans.Shared.DTOs
         public record GeneralResponse(bool Flag, string Message); //Định nghĩa lớp dữ liệu không thay đổi với các thuộc tính
         public record LoginResponse(bool Flag, string Token, string Message);
     }
+
+    public class ResponseModel<T> where T : class
+    {
+        public T Data { get; set; }
+        public bool Success { get; set; }
+        public string Message { get; set; }
+        public string ResponseCode { get; set; }
+
+    }
 }

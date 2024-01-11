@@ -1,0 +1,180 @@
+﻿@page "/UserInformation/UserId={myUserId:int}&LocationId={myLocationId:int}&CompanyId={myCompanyId:int}"
+<h3>UserInformation</h3>
+@inject IUserService UserService
+
+@* <RadzenTabsItem Text="Orders">
+    <RadzenDataList PageSize="6" WrapItems="true" AllowPaging="true" Data="@orders" TItem="Order">
+        <Template Context="order">
+            <RadzenCard Style="width: 250px;" Class="rz-border-radius-3">
+                <RadzenRow Gap="0.5rem">
+                    <RadzenColumn Size="8" Class="rz-text-truncate">
+                        <RadzenBadge BadgeStyle="BadgeStyle.Light" Text=@($"{order.OrderID}") Class="rz-mr-1" IsPill="true" />
+                        <RadzenText TextStyle="TextStyle.Caption" Class="rz-mb-0">@(order.ShipName)</RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="4" Class="rz-text-align-right">
+                        <RadzenBadge BadgeStyle="BadgeStyle.Secondary" Shade="Shade.Lighter" Text=@($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", order.Freight)}") IsPill="true" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <hr style="border: none; background-color: rgba(0,0,0,.08); height: 1px; margin: 1rem 0;" />
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem">
+                    <RadzenImage Path="@order.Employee?.Photo" Class="rz-border-radius-10" Style="width: 80px; height: 80px;" AlternateText="@(order.Employee?.FirstName + " " + order.Employee?.LastName)" />
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Subtitle1" Class="rz-mb-0"><strong>@(order.Employee?.FirstName + " " + order.Employee?.LastName)</strong></RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2" Class="rz-mb-0">@order.ShipAddress</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Caption" Class="rz-mb-0">@(order.ShipCity), @(order.ShipCountry)</RadzenText>
+                        </RadzenStack>
+                    </RadzenStack>
+                </RadzenCard>
+            </Template>
+        </RadzenDataList>
+    </RadzenTabsItem>
+    <RadzenTabsItem Text="Employee">
+        <RadzenDataGrid ColumnWidth="150px" AllowFiltering="true" AllowPaging="true" PageSize="5" AllowSorting="true" Data="@employees" TItem="Employee">
+            <Columns>
+                <RadzenDataGridColumn TItem="Employee" Property="Photo" Title="Photo" Sortable="false" Filterable="false" Width="80px">
+                    <Template Context="data">
+                        <RadzenImage Path="@data?.Photo" Style="width: 40px; height: 40px; border-radius: 8px;" AlternateText="@(data.FirstName + " " + data.LastName)" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Employee" Property="LastName" Title="Last Name" />
+                <RadzenDataGridColumn TItem="Employee" Property="FirstName" Title="First Name" />
+                <RadzenDataGridColumn TItem="Employee" Property="EmployeeID" Title="Employee ID" />
+                <RadzenDataGridColumn TItem="Employee" Property="Title" Title="Title" />
+                <RadzenDataGridColumn TItem="Employee" Property="BirthDate" Title="Birth Date">
+                    <Template Context="data">
+                        @String.Format("{0:d}", data.BirthDate)
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Employee" Property="HireDate" Title="Hire Date">
+                <Template Context="data">
+                    @String.Format("{0:d}", data.HireDate)
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Employee" Property="Address" Title="Address" />
+            <RadzenDataGridColumn TItem="Employee" Property="City" Title="City" />
+            <RadzenDataGridColumn TItem="Employee" Property="Region" Title="Region" />
+            <RadzenDataGridColumn TItem="Employee" Property="PostalCode" Title="Postal Code" />
+            <RadzenDataGridColumn TItem="Employee" Property="Country" Title="Country" />
+            <RadzenDataGridColumn TItem="Employee" Property="HomePhone" Title="Home Phone" />
+            <RadzenDataGridColumn TItem="Employee" Property="Extension" Title="Extension" />
+            <RadzenDataGridColumn TItem="Employee" Property="Notes" Title="Notes" />
+        </Columns>
+    </RadzenDataGrid>
+</RadzenTabsItem> *@
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    User Information
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">First Name</dt>
+                        <dd class="col-sm-8">@userInfo.FirstName</dd>
+
+                        <dt class="col-sm-4">Last Name</dt>
+                        <dd class="col-sm-8">@userInfo.LastName</dd>
+
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">@userInfo.Email</dd>
+
+                        <dt class="col-sm-4">Phone Number</dt>
+                        <dd class="col-sm-8">@userInfo.PhoneNumber</dd>
+
+                        <dt class="col-sm-4">Address</dt>
+                        <dd class="col-sm-8">@userInfo.Address</dd>
+
+                        <dt class="col-sm-4">Role</dt>
+                        <dd class="col-sm-8">@userInfo.Role</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    Company Information
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Company Name</dt>
+                        <dd class="col-sm-8">@company.CompanyName</dd>
+
+                        <dt class="col-sm-4">Company Email</dt>
+                        <dd class="col-sm-8">@company.CompanyEmail</dd>
+
+                        <dt class="col-sm-4">Company Phone Number</dt>
+                        <dd class="col-sm-8">@company.CompanyPhoneNumber</dd>
+
+                        <dt class="col-sm-4">Company Role</dt>
+                        <dd class="col-sm-8">@company.CompanyRoleName</dd>
+
+                        <dt class="col-sm-4">Company Address</dt>
+                        <dd class="col-sm-8">@company.CompanyAddress</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    My Location
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5>@myLocation.LocationName</h5>
+                        <p>@myLocation.LocationAddress</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    Other Locations
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        @foreach (var item in otherLocations)
+                        {
+                            <h5>@item.LocationName</h5>
+                            <p>@item.LocationAddress</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int myUserId { get; set; }
+    [Parameter]
+    public int myLocationId { get; set; }
+    [Parameter]
+    public int myCompanyId { get; set; }
+    private UserInfo userInfo = new();
+    private CompanyInfo company = new();
+    private LocationInfo myLocation = new();
+    private List<LocationInfo> otherLocations = new();
+    bool sidebarExpanded = false;
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await UserService.GetAllUserInfo(new GetAllUserInfoDTO
+        {
+            UserId = myUserId,
+            LocationId = myLocationId,
+            CompanyId = myCompanyId
+        });
+        if(response.Success)
+        {
+            myLocation = response.Data.Company.Locations.FirstOrDefault(l => l.IsMyLocation);
+            otherLocations = response.Data.Company.Locations.Where(l => l.LocationId != myLocation.LocationId).ToList();
+            userInfo = response.Data.UserInfo;
+            company = response.Data.Company;
+        }
+    }
+}
