@@ -16,6 +16,28 @@ namespace DinoTrans.Shared.Data
 
         }
         public DbSet<Company>Companies { get; set; }
-        public DbSet<Location>Locations { get; set; }  
+        public DbSet<ContructionMachine> ContructionMachines { get; set; }
+        public DbSet<Tender> Tenders { get; set; }
+        public DbSet<TenderBid> TenderBids { get; set; }
+        public DbSet<TenderBidTransportation> TenderBidTransportations { get; set; }
+        public DbSet<TenderContructionMachine> TenderContructionMachines { get; set; }
+        public DbSet<Transportation> Transportations { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<TenderBid>(e =>
+            {
+                e.HasOne(m => m.Tender).WithMany().OnDelete(DeleteBehavior.NoAction);
+            });
+            modelBuilder.Entity<TenderContructionMachine>(e =>
+            {
+                e.HasOne(m => m.Tender).WithMany().OnDelete(DeleteBehavior.NoAction);
+            });
+            modelBuilder.Entity<TenderBidTransportation>(e =>
+            {
+                e.HasOne(m => m.TenderBid).WithMany().OnDelete(DeleteBehavior.NoAction);
+            });
+        }
     }
 }

@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DinoTrans.Shared.Contracts
+namespace DinoTrans.Shared.DTOs
 {
-    public class LocationName
+    public class IsAdminConfirmDTO
     {
-        public const string HeadOffice = "HeadOffice";
+        public bool IsAdminConfirm { get; set; }
+
     }
 }

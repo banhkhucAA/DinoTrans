@@ -9,7 +9,6 @@ namespace DinoTrans.Shared.DTOs
     public class GetAllUserInfoDTO
     {
         public int UserId { get; set; }
-        public int LocationId { get; set; }
         public int CompanyId { get; set; }
     }
 }

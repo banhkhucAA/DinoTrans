@@ -74,7 +74,6 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 //Repositories
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
-builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();

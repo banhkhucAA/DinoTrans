@@ -34,14 +34,6 @@ namespace DinoTrans.Shared.DTOs.UserResponse
         public CompanyRoleEnum CompanyRole { get; set; }
         public string CompanyRoleName { get; set; } = string.Empty;
         public string CompanyAddress { get; set; } = string.Empty;
-        public List<LocationInfo> Locations { get; set; }
     }
 
-    public class LocationInfo()
-    {
-        public int LocationId { get; set; }
-        public string LocationName { get; set; } = string.Empty;
-        public string LocationAddress { get; set; } = string.Empty;
-        public bool IsMyLocation { get; set; }
-    }
 }

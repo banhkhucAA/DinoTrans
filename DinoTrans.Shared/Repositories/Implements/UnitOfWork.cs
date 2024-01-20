@@ -20,11 +20,11 @@ namespace DinoTrans.Shared.Repositories.Implements
             Context.SaveChanges();
         }
 
-/*        public void Dispose()
+        public void Dispose()
         {
             Context.Dispose();
         }
-*/
+
         public void BeginTransaction()
         {
             if (Context.Database.CurrentTransaction != null)

@@ -12,9 +12,9 @@ namespace DinoTrans.Shared.Entities
     {
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
-        public int? LocationId { get; set; }
+        public int? CompanyId { get; set; }
         public string? Address { get; set; }
-        [ForeignKey("LocationId")]
-        public virtual Location? Location { get; set; }
+        [ForeignKey("CompanyId")]
+        public virtual Company? Company { get; set; }
     }
 }

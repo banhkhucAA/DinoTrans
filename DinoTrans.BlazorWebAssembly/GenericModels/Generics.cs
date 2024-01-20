@@ -24,6 +24,7 @@ namespace DinoTrans.Shared.GenericModels
                 new(ClaimTypes.Name, model.Name!),
                 new(ClaimTypes.Email, model.Email!),
                 new(ClaimTypes.Role, model.Role!),
+                new("CompanyId", model.CompanyId!)
             }, "JwtAuth"));
         }
 
@@ -37,7 +38,8 @@ namespace DinoTrans.Shared.GenericModels
             string Name = claims.First(c => c.Type == ClaimTypes.Name).Value!;
             string Email = claims.First(c => c.Type == ClaimTypes.Email).Value!;
             string Role = claims.First(c => c.Type == ClaimTypes.Role).Value!;
-            return new UserSession(Id, Name, Email, Role);
+            string CompanyId = claims.First(c => c.Type == "CompanyId").Value!;
+            return new UserSession(Id, Name, Email, Role,CompanyId);
         }
 
         // Phương thức để chuyển đối tượng thành chuỗi JSON

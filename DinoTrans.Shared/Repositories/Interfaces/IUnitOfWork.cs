@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DinoTrans.Shared.Repositories.Interfaces
 {
-    public interface IUnitOfWork /*: IDisposable*/
+    public interface IUnitOfWork : IDisposable
     {
         DinoTransDbContext Context { get; }
         void BeginTransaction();

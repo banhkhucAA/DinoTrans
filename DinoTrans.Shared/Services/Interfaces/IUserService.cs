@@ -15,5 +15,6 @@ namespace DinoTrans.Shared.Services.Interfaces
         Task<LoginResponse> LoginAccount(LoginDTO loginDTO);
         Task<ResponseModel<UserInfoResponseDTO>> GetAllUserInfo(GetAllUserInfoDTO userInfo);
         Task<GeneralResponse> ChangeUserPassword(ChangePasswordDTO changePasswordDTO);
+        Task<GeneralResponse> UpdateIsAdminConfirm();
     }
 }

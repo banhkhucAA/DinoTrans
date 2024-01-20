@@ -64,7 +64,7 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
             string token = await _localStorageService.GetItemAsStringAsync("token");
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             var response = await _httpClient
-                .GetAsync($"{BaseUrl}/GetAllUserInfo?UserId={userDTO.UserId}&LocationId={userDTO.LocationId}&CompanyId={userDTO.CompanyId}");
+                .GetAsync($"{BaseUrl}/GetAllUserInfo?UserId={userDTO.UserId}&CompanyId={userDTO.CompanyId}");
 
             //Read Response
             if (!response.IsSuccessStatusCode) return new ResponseModel<UserInfoResponseDTO>
@@ -92,5 +92,20 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
             var apiResponse = await response.Content.ReadAsStringAsync();
             return Generics.DeserializeJsonString<GeneralResponse>(apiResponse);
         }
+        public async Task<GeneralResponse> UpdateIsAdminConfirm()
+        {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var response = await _httpClient
+                .PutAsync($"{BaseUrl}/UpdateAdminConfirm",null);
+
+            //Read Response
+            if (!response.IsSuccessStatusCode) return new GeneralResponse(false, "Internal server error");
+
+            var apiResponse = await response.Content.ReadAsStringAsync();
+            return Generics.DeserializeJsonString<GeneralResponse>(apiResponse);
+
+        }
+
     }
 }
