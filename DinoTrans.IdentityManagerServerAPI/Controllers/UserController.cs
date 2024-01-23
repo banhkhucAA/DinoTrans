@@ -51,5 +51,14 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
             var response = await _userService.UpdateIsAdminConfirm();
             return Ok(response);
         }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetCompanyRole([FromQuery] int companyId)
+        {
+            var response = await _userService.GetCompanyRole(companyId);
+            return Ok(response);
+        }
+
     }
 }

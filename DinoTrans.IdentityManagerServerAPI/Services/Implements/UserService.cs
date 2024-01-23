@@ -285,5 +285,20 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 return new GeneralResponse(false, $"Đã xảy ra lỗi: {ex.Message}");
             }
         }
+        //khi kiểu dữ liệu trả về có bao gồm async Task<T> bên trong hàm có thể sẽ có 1 thao tác phải xử lý bất đồng bộ
+        public async Task<ResponseModel<CompanyRoleEnum>> GetCompanyRole(int CompanyId)
+        {
+            var getCompanyRole = await _companyRepository
+            .AsNoTracking()
+                .Where(c => c.Id == CompanyId)
+                .Select(c => c.Role)
+                .FirstOrDefaultAsync();
+            return new ResponseModel<CompanyRoleEnum>
+            {
+                Data = getCompanyRole,
+                Success = true
+            };
+        }
+
     }
 }
