@@ -12,7 +12,7 @@ namespace DinoTrans.Shared.DTOs
         public record LoginResponse(bool Flag, string Token, string Message);
     }
 
-    public class ResponseModel<T> where T : class
+    public class ResponseModel<T> 
     {
         public T Data { get; set; }
         public bool Success { get; set; }
