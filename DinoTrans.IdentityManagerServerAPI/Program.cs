@@ -77,9 +77,11 @@ builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+builder.Services.AddScoped<ITenderRepository, TenderRepository>();
 
 //Services
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITenderService, TenderService>();
 
 
 

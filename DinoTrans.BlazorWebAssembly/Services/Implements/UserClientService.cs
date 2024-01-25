@@ -4,6 +4,8 @@ using DinoTrans.Shared.GenericModels;
 using DinoTrans.Shared.Services.Interfaces;
 using DinoTrans.Shared.DTOs.UserResponse;
 using static DinoTrans.Shared.DTOs.ServiceResponses;
+using AutoMapper.Configuration;
+using DinoTrans.Shared.Contracts;
 
 namespace DinoTrans.BlazorWebAssembly.Services.Implements
 {
@@ -106,6 +108,25 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
             return Generics.DeserializeJsonString<GeneralResponse>(apiResponse);
 
         }
+        public async Task<ResponseModel<CompanyRoleEnum>> GetCompanyRole(int CompanyId)
+        {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var response = await _httpClient
+                .GetAsync($"{BaseUrl}/GetCompanyRole?companyId={CompanyId}");
+
+            //Read Response
+            if (!response.IsSuccessStatusCode) return new ResponseModel<CompanyRoleEnum>
+            {
+                Success = false,
+                Message = $"Cant get company Role with Id = {CompanyId}"
+            };
+
+            var apiResponse = await response.Content.ReadAsStringAsync();
+            return Generics.DeserializeJsonString<ResponseModel<CompanyRoleEnum>>(apiResponse);
+
+        }
+
 
     }
 }

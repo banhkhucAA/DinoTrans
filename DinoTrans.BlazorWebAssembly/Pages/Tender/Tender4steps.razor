@@ -1,10 +1,21 @@
 ﻿<div class="row text-center">
-    <div class="col-4">Step 1. Tender period </div>
-    <div class="col-4">Step 2. Construction machinery & equipment details</div>
-    <div class="col-4">Step 3. Tender review</div>
+    <RadzenSteps NextText="" NextTitle="" PreviousText="" PreviousTitle="" SelectedIndex="@SelectedStepIndex" >
+        <Steps>
+            <RadzenStepsItem Text="Step 1. Tender period " Disabled >
+                <!-- ... (nội dung của step 1) -->
+            </RadzenStepsItem>
+            <RadzenStepsItem Text="Step 2. Construction machinery & equipment details" Disabled>
+                <!-- ... (nội dung của step 2) -->
+            </RadzenStepsItem>
+            <RadzenStepsItem Text="Step 3. Tender review" Disabled>
+                <!-- ... (nội dung của step 3) -->
+            </RadzenStepsItem>
+        </Steps>
+    </RadzenSteps>
     <br />
     <br />
 </div>
-@code {
 
+@code {
+    [Parameter] public int SelectedStepIndex { get; set; }
 }

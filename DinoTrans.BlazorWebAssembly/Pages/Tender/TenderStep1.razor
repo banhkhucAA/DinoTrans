@@ -1,40 +1,59 @@
 ﻿@page "/tender/step1"
+@inject ITenderService TenderService
 <PageTitle>Tender Wizard</PageTitle>
-<Tender4steps></Tender4steps>
-<EditForm Model="tender_1">
-    <div class="column">
-        <div class="form-group col-md-12 row">
-            <div class="col-md-6">
-                <label class="form-label">
-                    Please select the tender start date *
-                </label>
-                <input type="date" @bind="tender_1.TenderStartDate" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">
-                    Please select the tender end date *
-                </label>
-                <input type="date" @bind="tender_1.TenderEndDate" class="form-control" />
-            </div>
-        </div>
-
-        <div class="form-group col-md-12 row">
-            <div class="col-md-6">
-                <label class="form-label">
-                    Please select the tender start time *
-                </label>
-                <input type="time" @bind="tender_1.TenderStartTime" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">
-                    Please select the tender end time *
-                </label>
-                <input type="time" @bind="tender_1.TenderEndTime" class="form-control" />
-            </div>
-        </div>
+<div class="card">
+    <div class="card-header">
+        <Tender4steps SelectedStepIndex="@selectedStepIndex"></Tender4steps>
     </div>
-</EditForm>
+    <div class="card-body">
+        <EditForm Model="tender_1">
+            <div class="column">
+                <div class="form-group col-md-12 row">
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Please select the tender start date *
+                        </label>
+                        <input type="date" @bind="tender_1.TenderStartDate" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Please select the tender end date *
+                        </label>
+                        <input type="date" @bind="tender_1.TenderEndDate" class="form-control" />
+                    </div>
+                </div>
 
-@code{
-    public CreateTenderStep1DTO tender_1 {get;set;} = new(); 
+                <div class="form-group col-md-12 row">
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Please select the tender start time *
+                        </label>
+                        <input type="time" @bind="tender_1.TenderStartTime" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Please select the tender end time *
+                        </label>
+                        <input type="time" @bind="tender_1.TenderEndTime" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row float-end me-4">
+                <button class="btn btn-primary mt-4" @onclick=HandleNextStep type="submit">Next step</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    public CreateTenderStep1DTO tender_1 { get; set; } = new();
+    private int selectedStepIndex = 0;
+
+    private async void HandleNextStep()
+    {
+        var result = await TenderService.CreateTenderStep1(tender_1);
+        if(selectedStepIndex <2)
+        selectedStepIndex++;
+    }
 }
