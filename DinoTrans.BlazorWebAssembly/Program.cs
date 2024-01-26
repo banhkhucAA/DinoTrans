@@ -24,6 +24,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStat
 builder.Services.AddScoped<IUserService, UserClientService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<ITenderService, TenderClientService>();
 
 builder.Services.AddMudServices();
 builder.Services.AddRadzenComponents();

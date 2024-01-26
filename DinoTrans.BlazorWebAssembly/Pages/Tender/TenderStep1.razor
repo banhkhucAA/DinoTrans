@@ -1,0 +1,133 @@
+﻿@inject ITenderService TenderService
+@inject AuthenticationStateProvider AuthenticationState
+@inject IUserService UserService
+@inject IJSRuntime js
+<div class="card-body">
+    <EditForm Model="tender_1">
+        <div class="column">
+            <div class="form-group col-md-12 row">
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Please select the tender start date *
+                    </label>
+                    <input type="date" @bind="tender_1.TenderStartDate" class="form-control" />
+                    @if(ErrorStartDate != null)
+                    {
+                        <div style="color:red">@ErrorStartDate</div>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Please select the tender end date *
+                    </label>
+                    <input type="date" @bind="tender_1.TenderEndDate" class="form-control" />
+                    @if (ErrorStartDate != null)
+                    {
+                        <div style="color:red">@ErrorEndDate</div>
+                    }
+                </div>
+            </div>
+
+            <div class="form-group col-md-12 row">
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Please select the tender start time *
+                    </label>
+                    <input type="time" @bind="tender_1.TenderStartTime" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Please select the tender end time *
+                    </label>
+                    <input type="time" @bind="tender_1.TenderEndTime" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row float-end me-4">
+            <button class="btn btn-primary mt-4" @onclick=HandleNextStep type="submit">Next step</button>
+        </div>
+    </EditForm>
+</div>
+
+@code{
+
+    [Parameter]
+    public int CompanyId { get; set; }
+    public ConvertDateTime tender_1 = new ConvertDateTime
+    {
+        TenderStartDate = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day),
+        TenderEndDate = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day),
+        TenderStartTime = new TimeOnly(DateTime.Now.Hour, DateTime.Now.Minute),
+        TenderEndTime = new TimeOnly(DateTime.Now.Hour + 1, DateTime.Now.Minute),
+    };
+    [Parameter]
+    public EventCallback<TenderChangeStepDTO> OnStepChange { get; set; }
+    public DinoTrans.Shared.Entities.Tender newTender { get; set; } = new();
+    public int selectedStepIndex = 0;
+    public AuthenticationState? authState = null;
+    private ResponseModel<CompanyRoleEnum> response = new();
+    private CompanyRoleEnum companyRole = new();
+    public string? ErrorStartDate { get; set; } = null;
+    public string? ErrorEndDate { get; set; } = null;
+    public bool IsError { get; set; }
+    private async Task HandleNextStep()
+    {
+        ErrorStartDate = null;
+        ErrorEndDate = null;
+        DateTime startDate = DateTime.Parse($"{tender_1.TenderStartDate} {tender_1.TenderStartTime}");
+        DateTime endDate = DateTime.Parse($"{tender_1.TenderEndDate} {tender_1.TenderEndTime}");
+        var minutes = TimeSpan.FromMinutes(5);
+        if (startDate < DateTime.Now - minutes)
+        {
+            ErrorStartDate = "Can't create a new tender with Start Date smaller than now";
+            IsError = true;
+        }
+        if (endDate < DateTime.Now - minutes)
+        {
+            ErrorEndDate = "Can't create a new tender with End Date smaller than now";
+            IsError = true;
+        }
+        if(startDate > endDate)
+        {
+            ErrorStartDate = "Can't create a new tender with Start Date greater than End Date";
+            ErrorEndDate = "Can't create a new tender with Start Date greater than End Date";
+            IsError = true;
+        }
+        if (IsError) return;
+        var result = await TenderService.CreateTenderStep1(new CreateTenderStep1DTO
+        {
+            CompanyShipperId = CompanyId,
+            TenderStartDate = startDate,
+            TenderEndDate = endDate
+        });
+        if (result.Success)
+        {
+            if (selectedStepIndex < 2)
+            {
+                selectedStepIndex++;
+                var resultContent = result.Data;
+                await OnStepChange.InvokeAsync(new TenderChangeStepDTO
+                {
+                    CurrentStep = selectedStepIndex,
+                    Tender = new Shared.Entities.Tender
+                    {
+                        Id = resultContent.Id,
+                        TenderStatus = resultContent.TenderStatus,
+                        CompanyShipperId = resultContent.CompanyShipperId,
+                        CompanyCarrierId = resultContent.CompanyCarrierId,
+                        StartDate = resultContent.StartDate,
+                        EndDate = resultContent.EndDate,
+                        FinalPrice = resultContent.FinalPrice,
+                        IsCarrierComfirm = resultContent.IsCarrierComfirm,
+                        IsShipperComfirm = resultContent.IsShipperComfirm
+                    }
+                });
+            }
+        }
+        else
+        {
+            await js.InvokeVoidAsync("alert", result.Message);
+        }
+    }
+}
