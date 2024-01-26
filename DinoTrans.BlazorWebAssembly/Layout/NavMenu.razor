@@ -1,5 +1,6 @@
 ﻿@inject AuthenticationStateProvider AuthenticationState
 @inject IUserService userService
+@inject NavigationManager NavManager
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">DinoTrans.BlazorWebAssembly</a>
@@ -29,7 +30,7 @@
         @if (authState != null && authState.User.Identity.IsAuthenticated && (companyRole == CompanyRoleEnum.Admin || companyRole == CompanyRoleEnum.Shipper))
         {
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="tender/step1">
+                <NavLink class="nav-link" href="@($"tender/CompanyId={CompanyId}")">
                     <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Tender
                 </NavLink>
             </div>
@@ -44,6 +45,7 @@
     private bool IsChangeStep = false;
     public AuthenticationState? authState = null;
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    public int CompanyId = new();
     protected override async Task OnInitializedAsync()
     {
         var customState = (CustomAuthenticationStateProvider)AuthenticationState;
@@ -52,7 +54,16 @@
         {
             var companyId = int.Parse(authState.User.FindFirstValue("CompanyId"));
             response = await userService.GetCompanyRole(companyId);
-            if (response.Success) companyRole = response.Data;
+            if (response.Success) 
+            {
+                CompanyId = companyId;
+                if(companyRole == CompanyRoleEnum.Admin || companyRole == CompanyRoleEnum.Shipper)
+                companyRole = response.Data;
+            }
+        }
+        else
+        {
+            NavManager.NavigateTo("/login");
         }
     }
 

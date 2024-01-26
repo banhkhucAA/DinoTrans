@@ -1,0 +1,70 @@
+﻿<div class="card-body">
+    <EditForm Model="InputStep2">
+        <div class="column">
+            <div class="form-group col-md-12 row">
+                <header>Pick-up date & time</header>
+                <div class="col-md-6">                
+                    <label class="form-label">
+                        Please select the pick-up date *
+                    </label>
+                    <input type="date" @bind="InputStep2.DateTimeConvert.TenderStartDate" class="form-control" />
+                    @* @if (ErrorStartDate != null)
+                    {
+                        <div style="color:red">@ErrorStartDate</div>
+                    } *@
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Please select the delivery date *
+                    </label>
+                    <input type="date" @bind="InputStep2.DateTimeConvert.TenderEndDate" class="form-control" />
+                    @* @if (ErrorStartDate != null)
+                    {
+                        <div style="color:red">@ErrorEndDate</div>
+                    } *@
+                </div>
+            </div>
+
+            <div class="form-group col-md-12 row">
+                <header>Deliver date & time</header>
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Please select the pick-up time *
+                    </label>
+                    <input type="time" @bind="InputStep2.DateTimeConvert.TenderStartTime" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Please select the delivery time *
+                    </label>
+                    <input type="time" @bind="InputStep2.DateTimeConvert.TenderEndTime" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row float-end me-4">
+            <button class="btn btn-primary mt-4" type="submit" @onclick="OnHandleSubmit">Next step</button>
+        </div>
+    </EditForm>
+</div>
+@code {
+    [Parameter]
+    public DinoTrans.Shared.Entities.Tender? NewTender { get; set; } = null;
+    public ConvertStep2 InputStep2 { get; set; } = new();
+    protected override async Task OnInitializedAsync()
+    {
+        var endDateString = NewTender.EndDate.ToString("yyyy-MM-dd");
+        DateOnly enddateOnly = DateOnly.Parse(endDateString);
+        InputStep2.DateTimeConvert = new ConvertDateTime();
+        InputStep2.DateTimeConvert.TenderEndDate = enddateOnly.AddDays(1);
+        InputStep2.DateTimeConvert.TenderStartDate = enddateOnly.AddDays(1);
+        InputStep2.DateTimeConvert.TenderStartTime = new();
+        InputStep2.DateTimeConvert.TenderEndTime = InputStep2.DateTimeConvert.TenderStartTime.AddHours(1);
+    }
+
+    private void OnHandleSubmit()
+    {
+        
+    }
+
+}
