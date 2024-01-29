@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DinoTrans.Shared.GenericModels
 {
@@ -33,6 +34,13 @@ namespace DinoTrans.Shared.GenericModels
         {
             var handler = new JwtSecurityTokenHandler();
             var token = handler.ReadJwtToken(jwtToken);
+            DateTime expirationTime = token.ValidTo;
+
+            if (expirationTime < DateTime.UtcNow)
+            {
+                // Token đã hết hạn, xử lý tùy ý (ví dụ: throw exception, return null, ...)
+                return null;
+            }
             var claims = token.Claims;
             string Id = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value!;
             string Name = claims.First(c => c.Type == ClaimTypes.Name).Value!;
