@@ -29,11 +29,16 @@ namespace DinoTrans.BlazorWebAssembly.Authentication
 
                 // Lấy claims từ JWT token
                 var claims = Generics.GetClaimsFromToken(stringToken);
-
-                // Tạo ClaimsPrincipal từ các claims và gán vào AuthenticationState
-                var claimsPrincipal = Generics.SetClaimPrinciple(claims);
-
-                return await Task.FromResult(new AuthenticationState(claimsPrincipal));
+                if (claims != null)
+                {
+                    var claimsPrincipal = Generics.SetClaimPrinciple(claims);
+                    return await Task.FromResult(new AuthenticationState(claimsPrincipal));
+                }
+                else
+                {
+                    await _localStorageService.RemoveItemAsync("token");
+                    return await Task.FromResult(new AuthenticationState(anonymous));
+                };
             }
             catch
             {
