@@ -5,6 +5,13 @@
 <div class="card-body">
     <EditForm Model="tender_1">
         <div class="column">
+            <div class="form-group col-md-12">
+                    <label class="form-label">
+                        Tên thầu *
+                    </label>
+                    <input type="text" @bind="tender_1.TenderName" class="form-control" />
+            </div>
+
             <div class="form-group col-md-12 row">
                 <div class="col-md-6">
                     <label class="form-label">
@@ -54,8 +61,9 @@
 
     [Parameter]
     public int CompanyId { get; set; }
-    public ConvertDateTime tender_1 = new ConvertDateTime
+    public ConvertStep1 tender_1 = new ConvertStep1
     {
+        TenderName = "",
         TenderStartDate = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day),
         TenderEndDate = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day),
         TenderStartTime = new TimeOnly(DateTime.Now.Hour, DateTime.Now.Minute),
@@ -77,6 +85,7 @@
         ErrorEndDate = null;
         DateTime startDate = DateTime.Parse($"{tender_1.TenderStartDate} {tender_1.TenderStartTime}");
         DateTime endDate = DateTime.Parse($"{tender_1.TenderEndDate} {tender_1.TenderEndTime}");
+        string tenderName = tender_1.TenderName;
         var minutes = TimeSpan.FromMinutes(5);
         if (startDate < DateTime.Now - minutes)
         {
@@ -98,6 +107,7 @@
         var result = await TenderService.CreateTenderStep1(new CreateTenderStep1DTO
         {
             CompanyShipperId = CompanyId,
+            TenderName = tenderName,
             TenderStartDate = startDate,
             TenderEndDate = endDate
         });
@@ -114,13 +124,23 @@
                     {
                         Id = resultContent.Id,
                         TenderStatus = resultContent.TenderStatus,
+                        Name = resultContent.Name,
                         CompanyShipperId = resultContent.CompanyShipperId,
                         CompanyCarrierId = resultContent.CompanyCarrierId,
                         StartDate = resultContent.StartDate,
                         EndDate = resultContent.EndDate,
                         FinalPrice = resultContent.FinalPrice,
                         IsCarrierComfirm = resultContent.IsCarrierComfirm,
-                        IsShipperComfirm = resultContent.IsShipperComfirm
+                        IsShipperComfirm = resultContent.IsShipperComfirm,
+                        PickUpDate = resultContent.PickUpDate,
+                        DeiliverDate = resultContent.DeiliverDate,
+                        PickUpAddress = resultContent.PickUpAddress,
+                        PickUpContact = resultContent.PickUpContact,
+                        DeliveryAddress = resultContent.DeliveryAddress,
+                        DeliveryContact = resultContent.DeliveryContact,
+                        ContructionMachineNotes = resultContent.ContructionMachineNotes,
+                        Documentations = resultContent.Documentations
+
                     }
                 });
             }
@@ -131,3 +151,4 @@
         }
     }
 }
+

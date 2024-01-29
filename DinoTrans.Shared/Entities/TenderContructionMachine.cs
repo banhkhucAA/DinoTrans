@@ -12,13 +12,6 @@ namespace DinoTrans.Shared.Entities
         public int Id { get; set; }
         public int TenderId { get; set; }
         public int ContructionMachineId { get; set; }
-        public DateTime PickUpDate { get; set; }
-        public DateTime DeiliverDate { get; set; }
-        public string PickUpAddress { get; set; }
-        public string PickUpContact { get; set; }
-        public string DeliveryAddress { get; set; }
-        public string DeliveryContact { get; set; }
-        public string? ContructionMachineNotes { get; set; }
         [ForeignKey("TenderId")]
         public virtual Tender? Tender { get; set; }
         [ForeignKey("ContructionMachineId")]

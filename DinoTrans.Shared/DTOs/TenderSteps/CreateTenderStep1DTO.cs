@@ -8,6 +8,7 @@ namespace DinoTrans.Shared.DTOs.TenderSteps
 {
     public class CreateTenderStep1DTO
     {
+        public string TenderName { get; set; }
         public int CompanyShipperId { get; set; }
         public DateTime TenderStartDate { get; set; }
         public DateTime TenderEndDate { get; set; }

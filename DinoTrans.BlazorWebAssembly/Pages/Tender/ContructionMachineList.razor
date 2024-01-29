@@ -1,0 +1,42 @@
+﻿    <table class="table">
+        <thead>
+            <tr>
+                <th>Ảnh</th>
+                <th>Tên</th>
+                <th>Thương hiệu</th>
+                <th>Số sêri</th>
+                <th>Chiều dài</th>
+                <th>Chiều rộng</th>
+                <th>Chiều cao</th>
+                <th>Trọng lượng</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in contructionMachines)
+            {
+                <tr>
+                    <td>@item.Image</td>
+                    <td>@item.Name</td>
+                    <td>@item.Brand</td>
+                    <td>@item.SerialNumber</td>
+                    <td>@item.Length</td>
+                    <td>@item.Width</td>
+                    <td>@item.Height</td>
+                    <td>@item.Weight</td>
+                    <td>
+                    <button class="btn btn-primary"></button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+@code {
+    List<ContructionMachine>? contructionMachines = new List<ContructionMachine>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        //contructionMachines = await ;
+    }
+
+}

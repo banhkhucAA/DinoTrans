@@ -1,49 +1,124 @@
-﻿<div class="card-body">
+﻿
+<div class="card-body">
     <EditForm Model="InputStep2">
         <div class="column">
-            <div class="form-group col-md-12 row">
-                <header>Pick-up date & time</header>
-                <div class="col-md-6">                
-                    <label class="form-label">
-                        Please select the pick-up date *
-                    </label>
-                    <input type="date" @bind="InputStep2.DateTimeConvert.TenderStartDate" class="form-control" />
-                    @* @if (ErrorStartDate != null)
-                    {
-                        <div style="color:red">@ErrorStartDate</div>
-                    } *@
+            @* Thời gian nhận hàng và thời gian giao hàng *@
+            <div class="col-md-12 row">
+                <div class="form-group col-md-6 column">
+                    <header>Thời gian nhận hàng</header>
+                    <div class="col-md-12">                
+                        <label class="form-label">
+                            Ngày nhận  hàng*
+                        </label>
+                        <input type="date" @bind="InputStep2.PickUpDate" class="form-control" />
+                        @* @if (ErrorStartDate != null)
+                        {
+                            <div style="color:red">@ErrorStartDate</div>
+                        } *@
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">
+                            Giờ nhận  hàng*
+                        </label>
+                        <input type="time" @bind="InputStep2.PickUpTime" class="form-control" />
+                        @* @if (ErrorStartDate != null)
+                        {
+                            <div style="color:red">@ErrorEndDate</div>
+                        } *@
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">
-                        Please select the delivery date *
-                    </label>
-                    <input type="date" @bind="InputStep2.DateTimeConvert.TenderEndDate" class="form-control" />
-                    @* @if (ErrorStartDate != null)
-                    {
+                <div class="form-group col-md-6 column">
+                    <header>Thời gian giao hàng</header>
+                    <div class="col-md-12">
+                        <label class="form-label">
+                            Ngày giao hàng*
+                        </label>
+                        <input type="date" @bind="InputStep2.DeliveryDate" class="form-control" />
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">
+                            Giờ giao hàng *
+                        </label>
+                        <input type="time" @bind="InputStep2.DeliveryTime" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            @*  Máy cần vận chuyển *@
+            <div class="col-md-12">
+                <header>Thông tin máy xây dựng</header>
+                <ContructionMachineList></ContructionMachineList>
+            </div>
+            @*Địa chỉ và liên lạc nhận hàng và giao hàng*@
+            <div class="col-md-12 row">
+                <div class="form-group col-md-6 column">
+                    <header>Thông tin nhận hàng</header>
+                    <div class="col-md-12">
+                        <label class="form-label">
+                            Địa chỉ nhận hàng *
+                        </label>
+                        <input type="text" @bind="InputStep2.PickUpAddress" class="form-control" />
+                        @* @if (ErrorStartDate != null)
+                        {
+                        <div style="color:red">@ErrorStartDate</div>
+                        } *@
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">
+                            Liên hệ nhận hàng *
+                        </label>
+                        <input type="text" @bind="InputStep2.ContactAtPickUpAddress" class="form-control" />
+                        @* @if (ErrorStartDate != null)
+                        {
                         <div style="color:red">@ErrorEndDate</div>
-                    } *@
+                        } *@
+                    </div>
+                </div>
+                <div class="form-group col-md-6 column">
+                    <header>Thông tin giao hàng</header>
+                    <div class="col-md-12">
+                        <label class="form-label">
+                            Địa chỉ giao hàng *
+                        </label>
+                        <input type="text" @bind="InputStep2.DeliveryAddress" class="form-control" />
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">
+                            Liên hệ giao hàng *
+                        </label>
+                        <input type="text" @bind="InputStep2.ContactAtDeliveryAddress" class="form-control" />
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group col-md-12 row">
-                <header>Deliver date & time</header>
-                <div class="col-md-6">
-                    <label class="form-label">
-                        Please select the pick-up time *
-                    </label>
-                    <input type="time" @bind="InputStep2.DateTimeConvert.TenderStartTime" class="form-control" />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">
-                        Please select the delivery time *
-                    </label>
-                    <input type="time" @bind="InputStep2.DateTimeConvert.TenderEndTime" class="form-control" />
-                </div>
-            </div>
+            @*Ghi chú và tài liệu*@
+            <div class="col-md-12 row">
+                    <header>Mô tả và tài liệu đính kèm</header>
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Mô tả *
+                        </label>
+                        <input type="text" @bind="InputStep2.Notes" class="form-control" />
+                        @* @if (ErrorStartDate != null)
+                        {
+                        <div style="color:red">@ErrorStartDate</div>
+                        } *@
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Tài liệu đính kèm *
+                        </label>
+                        <input type="text" @bind="InputStep2.Documentations" class="form-control" />
+                        @* @if (ErrorStartDate != null)
+                        {
+                        <div style="color:red">@ErrorEndDate</div>
+                        } *@
+                    </div>
+             </div>
+
         </div>
 
         <div class="form-group row float-end me-4">
-            <button class="btn btn-primary mt-4" type="submit" @onclick="OnHandleSubmit">Next step</button>
+            <button class="btn btn-primary mt-4" type="submit" @onclick="OnHandleSubmit">Bước tiếp theo</button>
         </div>
     </EditForm>
 </div>
@@ -55,11 +130,16 @@
     {
         var endDateString = NewTender.EndDate.ToString("yyyy-MM-dd");
         DateOnly enddateOnly = DateOnly.Parse(endDateString);
-        InputStep2.DateTimeConvert = new ConvertDateTime();
-        InputStep2.DateTimeConvert.TenderEndDate = enddateOnly.AddDays(1);
-        InputStep2.DateTimeConvert.TenderStartDate = enddateOnly.AddDays(1);
-        InputStep2.DateTimeConvert.TenderStartTime = new();
-        InputStep2.DateTimeConvert.TenderEndTime = InputStep2.DateTimeConvert.TenderStartTime.AddHours(1);
+        InputStep2.PickUpDate = enddateOnly.AddDays(1);
+        InputStep2.DeliveryDate = enddateOnly.AddDays(1);
+        InputStep2.PickUpTime = new();
+        InputStep2.DeliveryTime = InputStep2.PickUpTime.AddHours(1);
+        InputStep2.PickUpAddress = "";
+        InputStep2.DeliveryAddress = "";
+        InputStep2.ContactAtPickUpAddress = "";
+        InputStep2.ContactAtDeliveryAddress = "";
+        InputStep2.Notes = "";
+        InputStep2.Documentations = "";
     }
 
     private void OnHandleSubmit()

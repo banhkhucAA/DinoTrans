@@ -17,5 +17,6 @@ namespace DinoTrans.Shared.DTOs.TenderSteps
         public string ContactAtPickUpAddress { get; set; }
         public string ContactAtDeliveryAddress { get; set; }
         public string Notes { get; set; }
+        public string Documentations { get; set; }
     }
 }

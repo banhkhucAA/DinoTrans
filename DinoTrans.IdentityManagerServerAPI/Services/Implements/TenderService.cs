@@ -30,6 +30,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             {
                 TenderStatus = TenderStatuses.Draft,
                 CompanyShipperId = dto.CompanyShipperId,
+                Name = dto.TenderName,
                 StartDate = dto.TenderStartDate,
                 EndDate = dto.TenderEndDate
             };
