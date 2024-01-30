@@ -78,11 +78,12 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<ITenderRepository, TenderRepository>();
+builder.Services.AddScoped<IContructionMachineRepository, ContructionMachineRepository>();
+
 
 //Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITenderService, TenderService>();
-
 
 
 var app = builder.Build();
