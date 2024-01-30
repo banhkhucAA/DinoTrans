@@ -25,9 +25,11 @@ builder.Services.AddScoped<IUserService, UserClientService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<ITenderService, TenderClientService>();
+builder.Services.AddScoped<IConstructionMachineService, ConstructionMachineClientService>();
 
 builder.Services.AddMudServices();
 builder.Services.AddRadzenComponents();
+builder.Services.AddBlazorBootstrap();
 
 await builder.Build().RunAsync();
 

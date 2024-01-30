@@ -1,4 +1,4 @@
-﻿
+﻿@inject IConstructionMachineService ConstructionMachineServcie
 <div class="card-body">
     <EditForm Model="InputStep2">
         <div class="column">
@@ -10,7 +10,7 @@
                         <label class="form-label">
                             Ngày nhận  hàng*
                         </label>
-                        <input type="date" @bind="InputStep2.PickUpDate" class="form-control" />
+                        <input type="date" @bind="InputStep2.PickUpDate" class="form-control" @oninput="SearchOnInputChange" />
                         @* @if (ErrorStartDate != null)
                         {
                             <div style="color:red">@ErrorStartDate</div>
@@ -20,7 +20,7 @@
                         <label class="form-label">
                             Giờ nhận  hàng*
                         </label>
-                        <input type="time" @bind="InputStep2.PickUpTime" class="form-control" />
+                        <input type="time" @bind="InputStep2.PickUpTime" class="form-control" @oninput="SearchOnInputChange" />
                         @* @if (ErrorStartDate != null)
                         {
                             <div style="color:red">@ErrorEndDate</div>
@@ -33,13 +33,13 @@
                         <label class="form-label">
                             Ngày giao hàng*
                         </label>
-                        <input type="date" @bind="InputStep2.DeliveryDate" class="form-control" />
+                        <input type="date" @bind="InputStep2.DeliveryDate" class="form-control" @oninput="SearchOnInputChange" />
                     </div>
                     <div class="col-md-12">
                         <label class="form-label">
                             Giờ giao hàng *
                         </label>
-                        <input type="time" @bind="InputStep2.DeliveryTime" class="form-control" />
+                        <input type="time" @bind="InputStep2.DeliveryTime" class="form-control" @oninput="SearchOnInputChange" />
                     </div>
                 </div>
             </div>
@@ -47,9 +47,22 @@
             <div class="col-md-12">
                 <div class="row">
                     <header class="col-md-6">Thông tin máy xây dựng</header>
-                    <NewConstructionMachineDialog></NewConstructionMachineDialog>
+                    <NewConstructionMachineDialog addedmachine="recallAPI" CompanyId="CompanyId"></NewConstructionMachineDialog>
                 </div>                
-                <ContructionMachineList></ContructionMachineList>
+            </div>
+            <div>
+                <input type="text" class="form-control" @bind="searchText" @oninput="recallAPI" placeholder ="Search for construction machinery & equipment..." />
+            </div>
+            <ContructionMachineList contructionMachines="contructionMachines" ></ContructionMachineList>
+            <div class="float-end">
+                <Pagination ActivePageNumber="@currentPageNumber"
+                            TotalPages="TotalPage"
+                            DisplayPages="2"
+                            FirstLinkIcon="IconName.ChevronDoubleLeft"
+                            PreviousLinkIcon="IconName.ChevronLeft"
+                            NextLinkIcon="IconName.ChevronRight"
+                            LastLinkIcon="IconName.ChevronDoubleRight" 
+                            PageChanged="OnPageChangedAsync" />
             </div>
             @*Địa chỉ và liên lạc nhận hàng và giao hàng*@
             <div class="col-md-12 row">
@@ -128,7 +141,14 @@
 @code {
     [Parameter]
     public DinoTrans.Shared.Entities.Tender? NewTender { get; set; } = null;
+    [Parameter]
+    public int CompanyId { get; set; }
     public ConvertStep2 InputStep2 { get; set; } = new();
+    public SearchLoadForTenderDTO searchLoadForTenderDTO = new();
+    public List<ContructionMachine> contructionMachines = new();
+    public int TotalPage { get; set; }
+    public int currentPageNumber = 1;
+    public string searchText { get; set; } = "";
     protected override async Task OnInitializedAsync()
     {
         var endDateString = NewTender.EndDate.ToString("yyyy-MM-dd");
@@ -143,11 +163,45 @@
         InputStep2.ContactAtDeliveryAddress = "";
         InputStep2.Notes = "";
         InputStep2.Documentations = "";
+        await SearchOnInputChange();
     }
 
     private void OnHandleSubmit()
     {
-        
+
+    }
+    private async Task SearchOnInputChange()
+    {
+        if (InputStep2.PickUpDate != null && InputStep2.DeliveryDate != null && InputStep2.PickUpTime != null && InputStep2.DeliveryTime != null)
+        {
+            DateTime startDate = DateTime.Parse($"{InputStep2.PickUpDate} {InputStep2.PickUpTime}");
+            DateTime endDate = DateTime.Parse($"{InputStep2.DeliveryDate} {InputStep2.DeliveryTime}");
+            searchLoadForTenderDTO = new SearchLoadForTenderDTO
+            {
+                pageIndex = currentPageNumber,
+                pageSize = 5,
+                SearchText = searchText,
+                TenderId = NewTender.Id,
+                PickUpDate = startDate,
+                DeliveryDate = endDate
+            };
+            var response = await ConstructionMachineServcie.SearchConstructionMachineForTender(searchLoadForTenderDTO);
+            if(response.Success)
+            {
+                contructionMachines = response.Data.contructionMachines;
+                TotalPage = response.Data.TotalPage;
+            }
+        }
     }
 
+    private async Task OnPageChangedAsync(int newPageNumber)
+    {
+        await Task.Run(() => { currentPageNumber = newPageNumber; });
+        await SearchOnInputChange();
+    }
+
+    private async Task recallAPI()
+    {
+        await SearchOnInputChange();
+    }
 }
