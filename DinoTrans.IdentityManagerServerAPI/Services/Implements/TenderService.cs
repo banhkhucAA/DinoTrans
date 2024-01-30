@@ -4,6 +4,12 @@ using DinoTrans.Shared.Entities;
 using DinoTrans.Shared.Repositories.Interfaces;
 using DinoTrans.Shared.Services.Interfaces;
 using DinoTrans.Shared.Contracts;
+using DinoTrans.Shared.DTOs.ContructionMachine;
+using static DinoTrans.Shared.DTOs.ServiceResponses;
+using DinoTrans.Shared.Repositories.Implements;
+using Microsoft.AspNetCore.Identity;
+using DinoTrans.Shared.DTOs.UserResponse;
+using Microsoft.EntityFrameworkCore;
 
 namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
 {
@@ -11,20 +17,23 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
     {
         private readonly ITenderRepository _tenderRepository;
         private readonly ICompanyRepository _companyRepository;
+        private readonly IContructionMachineRepository _contructionMachineRepository;
 
         public TenderService(ITenderRepository tenderRepository,
-            ICompanyRepository companyRepository)
+            ICompanyRepository companyRepository, 
+            IContructionMachineRepository contructionMachineRepository)
         {
             _tenderRepository = tenderRepository;
             _companyRepository = companyRepository;
+            _contructionMachineRepository = contructionMachineRepository;
         }
 
         public async Task<ResponseModel<Tender>> CreateTenderStep1(CreateTenderStep1DTO dto)
         {
-            var companyShipper = _companyRepository
+            var companyShipper = await _companyRepository
                 .AsNoTracking()
                 .Where(c => c.Id == dto.CompanyShipperId)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
             if(companyShipper == null ) { }
             var newTender = new Tender()
             {

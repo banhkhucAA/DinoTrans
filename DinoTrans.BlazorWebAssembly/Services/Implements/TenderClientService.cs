@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using DinoTrans.Shared.DTOs;
+using DinoTrans.Shared.DTOs.ContructionMachine;
 using DinoTrans.Shared.DTOs.TenderSteps;
 using DinoTrans.Shared.Entities;
 using DinoTrans.Shared.GenericModels;
@@ -39,6 +40,11 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
 
             var apiResponse = await response.Content.ReadAsStringAsync();
             return Generics.DeserializeJsonString<ResponseModel<Tender>>(apiResponse);
+        }
+
+        public Task<GeneralResponse> CreateContructionMachine(CreateContructionMachineDTO dto)
+        {
+            throw new NotImplementedException();
         }
     }
 }
