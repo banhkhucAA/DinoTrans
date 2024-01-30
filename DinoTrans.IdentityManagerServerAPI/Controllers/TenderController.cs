@@ -26,13 +26,5 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
             var result = await _tenderService.CreateTenderStep1(dto);
             return Ok(result);
         }
-
-        [HttpPost]
-        //[Authorize]
-        public async Task<IActionResult> CreateContructionMachine(CreateContructionMachineDTO dto)
-        {
-            var result = await _tenderService.CreateContructionMachine(dto);
-            return Ok(result);
-        }
     }
 }

@@ -9,6 +9,7 @@ using static DinoTrans.Shared.DTOs.ServiceResponses;
 using DinoTrans.Shared.Repositories.Implements;
 using Microsoft.AspNetCore.Identity;
 using DinoTrans.Shared.DTOs.UserResponse;
+using Microsoft.EntityFrameworkCore;
 
 namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
 {
@@ -29,10 +30,10 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
 
         public async Task<ResponseModel<Tender>> CreateTenderStep1(CreateTenderStep1DTO dto)
         {
-            var companyShipper = _companyRepository
+            var companyShipper = await _companyRepository
                 .AsNoTracking()
                 .Where(c => c.Id == dto.CompanyShipperId)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
             if(companyShipper == null ) { }
             var newTender = new Tender()
             {
@@ -51,62 +52,5 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 Data = newTender
             };
         }
-
-        public async Task<GeneralResponse> CreateContructionMachine(CreateContructionMachineDTO dto)
-        {
-            if (dto is null) return new GeneralResponse(false, "Model is empty");
-            try
-            {
-                // Kiểm tra xem máy đã có trong cơ sở dữ liệu hay chưa
-                var existingContructionMachine = _contructionMachineRepository
-                    .AsNoTracking()
-                    .Where(c => c.SerialNumber == dto.SerialNumber)
-                    .FirstOrDefault();
-
-                if (existingContructionMachine != null)
-                {
-                    return new GeneralResponse(false, "Máy đã tồn tại");
-                }
-
-                //Kiểm tra công ty có tồn tại không
-                var findCompany = _companyRepository
-                .AsNoTracking()
-                .Where(c => c.Id == dto.CompanyShipperId)
-                .FirstOrDefault();
-                if (findCompany == null)
-                {
-                    return new GeneralResponse(false, "Company not found");
-                }
-
-                // Tiếp tục kiểm tra Role 
-                if (findCompany.Role == CompanyRoleEnum.Carrier)
-                {
-                    return new GeneralResponse(false, "Forbidden");
-                }
-
-                // Thêm máy mới
-                var newContructionMachine = new ContructionMachine
-                {
-                    Name = dto.Name,
-                    Brand = dto.Brand,
-                    SerialNumber = dto.SerialNumber,
-                    Image = dto.Image,
-                    Height = dto.Height,
-                    Weight = dto.Weight,
-                    Length = dto.Length,
-                    Width = dto.Width,
-                    CompanyShipperId = dto.CompanyShipperId
-                };
-                _contructionMachineRepository.Add(newContructionMachine);
-                _contructionMachineRepository.SaveChange();
-
-                return new GeneralResponse(true, "Thêm mới máy thành công");
-            }
-            catch (Exception ex)
-            {
-                return new GeneralResponse(false, ex.Message);
-            }
-        }
-
     }
 }

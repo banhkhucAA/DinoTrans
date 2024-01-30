@@ -9,6 +9,6 @@ namespace DinoTrans.Shared.Services.Interfaces
     public interface ITenderService
     {
         Task<ResponseModel<Tender>> CreateTenderStep1(CreateTenderStep1DTO dto);
-        Task<GeneralResponse> CreateContructionMachine(CreateContructionMachineDTO dto);
+       
     }
 }

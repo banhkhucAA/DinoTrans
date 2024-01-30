@@ -1,0 +1,95 @@
+﻿@inject IJSRuntime js
+@inject IConstructionMachineService ConstructionMachineService
+
+<div class="col-md-6" >
+    <button style="max-width:150px" class="float-end me-4 btn btn-primary" onclick="document.getElementById('my-dialog').showModal()">
+        Tạo mới máy
+    </button>
+    <dialog style="position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); min-width:500px; min-height:500px" id="my-dialog">
+        <EditForm Model="newConstructionMachine">
+            <div class="card">
+                <div class="column">
+                    <div class="card-header text-center column">
+                        <img src="/images/ModelConstruction.png" />
+                        <div>Create new construction machine</div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="form-group mt-3">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" @bind="newConstructionMachine.Name" class="form-control" />
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label class="form-label">Brand</label>
+                            <input type="text" @bind="newConstructionMachine.Brand" class="form-control" />
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label class="form-label">SerialNumber</label>
+                            <input type="text" @bind="newConstructionMachine.SerialNumber" class="form-control" />
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label class="form-label">Length</label>
+                            <input type="number" @bind="newConstructionMachine.Length" class="form-control" />
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label class="form-label">Width</label>
+                            <input type="number" @bind="newConstructionMachine.Width" class="form-control" />
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label class="form-label">Height</label>
+                            <input type="number" @bind="newConstructionMachine.Height" class="form-control" />
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label class="form-label">Weight</label>
+                            <input type="number" @bind="newConstructionMachine.Weight" class="form-control" />
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label class="form-label">Add an Image</label>
+                            <input type="text" @bind="newConstructionMachine.Image" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="card-footer row">
+                        <div class="form-group col-md-6">
+                            <button class="btn btn-secondary ms-2" type="submit" @onclick="Close">Cancel</button>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <button style="max-width:100px" class="btn btn-primary float-end me-2" type="submit" @onclick="CreateMachine">Create</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </dialog>
+</div>
+
+@code {
+    CreateContructionMachineDTO newConstructionMachine = new();
+    [Parameter]
+    public int CompanyId { get; set; }
+    [Parameter]
+    public EventCallback addedmachine { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        newConstructionMachine.CompanyShipperId = CompanyId;
+    }
+
+    async void Close()
+    {
+        await js.InvokeVoidAsync("closeModal");
+    }
+
+    async Task CreateMachine()
+    {
+        var result = await ConstructionMachineService.CreateContructionMachine(newConstructionMachine);
+        if(result.Flag)
+        {
+            await addedmachine.InvokeAsync();
+        }
+    }
+}
