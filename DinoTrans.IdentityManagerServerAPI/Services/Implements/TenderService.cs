@@ -17,11 +17,11 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
     {
         private readonly ITenderRepository _tenderRepository;
         private readonly ICompanyRepository _companyRepository;
-        private readonly IContructionMachineRepository _contructionMachineRepository;
+        private readonly IConstructionMachineRepository _contructionMachineRepository;
 
         public TenderService(ITenderRepository tenderRepository,
             ICompanyRepository companyRepository, 
-            IContructionMachineRepository contructionMachineRepository)
+            IConstructionMachineRepository contructionMachineRepository)
         {
             _tenderRepository = tenderRepository;
             _companyRepository = companyRepository;

@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace DinoTrans.Shared.Repositories.Implements
 {
-    public class ContructionMachineRepository : Repository<ContructionMachine>, IContructionMachineRepository
+    public class ConstructionMachineRepository : Repository<ContructionMachine>, IConstructionMachineRepository
     {
-        public ContructionMachineRepository(DinoTransDbContext context) : base(context)
+        public ConstructionMachineRepository(DinoTransDbContext context) : base(context)
         {
         }
     }

@@ -13,12 +13,12 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
 {
     public class ConstructionMachineService : IConstructionMachineService
     {
-        private readonly IContructionMachineRepository _contructionMachineRepository;
+        private readonly IConstructionMachineRepository _contructionMachineRepository;
         private readonly ICompanyRepository _companyRepository;
         private readonly ITenderRepository _tenderRepository;
         private readonly ITenderConstructionMachineRepository _tenderConstructionMachineRepository;
 
-        public ConstructionMachineService(IContructionMachineRepository contructionMachineRepository,
+        public ConstructionMachineService(IConstructionMachineRepository contructionMachineRepository,
             ICompanyRepository companyRepository,
             ITenderRepository tenderRepository,
             ITenderConstructionMachineRepository tenderConstructionMachineRepository)

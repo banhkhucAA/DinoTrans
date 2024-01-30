@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DinoTrans.Shared.Repositories.Interfaces
 {
-    public interface IContructionMachineRepository : IRepository<ContructionMachine>
+    public interface IConstructionMachineRepository : IRepository<ContructionMachine>
     {
     }
 }
