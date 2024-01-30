@@ -22,5 +22,6 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
             var result = await _tenderService.CreateTenderStep1(dto);
             return Ok(result);
         }
+
     }
 }

@@ -78,10 +78,17 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<ITenderRepository, TenderRepository>();
+builder.Services.AddScoped<IContructionMachineRepository, ContructionMachineRepository>();
+builder.Services.AddScoped<ITenderContructionMachineRepository, TenderContructionMachineRepository>();
+
+
 
 //Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITenderService, TenderService>();
+builder.Services.AddScoped<IContructionMachineService, ContructionMachineService>();
+builder.Services.AddScoped<ITenderContructionMachineService, TenderContructionMachineService>();
+
 
 
 
