@@ -1,8 +1,10 @@
 ﻿@inject IJSRuntime js
 @inject IConstructionMachineService ConstructionMachineService
+@using System
+@using System.IO
 
 <div class="col-md-6" >
-    <button style="max-width:150px" class="float-end me-4 btn btn-primary" onclick="document.getElementById('my-dialog').showModal()">
+    <button style="max-width:150px" class="float-end me-4 btn btn-primary" @onclick="OpenDialog">
         Tạo mới máy
     </button>
     <dialog style="position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); min-width:500px; min-height:500px" id="my-dialog">
@@ -48,10 +50,9 @@
                             <label class="form-label">Weight</label>
                             <input type="number" @bind="newConstructionMachine.Weight" class="form-control" />
                         </div>
-
                         <div class="form-group mt-3">
-                            <label class="form-label">Add an Image</label>
-                            <input type="text" @bind="newConstructionMachine.Image" class="form-control" />
+                            <label class="form-label">Add Images</label>
+                            <InputFile OnChange="@HandleFileSelection" multiple />
                         </div>
                     </div>
                     <div class="card-footer row">
@@ -65,18 +66,45 @@
                 </div>
             </div>
         </EditForm>
+
+        @if(errors.Count > 0)
+        {
+            <h2>Errors</h2>
+            <ul class="text-danger">
+                @foreach(var item in errors)
+                {
+                    <li>@item</li>
+                }
+            </ul>
+        }
     </dialog>
 </div>
 
 @code {
+    private long maxFileSize = 1024 * 1024 * 3;
+    private int maxAllowedFiles = 3;
+    private List<string> errors = new();
+    private List<IBrowserFile> loadedFiles = new();
     CreateContructionMachineDTO newConstructionMachine = new();
     [Parameter]
     public int CompanyId { get; set; }
     [Parameter]
     public EventCallback addedmachine { get; set; }
+    [Parameter]
+    public EventCallback<bool> CallDefaultEvent { get; set; }
+    [Parameter]
+    public bool IsDefaultEvent { get; set; } = false;
+    private string imagePath = "C:\\Users\\aaa\\Desktop\\DinoTrans\\DinoTrans.BlazorWebAssembly\\wwwroot\\images\\ConstructionMachine";
+    private List<string> MyImages { get; set; } = new();
+
     protected override async Task OnInitializedAsync()
     {
         newConstructionMachine.CompanyShipperId = CompanyId;
+    }
+
+    void HandleFileSelection(InputFileChangeEventArgs e)
+    {
+        loadedFiles = e.GetMultipleFiles().ToList();
     }
 
     async void Close()
@@ -84,12 +112,66 @@
         await js.InvokeVoidAsync("closeModal");
     }
 
-    async Task CreateMachine()
+    async Task OpenDialog()
     {
-        var result = await ConstructionMachineService.CreateContructionMachine(newConstructionMachine);
-        if(result.Flag)
+        if (IsDefaultEvent == true)
+        {
+            IsDefaultEvent = false;
+            await CallDefaultEvent.InvokeAsync(IsDefaultEvent);
+            return;
+        }
+        await js.InvokeVoidAsync("myJavaScriptFunction");
+    }
+
+    private async Task<ResponseModel<object>> CreateMachine()
+    {
+        var result = new ServiceResponses.GeneralResponse(false,"");
+        if (loadedFiles.Count > maxAllowedFiles)
+        {
+            errors.Add($"Error: Attemping to upload {loadedFiles.Count} files, but only {maxAllowedFiles} files are allowed");
+            return new ResponseModel<object>
+            {
+                Message = "Fail to add images",
+                Success = false,
+                Data = errors
+            };
+        };
+        if (loadedFiles.Count > 0)
+        {
+            try
+            {
+                foreach (var file in loadedFiles)
+                {
+                    string newFileName = Path.ChangeExtension(Path.GetRandomFileName(), Path.GetExtension(file.Name));
+                    string path = Path.Combine(imagePath, newFileName);
+                    Directory.CreateDirectory(imagePath);
+                    await using FileStream fs = new FileStream(path, FileMode.Create);
+                    await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                    MyImages.Add(path);
+
+                }
+                result = await ConstructionMachineService.CreateContructionMachine(newConstructionMachine);
+                if (result.Flag)
+                {
+                    await addedmachine.InvokeAsync();
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                errors.Add(ex.Message);
+            }
+        }
+        result = await ConstructionMachineService.CreateContructionMachine(newConstructionMachine);
+        if (result.Flag)
         {
             await addedmachine.InvokeAsync();
         }
+        return new ResponseModel<object>
+        {
+            Message = result.Message,
+            Success = result.Flag
+        };
+
     }
 }

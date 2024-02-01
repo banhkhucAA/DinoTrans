@@ -4,6 +4,7 @@ using DinoTrans.Shared.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DinoTrans.IdentityManagerServerAPI.Migrations
 {
     [DbContext(typeof(DinoTransDbContext))]
-    partial class DinoTransDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240201090224_UpdateConstructionMachine")]
+    partial class UpdateConstructionMachine
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -177,7 +180,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Companies", (string)null);
+                    b.ToTable("Companies");
                 });
 
             modelBuilder.Entity("DinoTrans.Shared.Entities.ContructionMachine", b =>
@@ -222,7 +225,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Migrations
 
                     b.HasIndex("CompanyShipperId");
 
-                    b.ToTable("ContructionMachines", (string)null);
+                    b.ToTable("ContructionMachines");
                 });
 
             modelBuilder.Entity("DinoTrans.Shared.Entities.Tender", b =>
@@ -291,7 +294,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Migrations
 
                     b.HasIndex("CompanyShipperId");
 
-                    b.ToTable("Tenders", (string)null);
+                    b.ToTable("Tenders");
                 });
 
             modelBuilder.Entity("DinoTrans.Shared.Entities.TenderBid", b =>
@@ -326,7 +329,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Migrations
 
                     b.HasIndex("TenderId");
 
-                    b.ToTable("TenderBids", (string)null);
+                    b.ToTable("TenderBids");
                 });
 
             modelBuilder.Entity("DinoTrans.Shared.Entities.TenderBidTransportation", b =>
@@ -353,7 +356,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Migrations
 
                     b.HasIndex("TransportationId");
 
-                    b.ToTable("TenderBidTransportations", (string)null);
+                    b.ToTable("TenderBidTransportations");
                 });
 
             modelBuilder.Entity("DinoTrans.Shared.Entities.TenderContructionMachine", b =>
@@ -376,7 +379,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Migrations
 
                     b.HasIndex("TenderId");
 
-                    b.ToTable("TenderContructionMachines", (string)null);
+                    b.ToTable("TenderContructionMachines");
                 });
 
             modelBuilder.Entity("DinoTrans.Shared.Entities.Transportation", b =>
@@ -409,7 +412,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Migrations
 
                     b.HasIndex("CompanyCarrierId");
 
-                    b.ToTable("Transportations", (string)null);
+                    b.ToTable("Transportations");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

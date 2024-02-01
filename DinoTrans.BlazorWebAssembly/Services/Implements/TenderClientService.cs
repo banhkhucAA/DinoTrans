@@ -41,10 +41,5 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
             var apiResponse = await response.Content.ReadAsStringAsync();
             return Generics.DeserializeJsonString<ResponseModel<Tender>>(apiResponse);
         }
-
-        public Task<GeneralResponse> CreateContructionMachine(CreateContructionMachineDTO dto)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

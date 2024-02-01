@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace DinoTrans.Shared.Entities
 {
@@ -19,6 +22,20 @@ namespace DinoTrans.Shared.Entities
         public float Width { get; set; }
         public float Height { get; set; }
         public float Weight { get; set; }
+        [NotMapped]
+        public List<string> ImageDeserializeJson
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(Image))
+                {
+                    return JsonConvert.DeserializeObject<List<string>>(Image);
+                }
+
+                return new List<string>();
+            }
+            set => Image = JsonConvert.SerializeObject(value);
+        }
         [ForeignKey("CompanyShipperId")]
         public virtual Company? CompanyShipper { get; set; }
     }

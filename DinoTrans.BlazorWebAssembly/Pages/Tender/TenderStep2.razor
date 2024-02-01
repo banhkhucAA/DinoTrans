@@ -1,4 +1,5 @@
-﻿@inject IConstructionMachineService ConstructionMachineServcie
+﻿@inject IConstructionMachineService ConstructionMachineService
+@inject IJSRuntime js
 <div class="card-body">
     <EditForm Model="InputStep2">
         <div class="column">
@@ -47,11 +48,13 @@
             <div class="col-md-12">
                 <div class="row">
                     <header class="col-md-6">Thông tin máy xây dựng</header>
-                    <NewConstructionMachineDialog addedmachine="recallAPI" CompanyId="CompanyId"></NewConstructionMachineDialog>
+                    <NewConstructionMachineDialog IsDefaultEvent=IsDefaultEvent CallDefaultEvent=HandleDefaultEvent addedmachine="recallAPI" CompanyId="CompanyId"></NewConstructionMachineDialog>
                 </div>                
             </div>
             <div>
-                <input type="text" class="form-control" @bind="searchText" @oninput="recallAPI" placeholder ="Search for construction machinery & equipment..." />
+                <input type="text" class="form-control" value="@searchText"
+                       @onchange="@((ChangeEventArgs e) => ChangeText(e))"
+                       placeholder="Search for construction machinery & equipment..." />
             </div>
             <ContructionMachineList contructionMachines="contructionMachines" ></ContructionMachineList>
             <div class="float-end">
@@ -149,6 +152,8 @@
     public int TotalPage { get; set; }
     public int currentPageNumber = 1;
     public string searchText { get; set; } = "";
+    public bool IsDefaultEvent { get; set; } = false;
+
     protected override async Task OnInitializedAsync()
     {
         var endDateString = NewTender.EndDate.ToString("yyyy-MM-dd");
@@ -164,6 +169,7 @@
         InputStep2.Notes = "";
         InputStep2.Documentations = "";
         await SearchOnInputChange();
+
     }
 
     private void OnHandleSubmit()
@@ -185,7 +191,7 @@
                 PickUpDate = startDate,
                 DeliveryDate = endDate
             };
-            var response = await ConstructionMachineServcie.SearchConstructionMachineForTender(searchLoadForTenderDTO);
+            var response = await ConstructionMachineService.SearchConstructionMachineForTender(searchLoadForTenderDTO);
             if(response.Success)
             {
                 contructionMachines = response.Data.contructionMachines;
@@ -203,5 +209,17 @@
     private async Task recallAPI()
     {
         await SearchOnInputChange();
+    }
+
+    private async Task ChangeText(ChangeEventArgs e)
+    {
+        IsDefaultEvent = true;
+        searchText = e?.Value.ToString();
+        await SearchOnInputChange();
+    }
+
+    public void HandleDefaultEvent(bool newStatus)
+    {
+        IsDefaultEvent = newStatus;
     }
 }

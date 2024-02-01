@@ -58,12 +58,18 @@
             {
                 CompanyId = companyId;
                 if(companyRole == CompanyRoleEnum.Admin || companyRole == CompanyRoleEnum.Shipper)
-                companyRole = response.Data;
+                    companyRole = response.Data;
             }
         }
         else
         {
-            NavManager.NavigateTo("/login");
+            if (!NavManager.Uri.Contains("register"))
+            {
+                NavManager.NavigateTo("/login");
+            }else
+            {
+                NavManager.NavigateTo("/register");
+            }
         }
     }
 
