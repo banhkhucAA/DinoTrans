@@ -27,4 +27,8 @@
     <ProjectReference Include="..\DinoTrans.Shared\DinoTrans.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Uploads\" />
+  </ItemGroup>
+
 </Project>

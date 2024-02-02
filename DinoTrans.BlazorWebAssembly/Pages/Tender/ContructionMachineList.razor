@@ -17,7 +17,7 @@
             @foreach (var item in contructionMachines)
             {
                 <tr>
-                    <td>@item.Image</td>
+                    <td><img src="@ImageResult"></td>
                     <td>@item.Name</td>
                     <td>@item.Brand</td>
                     <td>@item.SerialNumber</td>
@@ -35,8 +35,18 @@
 @code {
     [Parameter]
     public List<ContructionMachine>? contructionMachines { get; set; }
+    string ImageResult = "[]";
     protected override async Task OnInitializedAsync()
     {
+        foreach (var item in contructionMachines!)
+        {
+            if (item.ImageDeserializeJson != null && item.ImageDeserializeJson.Count > 0)
+            {
+                var images = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(item.Image!);
+                var result = images!.FirstOrDefault()!["Image_0"];
+                ImageResult = result;
+            }
+        }
     }
 
 }

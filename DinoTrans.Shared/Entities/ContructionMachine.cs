@@ -23,16 +23,16 @@ namespace DinoTrans.Shared.Entities
         public float Height { get; set; }
         public float Weight { get; set; }
         [NotMapped]
-        public List<string> ImageDeserializeJson
+        public List<Dictionary<string,string>> ImageDeserializeJson
         {
             get
             {
                 if (!string.IsNullOrEmpty(Image))
                 {
-                    return JsonConvert.DeserializeObject<List<string>>(Image);
+                    return JsonConvert.DeserializeObject<List<Dictionary<string,string>>>(Image);
                 }
 
-                return new List<string>();
+                return new List<Dictionary<string, string>>();
             }
             set => Image = JsonConvert.SerializeObject(value);
         }

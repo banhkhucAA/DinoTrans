@@ -1,7 +1,6 @@
 ﻿@inject IJSRuntime js
 @inject IConstructionMachineService ConstructionMachineService
-@using System
-@using System.IO
+@inject HttpClient Http
 
 <div class="col-md-6" >
     <button style="max-width:150px" class="float-end me-4 btn btn-primary" @onclick="OpenDialog">
@@ -94,8 +93,8 @@
     public EventCallback<bool> CallDefaultEvent { get; set; }
     [Parameter]
     public bool IsDefaultEvent { get; set; } = false;
-    private string imagePath = "C:\\Users\\aaa\\Desktop\\DinoTrans\\DinoTrans.BlazorWebAssembly\\wwwroot\\images\\ConstructionMachine";
     private List<string> MyImages { get; set; } = new();
+    private List<UploadResult> uploadResults = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -140,15 +139,22 @@
         {
             try
             {
+                using var content = new MultipartFormDataContent();
                 foreach (var file in loadedFiles)
                 {
-                    string newFileName = Path.ChangeExtension(Path.GetRandomFileName(), Path.GetExtension(file.Name));
-                    string path = Path.Combine(imagePath, newFileName);
-                    Directory.CreateDirectory(imagePath);
-                    await using FileStream fs = new FileStream(path, FileMode.Create);
-                    await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
-                    MyImages.Add(path);
-
+                    var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+                    fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+                    MyImages.Add(file.Name);
+                    content.Add(
+                        content: fileContent,
+                        name: "\"files\"",
+                        fileName: file.Name);
+                }
+                var response = await Http.PostAsync("/api/File", content);
+                var newUploadResults = await response.Content.ReadFromJsonAsync<List<UploadResult>>();
+                if(newUploadResults is not null)
+                {
+                    uploadResults = uploadResults.Concat(newUploadResults).ToList();
                 }
                 result = await ConstructionMachineService.CreateContructionMachine(newConstructionMachine);
                 if (result.Flag)
@@ -161,11 +167,6 @@
             {
                 errors.Add(ex.Message);
             }
-        }
-        result = await ConstructionMachineService.CreateContructionMachine(newConstructionMachine);
-        if (result.Flag)
-        {
-            await addedmachine.InvokeAsync();
         }
         return new ResponseModel<object>
         {

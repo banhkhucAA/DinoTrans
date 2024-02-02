@@ -7,6 +7,7 @@ using DinoTrans.Shared.Repositories.Interfaces;
 using DinoTrans.Shared.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using static DinoTrans.Shared.DTOs.ServiceResponses;
 
 namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
@@ -67,13 +68,25 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                     Name = dto.Name,
                     Brand = dto.Brand,
                     SerialNumber = dto.SerialNumber,
-                    Image = dto.Image ?? "",
                     Height = dto.Height,
                     Weight = dto.Weight,
                     Length = dto.Length,
                     Width = dto.Width,
                     CompanyShipperId = dto.CompanyShipperId
                 };
+                var listImage = new List<Dictionary<string,string>>();
+                if (dto.Image != null && dto.Image.Count > 0)
+                {
+                    for(int i = 0; i <  dto.Image.Count; i++) 
+                    {
+                        var newImage = new Dictionary<string, string>()
+                        {
+                            {$"Image_{i}",dto.Image[i] }
+                        };
+                        listImage.Add(newImage);
+                    }
+                    newContructionMachine.Image = JsonConvert.SerializeObject(listImage);
+                }
                 _contructionMachineRepository.Add(newContructionMachine);
                 _contructionMachineRepository.SaveChange();
 

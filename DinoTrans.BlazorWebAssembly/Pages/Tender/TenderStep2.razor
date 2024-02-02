@@ -156,7 +156,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var endDateString = NewTender.EndDate.ToString("yyyy-MM-dd");
+        var endDateString = NewTender!.EndDate.ToString("yyyy-MM-dd");
         DateOnly enddateOnly = DateOnly.Parse(endDateString);
         InputStep2.PickUpDate = enddateOnly.AddDays(1);
         InputStep2.DeliveryDate = enddateOnly.AddDays(1);
@@ -169,7 +169,6 @@
         InputStep2.Notes = "";
         InputStep2.Documentations = "";
         await SearchOnInputChange();
-
     }
 
     private void OnHandleSubmit()
@@ -178,7 +177,7 @@
     }
     private async Task SearchOnInputChange()
     {
-        if (InputStep2.PickUpDate != null && InputStep2.DeliveryDate != null && InputStep2.PickUpTime != null && InputStep2.DeliveryTime != null)
+        try
         {
             DateTime startDate = DateTime.Parse($"{InputStep2.PickUpDate} {InputStep2.PickUpTime}");
             DateTime endDate = DateTime.Parse($"{InputStep2.DeliveryDate} {InputStep2.DeliveryTime}");
@@ -197,6 +196,9 @@
                 contructionMachines = response.Data.contructionMachines;
                 TotalPage = response.Data.TotalPage;
             }
+        }catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
         }
     }
 
