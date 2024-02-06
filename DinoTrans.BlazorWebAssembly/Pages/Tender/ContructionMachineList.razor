@@ -14,10 +14,15 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in contructionMachines)
+            @foreach (var item in constructionMachinesListChooses!)
             {
                 <tr>
-                    <td><img src="@ImageResult"></td>
+                    @{
+                        item.ListImages = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(item.Image!);
+                    }
+                    <td>
+                        <ViewAllConstructionMachinePictures AllPictures="item.ListImages"></ViewAllConstructionMachinePictures>
+                    </td>
                     <td>@item.Name</td>
                     <td>@item.Brand</td>
                     <td>@item.SerialNumber</td>
@@ -25,8 +30,8 @@
                     <td>@item.Width</td>
                     <td>@item.Height</td>
                     <td>@item.Weight</td>
-                    <td>
-                    <button class="btn btn-primary"></button>
+                    <td style="width:@item.ButtonWidth">
+                        <button class="btn @item.ButtonStyle" @onclick="() => OnChooseMachine(item)">@item.ButtonText</button>
                     </td>
                 </tr>
             }
@@ -34,18 +39,24 @@
     </table>
 @code {
     [Parameter]
-    public List<ContructionMachine>? contructionMachines { get; set; }
-    string ImageResult = "[]";
-    protected override async Task OnInitializedAsync()
+    public List<ConstructionMachinesListChoose>? constructionMachinesListChooses { get; set; }
+    public EventCallback<List<int>> ListConstructionMachineIds {get;set;}  
+    public string ImageResult = "[]";
+
+    public void OnChooseMachine(ConstructionMachinesListChoose machine)
     {
-        foreach (var item in contructionMachines!)
+        machine.IsSelected = !machine.IsSelected;
+        if(machine.IsSelected)
         {
-            if (item.ImageDeserializeJson != null && item.ImageDeserializeJson.Count > 0)
-            {
-                var images = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(item.Image!);
-                var result = images!.FirstOrDefault()!["Image_0"];
-                ImageResult = result;
-            }
+            machine.ButtonText = "- Remove Construction Machine";
+            machine.ButtonStyle = "btn-outline-danger";
+            machine.ButtonWidth = "300px";
+        }
+        else
+        {
+            machine.ButtonText = "+ Add Construction Machine";
+            machine.ButtonStyle = "btn-outline-success";
+            machine.ButtonWidth = "260px";
         }
     }
 

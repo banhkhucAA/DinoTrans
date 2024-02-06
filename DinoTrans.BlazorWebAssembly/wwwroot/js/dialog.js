@@ -8,6 +8,14 @@ window.NotOpenDialog = function () {
     elem.open = false;
 }
 
+window.ViewPictures = function () {
+    document.getElementById('dialog-ViewPictures').showModal();;
+}
+
+window.closeModalViewPictures = function () {
+    document.getElementById('dialog-ViewPictures').close();
+}
+
 
 window.closeModal = function () {
     document.getElementById('my-dialog').close();

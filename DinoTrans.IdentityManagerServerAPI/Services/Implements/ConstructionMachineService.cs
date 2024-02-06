@@ -98,6 +98,21 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             }
         }
 
+        public async Task<ResponseModel<List<Dictionary<string, string>>>> GetImages(int MachineId)
+        {
+            var machine = await _contructionMachineRepository
+                .AsNoTracking()
+                .Where(t => t.Id == MachineId)
+                .Select(t => t.ImageDeserializeJson)
+                .FirstOrDefaultAsync();
+
+            return new ResponseModel<List<Dictionary<string, string>>> 
+            { 
+                Data = machine,
+                Success = true
+            };
+        }
+
         public async Task<ResponseModel<SearchConstructionMachineDTO>> SearchConstructionMachineForTender(SearchLoadForTenderDTO dto)
         {
             var tender = await _tenderRepository

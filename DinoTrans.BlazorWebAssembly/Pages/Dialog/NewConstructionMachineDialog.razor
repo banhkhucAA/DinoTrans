@@ -1,7 +1,8 @@
 ﻿@inject IJSRuntime js
 @inject IConstructionMachineService ConstructionMachineService
 @inject HttpClient Http
-
+@inject AuthenticationStateProvider AuthStateProvider
+@using Microsoft.AspNetCore.Hosting
 <div class="col-md-6" >
     <button style="max-width:150px" class="float-end me-4 btn btn-primary" @onclick="OpenDialog">
         Tạo mới máy
@@ -32,26 +33,56 @@
 
                         <div class="form-group mt-3">
                             <label class="form-label">Length</label>
-                            <input type="number" @bind="newConstructionMachine.Length" class="form-control" />
+                            <div class="row">
+                                <div class="col-md-9" style="padding-right:0px">
+                                    <input type="number" @bind="newConstructionMachine.Length" class="form-control" />
+                                </div>
+                                <div class="col-md-3" style="padding-left:0px">
+                                    <button class="btn btn-primary" disabled style="width: 100%;">m</button>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group mt-3">
                             <label class="form-label">Width</label>
-                            <input type="number" @bind="newConstructionMachine.Width" class="form-control" />
+                            <div class="row">
+                                <div class="col-md-9" style="padding-right:0px">
+                                    <input type="number" @bind="newConstructionMachine.Width" class="form-control" />
+                                </div>
+                                <div class="col-md-3" style="padding-left:0px">
+                                    <button class="btn btn-primary" disabled style="width: 100%;">m</button>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group mt-3">
                             <label class="form-label">Height</label>
-                            <input type="number" @bind="newConstructionMachine.Height" class="form-control" />
+                            <div class="row">
+                                <div class="col-md-9" style="padding-right:0px">
+                                    <input type="number" @bind="newConstructionMachine.Height" class="form-control" />
+                                </div>
+                                <div class="col-md-3" style="padding-left:0px">
+                                    <button class="btn btn-primary" disabled style="width: 100%;">m</button>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group mt-3">
                             <label class="form-label">Weight</label>
-                            <input type="number" @bind="newConstructionMachine.Weight" class="form-control" />
+                            <div class="row">
+                                <div class="col-md-9" style="padding-right:0px">
+                                    <input type="number" @bind="newConstructionMachine.Weight" class="form-control" />
+                                </div>
+                                <div class="col-md-3" style="padding-left:0px">
+                                    <button class="btn btn-primary" disabled style="width: 100%;">kg</button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group mt-3">
+                        <div class="form-group mt-3" style="position: relative;">
                             <label class="form-label">Add Images</label>
-                            <InputFile OnChange="@HandleFileSelection" multiple />
+                            <br />
+                            <div style="margin-left:150px; width: 150px; height: 150px; background-image: url('/images/UploadImage.png'); background-size: cover; background-repeat: no-repeat; background-position: center; position: absolute;"></div>
+                            <InputFile OnChange="@HandleFileSelection" multiple style="margin-left:150px; opacity: 0; width: 150px; height: 150px; position: relative; top: 0; left: 0; cursor: pointer;" />
                         </div>
                     </div>
                     <div class="card-footer row">
@@ -150,16 +181,19 @@
                         name: "\"files\"",
                         fileName: file.Name);
                 }
-                var response = await Http.PostAsync("/api/File", content);
+                var response = await Http.PostAsync("/api/File/UploadConstructionMachineImages", content);
                 var newUploadResults = await response.Content.ReadFromJsonAsync<List<UploadResult>>();
                 if(newUploadResults is not null)
                 {
-                    uploadResults = uploadResults.Concat(newUploadResults).ToList();
+                    newConstructionMachine.Image = newUploadResults.Select(c =>c.FilePath).ToList()!;
                 }
+                newConstructionMachine.CompanyShipperId = CompanyId;
                 result = await ConstructionMachineService.CreateContructionMachine(newConstructionMachine);
                 if (result.Flag)
                 {
                     await addedmachine.InvokeAsync();
+                    newConstructionMachine = new();
+                    Close();
                 }
                 
             }

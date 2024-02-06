@@ -30,5 +30,12 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
             var result = await _constructionMachineService.SearchConstructionMachineForTender(dto);
             return Ok(result);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> GetImages(int MachineId)
+        {
+            var result = await _constructionMachineService.GetImages(MachineId);
+            return Ok(result);
+        }
     }
 }

@@ -15,5 +15,6 @@ namespace DinoTrans.Shared.Services.Interfaces
     {
         Task<GeneralResponse> CreateContructionMachine(CreateContructionMachineDTO dto);
         Task<ResponseModel<SearchConstructionMachineDTO>> SearchConstructionMachineForTender(SearchLoadForTenderDTO dto);
+        Task<ResponseModel<List<Dictionary<string,string>>>> GetImages (int MachineId);
     }
 }
