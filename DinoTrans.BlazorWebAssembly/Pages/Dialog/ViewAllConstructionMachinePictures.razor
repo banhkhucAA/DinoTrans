@@ -1,19 +1,20 @@
 ﻿@inject IJSRuntime js
+@inject IConstructionMachineService ConstructionMachineServcie
 @using Microsoft.AspNetCore.Hosting
 <div class="col-md-6">
-    <button style="max-width:100px; max-height:100px; background:url(@FirstPicture)" class="btn" @onclick="OpenDialog">
+    <button style="max-width:100px; max-height:100px; background:url(@FirstPicture.Replace(@"\",@"/"))" class="btn" @onclick="OpenDialog">
         <img />
     </button>
-    <dialog style="position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); min-width:500px; min-height:500px" id="dialog-ViewPictures">
+    <dialog style="position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); min-width:500px; min-height:500px" id="dialog-ViewPictures-@MachineId">
         <div class="card">
             <div class="row">
                 <div class="card-body p-4">
                     @if (AllPictures != null && AllPictures.Count != 0)
                     {
-                        for (int i = 0; i < AllPictures.Count; i++)
+                        foreach (var item in AllPictures)
                         {
                             <div class="form-group mt-3">
-                                <img src="@AllPictures[i][$"Image_{i}"]" style="min-width:400px;min-height:400px" />
+                                <img src="@item" style="min-width:400px;min-height:400px;max-height:650px;max-width:650px" />
                             </div>
                         }
                     }
@@ -30,26 +31,30 @@
 
 @code {
     [Parameter]
-    public List<Dictionary<string, string>> AllPictures { get;set; }
+    public List<Dictionary<string, string>> ListImanges { get; set; } = new();
+    [Parameter]
+    public int MachineId { get; set; }
     public string FirstPicture { get; set; }
+    public List<string> AllPictures { get; set; } = new();
     async Task OpenDialog()
     {
-        await js.InvokeVoidAsync("ViewPictures");
+        await js.InvokeVoidAsync("ViewPictures",MachineId);
     }
     protected override async Task OnInitializedAsync()
     {
-        if (AllPictures != null && AllPictures.Count != 0)
+        AllPictures = new();
+        if (ListImanges.Count > 0)
         {
-            for (int i = 0; i < AllPictures.Count; i++)
+            for(int i = 0; i< ListImanges.Count; i++)
             {
-                AllPictures[i][$"Image_{i}"] = AllPictures[i][$"Image_{i}"].Replace(@"\", @"/");
+                AllPictures.Add(ListImanges[i][$"Image_{i}"]);
             }
-            FirstPicture = AllPictures[0][$"Image_0"];
+            FirstPicture = AllPictures.FirstOrDefault();
         }
     }
 
     async void Close()
     {
-        await js.InvokeVoidAsync("closeModalViewPictures");
+        await js.InvokeVoidAsync("closeModalViewPictures",MachineId);
     }
 }

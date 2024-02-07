@@ -24,6 +24,8 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
         }
         public async Task<GeneralResponse> CreateContructionMachine(CreateContructionMachineDTO dto)
         {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             var response = await _httpClient
                 .PostAsync($"{BaseUrl}/CreateContructionMachine",
                 Generics.GenerateStringContent(Generics.SerializeObj(dto)));
@@ -38,6 +40,8 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
 
         public async Task<ResponseModel<SearchConstructionMachineDTO>> SearchConstructionMachineForTender(SearchLoadForTenderDTO dto)
         {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             var response = await _httpClient
                 .PostAsync($"{BaseUrl}/SearchConstructionMachineForTender",
                 Generics.GenerateStringContent(Generics.SerializeObj(dto)));
@@ -52,24 +56,6 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
 
             var apiResponse = await response.Content.ReadAsStringAsync();
             return Generics.DeserializeJsonString<ResponseModel<SearchConstructionMachineDTO>>(apiResponse);
-        }
-
-        public async Task<ResponseModel<List<Dictionary<string, string>>>> GetImages(int MachineId)
-        {
-            var response = await _httpClient
-                .PostAsync($"{BaseUrl}/GetImages",
-                Generics.GenerateStringContent(Generics.SerializeObj(MachineId)));
-
-            // Đọc phản hồi từ API
-            if (!response.IsSuccessStatusCode)
-                return new ResponseModel<List<Dictionary<string, string>>>
-                {
-                    Success = false,
-                    Message = "Can't search construction machine"
-                };
-
-            var apiResponse = await response.Content.ReadAsStringAsync();
-            return Generics.DeserializeJsonString<ResponseModel<List<Dictionary<string, string>>>>(apiResponse);
         }
     }
 }
