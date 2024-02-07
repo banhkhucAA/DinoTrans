@@ -24,6 +24,8 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
         }
         public async Task<GeneralResponse> CreateContructionMachine(CreateContructionMachineDTO dto)
         {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             var response = await _httpClient
                 .PostAsync($"{BaseUrl}/CreateContructionMachine",
                 Generics.GenerateStringContent(Generics.SerializeObj(dto)));
@@ -38,6 +40,8 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
 
         public async Task<ResponseModel<SearchConstructionMachineDTO>> SearchConstructionMachineForTender(SearchLoadForTenderDTO dto)
         {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             var response = await _httpClient
                 .PostAsync($"{BaseUrl}/SearchConstructionMachineForTender",
                 Generics.GenerateStringContent(Generics.SerializeObj(dto)));

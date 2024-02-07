@@ -8,6 +8,9 @@ using DinoTrans.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Internal;
+using Microsoft.AspNetCore.Http;
 using MudBlazor.Services;
 using Radzen;
 
@@ -26,6 +29,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<ITenderService, TenderClientService>();
 builder.Services.AddScoped<IConstructionMachineService, ConstructionMachineClientService>();
+
 
 builder.Services.AddMudServices();
 builder.Services.AddRadzenComponents();

@@ -56,7 +56,7 @@
                        @onchange="@((ChangeEventArgs e) => ChangeText(e))"
                        placeholder="Search for construction machinery & equipment..." />
             </div>
-            <ContructionMachineList contructionMachines="contructionMachines" ></ContructionMachineList>
+            <ContructionMachineList constructionMachinesListChooses="contructionMachinesChoose"></ContructionMachineList>
             <div class="float-end">
                 <Pagination ActivePageNumber="@currentPageNumber"
                             TotalPages="TotalPage"
@@ -149,6 +149,7 @@
     public ConvertStep2 InputStep2 { get; set; } = new();
     public SearchLoadForTenderDTO searchLoadForTenderDTO = new();
     public List<ContructionMachine> contructionMachines = new();
+    public List<ConstructionMachinesListChoose> contructionMachinesChoose = new();
     public int TotalPage { get; set; }
     public int currentPageNumber = 1;
     public string searchText { get; set; } = "";
@@ -156,7 +157,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var endDateString = NewTender.EndDate.ToString("yyyy-MM-dd");
+        await SearchOnInputChange();
+        var endDateString = NewTender!.EndDate.ToString("yyyy-MM-dd");
         DateOnly enddateOnly = DateOnly.Parse(endDateString);
         InputStep2.PickUpDate = enddateOnly.AddDays(1);
         InputStep2.DeliveryDate = enddateOnly.AddDays(1);
@@ -168,8 +170,6 @@
         InputStep2.ContactAtDeliveryAddress = "";
         InputStep2.Notes = "";
         InputStep2.Documentations = "";
-        await SearchOnInputChange();
-
     }
 
     private void OnHandleSubmit()
@@ -178,7 +178,7 @@
     }
     private async Task SearchOnInputChange()
     {
-        if (InputStep2.PickUpDate != null && InputStep2.DeliveryDate != null && InputStep2.PickUpTime != null && InputStep2.DeliveryTime != null)
+        try
         {
             DateTime startDate = DateTime.Parse($"{InputStep2.PickUpDate} {InputStep2.PickUpTime}");
             DateTime endDate = DateTime.Parse($"{InputStep2.DeliveryDate} {InputStep2.DeliveryTime}");
@@ -195,8 +195,28 @@
             if(response.Success)
             {
                 contructionMachines = response.Data.contructionMachines;
+                contructionMachinesChoose = new();
+                foreach (var item in contructionMachines)
+                {
+                    contructionMachinesChoose.Add(new ConstructionMachinesListChoose
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        Brand = item.Brand,
+                        SerialNumber = item.SerialNumber,
+                        CompanyShipperId = item.CompanyShipperId,
+                        Image = item.Image,
+                        Length = item.Length,
+                        Width = item.Width,
+                        Height = item.Height,
+                        Weight = item.Weight
+                    });
+                }
                 TotalPage = response.Data.TotalPage;
             }
+        }catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
         }
     }
 
