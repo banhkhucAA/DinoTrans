@@ -2,8 +2,10 @@
 @inject IConstructionMachineService ConstructionMachineServcie
 @using Microsoft.AspNetCore.Hosting
 <div class="col-md-6">
-    <button style="max-width:100px; max-height:100px; background:url(@FirstPicture.Replace(@"\",@"/"))" class="btn" @onclick="OpenDialog">
-        <img />
+    <button style="max-width:100px; max-height:100px; border:none" @onclick="OpenDialog">      
+        <b style="color:green">
+            <u>View</u>
+        </b>
     </button>
     <dialog style="position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); min-width:500px; min-height:500px" id="dialog-ViewPictures-@MachineId">
         <div class="card">

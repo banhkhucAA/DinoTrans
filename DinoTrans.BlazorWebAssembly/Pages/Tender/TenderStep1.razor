@@ -52,7 +52,7 @@
         </div>
 
         <div class="form-group row float-end me-4">
-            @if(!IsBusy)
+            @if (!IsBusy || IsError)
             {
                 <button class="btn btn-primary mt-4" @onclick=HandleNextStep type="submit">Next step</button>
             }
@@ -69,8 +69,8 @@
 
 @code{
 
-    [Parameter]
-    public int CompanyId { get; set; }
+        [Parameter]
+        public int CompanyId { get; set; }
     public ConvertStep1 tender_1 = new ConvertStep1
     {
         TenderName = "",
@@ -115,7 +115,11 @@
             ErrorEndDate = "Can't create a new tender with Start Date greater than End Date";
             IsError = true;
         }
-        if (IsError) return;
+        if (IsError) 
+        {
+            IsError = false;
+            return;
+        }
         var result = await TenderService.CreateTenderStep1(new CreateTenderStep1DTO
         {
             CompanyShipperId = CompanyId,
