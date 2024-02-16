@@ -38,5 +38,29 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
             }
             return uploadResults;
         }
+
+        [HttpPost]
+        public async Task<ActionResult<List<UploadResult>>> UploadTenderDocuments(List<IFormFile> files, [FromQuery] int TenderId)
+        {
+            List<UploadResult> uploadResults = new List<UploadResult>();
+            foreach (var file in files)
+            {
+                var uploadResult = new UploadResult();
+                var uploadFolder = Path.Combine(_config.GetSection("FETenderDocuments").Value!.ToString(), "Tender_"+TenderId);
+                if (!Directory.Exists(uploadFolder))
+                {
+                    Directory.CreateDirectory(uploadFolder);
+                }
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
+                string filePath = Path.Combine(uploadFolder!, uniqueFileName);
+
+                await using FileStream fs = new FileStream(filePath, FileMode.Create);
+                await file.CopyToAsync(fs);
+
+                uploadResult.FilePath = filePath.Replace(_config.GetSection("FEProject").Value!.ToString(), "");
+                uploadResults.Add(uploadResult);
+            }
+            return uploadResults;
+        }
     }
 }

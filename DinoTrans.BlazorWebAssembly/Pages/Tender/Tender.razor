@@ -10,11 +10,11 @@
     </div>
     @if (selectedStepIndex == 0)
     {
-        <TenderStep1 CompanyId="CompanyId" OnStepChange="OnStep1Change"></TenderStep1>
+        <TenderStep1 CompanyId="CompanyId" OnStepChange="OnStepChange"></TenderStep1>
     }
     @if (selectedStepIndex == 1)
     {
-        <TenderStep2 CompanyId="CompanyId" NewTender="newTender"></TenderStep2>
+        <TenderStep2 CompanyId="CompanyId" NewTender="newTender" OnStep2Change="OnStepChange"></TenderStep2>
     }
 </div>
 
@@ -23,7 +23,7 @@
     public int CompanyId { get; set; }
     public int selectedStepIndex { get; set; }
     public DinoTrans.Shared.Entities.Tender? newTender { get; set; } = null;
-    private void OnStep1Change(TenderChangeStepDTO tender)
+    private void OnStepChange(TenderChangeStepDTO tender)
     {
         selectedStepIndex = tender.CurrentStep;
         newTender = tender.Tender;
