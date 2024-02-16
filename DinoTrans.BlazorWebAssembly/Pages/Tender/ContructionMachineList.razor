@@ -40,10 +40,36 @@
 @code {
     [Parameter]
     public List<ConstructionMachinesListChoose>? constructionMachinesListChooses { get; set; }
+    [Parameter]
     public EventCallback<List<int>> ListConstructionMachineIdsReturn { get; set; } = new();  
     public List<int> ListConstructionMachineIds { get; set; } = new();
     public string ImageResult = "[]";
     public List<string> Images { get; set; } = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ListConstructionMachineIds.Count > 0)
+        {
+            foreach (var item in constructionMachinesListChooses!)
+            {
+                if (ListConstructionMachineIds.Contains(item.Id))
+                {
+                    item.IsSelected = true;
+                    item.ButtonText = "- Remove Construction Machine";
+                    item.ButtonStyle = "btn-outline-danger";
+                    item.ButtonWidth = "300px";
+                }
+                else
+                {
+                    item.IsSelected = false;
+                    item.ButtonText = "+ Add Construction Machine";
+                    item.ButtonStyle = "btn-outline-success";
+                    item.ButtonWidth = "260px";
+                }
+            }
+        }
+    }
+
 
     public void OnChooseMachine(ConstructionMachinesListChoose machine)    
     {
@@ -53,15 +79,16 @@
             machine.ButtonText = "- Remove Construction Machine";
             machine.ButtonStyle = "btn-outline-danger";
             machine.ButtonWidth = "300px";
-            ListConstructionMachineIds.Remove(machine.Id);
+            ListConstructionMachineIds.Add(machine.Id);
         }
         else
         {
             machine.ButtonText = "+ Add Construction Machine";
             machine.ButtonStyle = "btn-outline-success";
             machine.ButtonWidth = "260px";
-            ListConstructionMachineIds.Add(machine.Id);
+            ListConstructionMachineIds.Remove(machine.Id);
         }
+
         ListConstructionMachineIdsReturn.InvokeAsync(ListConstructionMachineIds);
     }
 

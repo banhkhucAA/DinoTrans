@@ -1,5 +1,8 @@
 ﻿@inject IConstructionMachineService ConstructionMachineService
 @inject IJSRuntime js
+@inject HttpClient Http
+@inject ITenderService TenderService
+
 <div class="card-body">
     <EditForm Model="InputStep2">
         <div class="column">
@@ -56,7 +59,7 @@
                        @onchange="@((ChangeEventArgs e) => ChangeText(e))"
                        placeholder="Search for construction machinery & equipment..." />
             </div>
-            <ContructionMachineList constructionMachinesListChooses="contructionMachinesChoose"></ContructionMachineList>
+            <ContructionMachineList ListConstructionMachineIdsReturn="HandleChooseMachines" constructionMachinesListChooses="contructionMachinesChoose"></ContructionMachineList>
             <div class="float-end">
                 <Pagination ActivePageNumber="@currentPageNumber"
                             TotalPages="TotalPage"
@@ -166,22 +169,26 @@
     public SearchLoadForTenderDTO searchLoadForTenderDTO = new();
     public List<ContructionMachine> contructionMachines = new();
     public List<ConstructionMachinesListChoose> contructionMachinesChoose = new();
+    public List<int> MachineIdsStep2 { get; set; } = new();
     public int TotalPage { get; set; }
     public int currentPageNumber = 1;
     public string searchText { get; set; } = "";
     public bool IsDefaultEvent { get; set; } = false;
     public string ErrorDisplay = "";
-    public CreateContructionMachineDTO newConstructionMachine { get; set; }
     List<InputFileData> selectedFiles = new List<InputFileData>();
+    private List<IBrowserFile> loadedFiles = new();
+    private long maxFileSize = 1024 * 1024 * 3;
+    private List<string> MyDocuments { get; set; } = new();
     public class InputFileData
     {
         public string Name { get; set; }
         public byte[] Data { get; set; }
     }
+    [Parameter]
+    public EventCallback<TenderChangeStepDTO> OnStep2Change{ get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        await SearchOnInputChange();
         var endDateString = NewTender!.EndDate.ToString("yyyy-MM-dd");
         DateOnly enddateOnly = DateOnly.Parse(endDateString);
         InputStep2.PickUpDate = enddateOnly.AddDays(1);
@@ -194,10 +201,17 @@
         InputStep2.ContactAtDeliveryAddress = "";
         InputStep2.Notes = "";
         InputStep2.Documentations = "";
+        await SearchOnInputChange();
+    }
+
+    private void HandleChooseMachines(List<int> MachineIds)
+    {
+        MachineIdsStep2 = MachineIds;
     }
 
     public async void HandleFileSelection(InputFileChangeEventArgs e)
     {
+        loadedFiles = e.GetMultipleFiles().ToList();
         foreach (var file in e.GetMultipleFiles())
         {
             var buffer = new byte[file.Size];
@@ -219,12 +233,85 @@
         StateHasChanged();
     }
 
-    private async void OnHandleSubmit()
+    private async Task OnHandleSubmit()
     {
-        if (contructionMachinesChoose == null || contructionMachinesChoose.Count == 0)
+        if (MachineIdsStep2 == null || MachineIdsStep2.Count == 0)
         {
             ErrorDisplay = "Please choose construction machine";
             await js.InvokeVoidAsync("alert", ErrorDisplay);
+            return;
+        }
+
+        var result = new ResponseModel<Shared.Entities.Tender>();
+
+        if (loadedFiles.Count > 0)
+        {
+            try
+            {
+                using var content = new MultipartFormDataContent();
+                foreach (var file in loadedFiles)
+                {
+                    var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+                    fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+                    MyDocuments.Add(file.Name.Replace(" ", ""));
+                    content.Add(
+                        content: fileContent,
+                        name: "\"files\"",
+                        fileName: file.Name);
+                }
+                var response = await Http.PostAsync($"/api/File/UploadTenderDocuments?TenderId={NewTender!.Id}", content);
+                var newUploadResults = await response.Content.ReadFromJsonAsync<List<UploadResult>>();
+                if (newUploadResults is not null && newUploadResults.Count > 0)
+                {
+                    var tenderStep2 = new UpdateTenderStep2AndCreateTenderContructionMachineDTO();
+                    tenderStep2.TenderId = NewTender.Id;
+                    tenderStep2.PickUpDateAndTime = DateTime.Parse($"{InputStep2.PickUpDate} {InputStep2.PickUpTime}");
+                    tenderStep2.DeliveryDateAndTime = DateTime.Parse($"{InputStep2.DeliveryDate} {InputStep2.DeliveryTime}");
+                    tenderStep2.ContactAtDeliveryAddress = InputStep2.ContactAtDeliveryAddress;
+                    tenderStep2.ContactAtPickUpAddress = InputStep2.ContactAtPickUpAddress;
+                    tenderStep2.ConstructionMachineIds = MachineIdsStep2;
+                    tenderStep2.PickUpAddress = InputStep2.PickUpAddress;
+                    tenderStep2.DeliveryAddress = InputStep2.DeliveryAddress;
+                    tenderStep2.Notes = InputStep2.Notes;
+                    tenderStep2.Documentations = newUploadResults.Select(u => u.FilePath).ToList();
+                    result = await TenderService.CreateTenderStep2(tenderStep2);
+                    if (result.Success)
+                    {
+                        var tender = result.Data;
+                        await OnStep2Change.InvokeAsync(new TenderChangeStepDTO
+                        {
+                            CurrentStep = 2,
+                            Tender = new Shared.Entities.Tender
+                            {
+                                Id = tender.Id,
+                                TenderStatus = tender.TenderStatus,
+                                Name = tender.Name,
+                                CompanyShipperId = tender.CompanyShipperId,
+                                CompanyCarrierId = tender.CompanyCarrierId,
+                                StartDate = tender.StartDate,
+                                EndDate = tender.EndDate,
+                                FinalPrice = tender.FinalPrice,
+                                IsCarrierComfirm = tender.IsCarrierComfirm,
+                                IsShipperComfirm = tender.IsShipperComfirm,
+                                PickUpDate = tender.PickUpDate,
+                                DeiliverDate = tender.DeiliverDate,
+                                PickUpAddress = tender.PickUpAddress,
+                                PickUpContact = tender.PickUpContact,
+                                DeliveryAddress = tender.DeliveryAddress,
+                                DeliveryContact = tender.DeliveryContact,
+                                Notes = tender.Notes,
+                                Documentations = tender.Documentations
+
+                            }
+                        });
+                    }
+                }           
+
+            }
+            catch (Exception ex)
+            {
+                await js.InvokeVoidAsync("alert", ex.Message);
+            }
         }
     }
 
