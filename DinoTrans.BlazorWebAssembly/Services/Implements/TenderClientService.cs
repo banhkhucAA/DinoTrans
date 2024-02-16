@@ -25,6 +25,8 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
         }
         public async Task<ResponseModel<Tender>> CreateTenderStep1(CreateTenderStep1DTO dto)
         {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             // Gửi yêu cầu POST đến endpoint API để đăng nhập
             var response = await _httpClient
                 .PostAsync($"{BaseUrl}/CreateTenderStep1",
@@ -36,6 +38,27 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
                 {
                     Success = false,
                     Message = "Không thể tạo mới Tender"
+                };
+
+            var apiResponse = await response.Content.ReadAsStringAsync();
+            return Generics.DeserializeJsonString<ResponseModel<Tender>>(apiResponse);
+        }
+
+        public async Task<ResponseModel<Tender>> CreateTenderStep2(UpdateTenderStep2AndCreateTenderContructionMachineDTO dto)
+        {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            // Gửi yêu cầu POST đến endpoint API để đăng nhập
+            var response = await _httpClient
+                .PostAsync($"{BaseUrl}/CreateTenderStep2",
+                Generics.GenerateStringContent(Generics.SerializeObj(dto)));
+
+            // Đọc phản hồi từ API
+            if (!response.IsSuccessStatusCode)
+                return new ResponseModel<Tender>()
+                {
+                    Success = false,
+                    Message = "Không thể hoàn tất bước 2"
                 };
 
             var apiResponse = await response.Content.ReadAsStringAsync();
