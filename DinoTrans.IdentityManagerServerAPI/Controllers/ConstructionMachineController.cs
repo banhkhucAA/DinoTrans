@@ -30,5 +30,12 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
             var result = await _constructionMachineService.SearchConstructionMachineForTender(dto);
             return Ok(result);
         }
+        [HttpPost]
+        public async Task<IActionResult> SearchConstructionMachine(SearchLoadDTO dto)
+        {
+            var result = await _constructionMachineService.SearchConstructionMachine(dto);
+            return Ok(result);
+        }
+
     }
 }

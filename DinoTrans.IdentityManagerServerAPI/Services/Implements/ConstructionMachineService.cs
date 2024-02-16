@@ -14,7 +14,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
 {
     public class ConstructionMachineService : IConstructionMachineService
     {
-        private readonly IConstructionMachineRepository _contructionMachineRepository;
+        private readonly IConstructionMachineRepository _constructionMachineRepository;
         private readonly ICompanyRepository _companyRepository;
         private readonly ITenderRepository _tenderRepository;
         private readonly ITenderConstructionMachineRepository _tenderConstructionMachineRepository;
@@ -24,7 +24,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             ITenderRepository tenderRepository,
             ITenderConstructionMachineRepository tenderConstructionMachineRepository)
         {
-            _contructionMachineRepository = contructionMachineRepository;
+            _constructionMachineRepository = contructionMachineRepository;
             _companyRepository = companyRepository;
             _tenderRepository = tenderRepository;
             _tenderConstructionMachineRepository = tenderConstructionMachineRepository;
@@ -36,7 +36,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             try
             {
                 // Kiểm tra xem máy đã có trong cơ sở dữ liệu hay chưa
-                var existingContructionMachine = await _contructionMachineRepository
+                var existingContructionMachine = await _constructionMachineRepository
                     .AsNoTracking()
                     .Where(c => c.SerialNumber == dto.SerialNumber)
                     .FirstOrDefaultAsync();
@@ -87,8 +87,8 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                     }
                     newContructionMachine.Image = JsonConvert.SerializeObject(listImage);
                 }
-                _contructionMachineRepository.Add(newContructionMachine);
-                _contructionMachineRepository.SaveChange();
+                _constructionMachineRepository.Add(newContructionMachine);
+                _constructionMachineRepository.SaveChange();
 
                 return new GeneralResponse(true, "Thêm mới máy thành công");
             }
@@ -135,7 +135,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 .Distinct()
                 .ToListAsync();
 
-            var loadsAvailable = _contructionMachineRepository
+            var loadsAvailable = _constructionMachineRepository
                 .AsNoTracking()
                 .Where(c => (dto.SearchText.IsNullOrEmpty() || c.Name.Contains(dto.SearchText!)) && !listLoadsInUse.Contains(c.Id));
 
@@ -149,6 +149,54 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 Data = new SearchConstructionMachineDTO
                 {
                     TotalPage = loadsAvailable.Count()/5 + 1,
+                    contructionMachines = data
+                },
+                Success = true
+            };
+        }
+        public async Task<ResponseModel<SearchConstructionMachineDTO>> SearchConstructionMachine(SearchLoadDTO dto)
+        {
+            var company = await _companyRepository
+                .AsNoTracking()
+                .Where(t => t.Id == dto.CompanyId)
+                .FirstOrDefaultAsync();
+            if (company == null)
+            {
+                return new ResponseModel<SearchConstructionMachineDTO>
+                {
+                    Success = false,
+                    Message = "Company not found",
+                    ResponseCode = "NotFound"
+                };
+            }
+            if (company.Role != CompanyRoleEnum.Shipper )
+            {
+                return new ResponseModel<SearchConstructionMachineDTO>
+                {
+                    Success = false,
+                    Message = "Not have permission",
+                    ResponseCode = "PermissionDenied"
+                };
+            }
+            var constructionmachines = await _constructionMachineRepository
+            .AsNoTracking()
+            .Where(c => c.CompanyShipperId == dto.CompanyId)
+            .ToListAsync();
+
+            var searchconstructionmachines = _constructionMachineRepository
+                .AsNoTracking()
+                .Where(c => dto.SearchText.IsNullOrEmpty() || c.Name.Contains(dto.SearchText!));
+
+            var data = await searchconstructionmachines
+                .Skip((dto.pageIndex - 1) * dto.pageSize)
+                .Take(dto.pageSize)
+                .ToListAsync();
+
+            return new ResponseModel<SearchConstructionMachineDTO>
+            {
+                Data = new SearchConstructionMachineDTO
+                {
+                    TotalPage = searchconstructionmachines.Count() / 10 + 1,
                     contructionMachines = data
                 },
                 Success = true

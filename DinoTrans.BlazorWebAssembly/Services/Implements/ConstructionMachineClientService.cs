@@ -57,5 +57,25 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
             var apiResponse = await response.Content.ReadAsStringAsync();
             return Generics.DeserializeJsonString<ResponseModel<SearchConstructionMachineDTO>>(apiResponse);
         }
+        public async Task<ResponseModel<SearchConstructionMachineDTO>> SearchConstructionMachine(SearchLoadDTO dto)
+        {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var response = await _httpClient
+                .PostAsync($"{BaseUrl}/SearchConstructionMachine",
+                Generics.GenerateStringContent(Generics.SerializeObj(dto)));
+
+            // Đọc phản hồi từ API
+            if (!response.IsSuccessStatusCode)
+                return new ResponseModel<SearchConstructionMachineDTO>
+                {
+                    Success = false,
+                    Message = "Can't search construction machine"
+                };
+
+            var apiResponse = await response.Content.ReadAsStringAsync();
+            return Generics.DeserializeJsonString<ResponseModel<SearchConstructionMachineDTO>>(apiResponse);
+        }
+
     }
 }
