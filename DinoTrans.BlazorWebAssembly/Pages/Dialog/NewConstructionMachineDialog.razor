@@ -143,7 +143,14 @@
         foreach (var file in e.GetMultipleFiles())
         {
             var buffer = new byte[file.Size];
-            await file.OpenReadStream().ReadAsync(buffer);
+            try
+            {
+                await file.OpenReadStream().ReadAsync(buffer);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             selectedFiles.Add(new InputFileData { Name = file.Name, Data = buffer });
         }
         StateHasChanged();
@@ -201,7 +208,6 @@
                 {
                     newConstructionMachine.Image = newUploadResults.Select(c =>c.FilePath).ToList()!;
                 }
-                newConstructionMachine.CompanyShipperId = CompanyId;
                              
             }
             catch (Exception ex)
@@ -209,7 +215,7 @@
                 errors.Add(ex.Message);
             }
         }
-
+        newConstructionMachine.CompanyShipperId = CompanyId;
         result = await ConstructionMachineService.CreateContructionMachine(newConstructionMachine);
         if (result.Flag)
         {

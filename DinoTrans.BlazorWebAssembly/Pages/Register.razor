@@ -1,103 +1,115 @@
 ﻿@page "/register"
 @inject IUserService AccountService
 @inject IJSRuntime js
+@layout AuthenticationLayout
 
-<h3>RegisterPage</h3>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
+@* <div class="container-fluid">
+ *@    <div class="row">
+        <div class="col-lg-6 p-0"></div>
+        <div class="col-lg-6 p-0">
             <EditForm Model="User" OnValidSubmit="HandleRegistration" Enhance>
-                <div class="card">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">Company Admin Information</div>
-                                <div class="card-body">
-                                    <div class="form-group mb-3">
-                                        <input @bind="User.FirstName" class="form-control" placeholder="First Name" />
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        <input @bind="User.LastName" class="form-control" placeholder="Last Name" />
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        <input @bind="User.PhoneNumber" class="form-control" placeholder="Phone Number" />
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        <input @bind="User.Email" class="form-control" type="email" placeholder="Email Address" />
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        <input @bind="User.Address" class="form-control" type="text" placeholder="Your Address" />
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        <div>Default Role</div>
-                                        <input @bind="@User.Role" class="form-control" type="text" readonly />
-                                    </div>
-
-                                    <div class="form-group">
-                                        <div class="input-group mb-3">
-                                            <input type="@(ShowPassword is true ? "text" : "password")" class="form-control" @bind="User.Password" placeholder="Password" aria-label="Password" aria-describedby="Password" />
-                                            <span class="input-group-text cursorStyle" id="Password" @onclick="ShowPasswordEvent"> @(ShowPassword is true ? "Hide" : "Show") </span>
+                <div class="card bg-white" style="opacity: 0.8; color: #000; display: flex; flex-direction: column; height: 100%; border-radius:0; border: none;">
+                    <div class="card-header container pt-3">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 d-flex justify-content-center">
+                                <img src="./images/logo2.png" style="width: 25%">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Tên</label>
+                                            <input @bind="User.FirstName" class="form-control" placeholder="" />
                                         </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <div class="input-group mb-3">
-                                            <input type="@(ShowConfirmPassword is true ? "text" : "password")" class="form-control" @bind="User.ConfirmPassword" placeholder="Confirm Password" aria-label="Confirm Password" aria-describedby="Confirm-Password" />
-                                            <span class="input-group-text cursorStyle" id="Confirm Password" @onclick="ShowConfirmPasswordEvent"> @(ShowConfirmPassword is true ? "Hide" : "Show") </span>
+                                     </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Họ</label>
+                                            <input @bind="User.LastName" class="form-control" placeholder="" />
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">Company And Location Headquarter</div>
-                                <div class="card-body">
-                                    <div class="form-group mb-3">
-                                        <input @bind="User.CompanyName" class="form-control" placeholder="Company Name" />
+                                <div class="form-group mb-3">
+                                    <label class="form-label">SĐT</label>
+                                    <input @bind="User.PhoneNumber" class="form-control" placeholder="" />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input @bind="User.Email" class="form-control" type="email" placeholder="" />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Địa chỉ</label>
+                                    <input @bind="User.Address" class="form-control" type="text" placeholder="" />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Vai trò</label>
+                                    <input @bind="@User.Role" class="form-control" type="text" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Mật khẩu</label>
+                                    <div class="input-group mb-3">
+                                        <input type="@(ShowPassword is true ? "text" : "password")" class="form-control" @bind="User.Password" placeholder="" aria-label="Password" aria-describedby="Password" />
+                                        <span class="input-group-text cursorStyle" id="Password" @onclick="ShowPasswordEvent"> @(ShowPassword is true ? "Ẩn" : "Hiện") </span>
                                     </div>
-
-                                    <div class="form-group mb-3">
-                                        <input @bind="User.CompanyEmail" class="form-control" type="email" placeholder="Company Email" />
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        <input @bind="User.CompanyPhoneNumber" class="form-control" type="text" placeholder="Company Phone Number" />
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        <input @bind="User.CompanyAddress" class="form-control" type="text" placeholder="Company Address" />
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        <div>Choose your company role</div>
-                                        <InputSelect @bind-Value="User.CompanyRole" class="form-control">
-                                            <option value="@CompanyRoleEnum.Shipper">Công ty máy xây dựng</option>
-                                            <option value="@CompanyRoleEnum.Carrier">Công ty vận chuyển</option>
-                                        </InputSelect>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Xác nhận mật khẩu</label>
+                                    <div class="input-group mb-3">
+                                        <input type="@(ShowConfirmPassword is true ? "text" : "password")" class="form-control" @bind="User.ConfirmPassword" placeholder="" aria-label="Confirm Password" aria-describedby="Confirm-Password" />
+                                        <span class="input-group-text cursorStyle" id="Confirm Password" @onclick="ShowConfirmPasswordEvent"> @(ShowConfirmPassword is true ? "Ẩn" : "Hiện") </span>
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Tên công ty</label>
+                                    <input @bind="User.CompanyName" class="form-control" placeholder="" />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label">SĐT công ty</label>
+                                    <input @bind="User.CompanyPhoneNumber" class="form-control" type="text" placeholder="" />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Email công ty</label>
+                                    <input @bind="User.CompanyEmail" class="form-control" type="email" placeholder="" />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Địa chỉ công ty</label>
+                                    <input @bind="User.CompanyAddress" class="form-control" type="text" placeholder="" />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Vai trò công ty</label>
+                                    <InputSelect @bind-Value="User.CompanyRole" class="form-control">
+                                        <option value="@CompanyRoleEnum.Shipper">Công ty máy xây dựng</option>
+                                        <option value="@CompanyRoleEnum.Carrier">Công ty vận chuyển</option>
+                                    </InputSelect>
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="card-footer col-md-12 text-center">
-                            <a class="text-primary cursorStyle text-center">Login Instead</a>
-                            <button class="btn btn-primary" type="submit">Register</button>
+                        <!-- Hiển thị thông báo lỗi -->
+                        <ValidationSummary />
+                        <!-- Nút đăng ký -->
+                        <div class="form-group mt-2">
+                            <button class="btn btn-primary" type="submit">Đăng ký</button>
+                        </div>
+                    </div>
+                    <!-- Footer: liên kết đăng nhập -->
+                    <div class="card-footer text-center">
+                        <div class="col-lg-12 col-md-12 col-sm-12 d-flex justify-content-center">
+                            Bạn đã có tài khoản?
+                            <a class="btn-link" href="/login">&nbsp;Đăng nhập ngay!</a>
                         </div>
                     </div>
                 </div>
             </EditForm>
         </div>
     </div>
-</div>
-
+@* </div>
+ *@
 @code {
     public bool ShowPassword { get; set; }
     public bool ShowConfirmPassword { get; set; }
@@ -109,7 +121,7 @@
 
     protected override void OnInitialized()
     {
-        User.Role = "CompanyAdministrator";
+        User.Role = "Quản trị viên công ty";
     }
 
     async Task HandleRegistration()

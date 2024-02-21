@@ -5,24 +5,19 @@
 @inject IUserService userClientService
 @layout AuthenticationLayout
 
-<div class="container">
     <div class="row">
-        <div class="col-lg-8"></div>
-        <div class="col-lg-4">
+        <div class="col-lg-9"></div>
+        <div class="col-lg-3">
             <EditForm Enhance Model="User" OnValidSubmit="HandleLogin">
                  <DataAnnotationsValidator />
-                 <div class="card bg-white" style="opacity: 0.8; color: #000; display: flex; flex-direction: column; height: 100vh;">
-@*                  <div class=" text-center fs-5 mb-2"><img src="~/images/logo.png" /></div>*@
-                     <div class="container pt-5">
+             <div class="card bg-white" style="opacity: 0.8; color: #000; display: flex; flex-direction: column; height: 100%; border-radius:0; border: none;">
+                 <div class="card-header container pt-3">
                          <div class="row">
-@*                              <div class="col-lg-4 col-md-4 col-sm-4"></div>
- *@
                              <div class="col-lg-12 col-md-12 col-sm-12 d-flex justify-content-center">
-                                 <img src="./images/logo.png" style="width: 100%">
+                                 <img src="./images/logo2.png" style="width: 50%">
                              </div>
 
-@*                              <div class="col-lg-4 col-md-4 col-sm-4"></div>
- *@                         </div>
+                   </div>
                      </div>
                     <div class="card-body p-4">
                          <div class="form-group mt-3">
@@ -39,20 +34,16 @@
                              <button class="btn btn-primary" type="submit">Đăng nhập</button>
                          </div>
                      </div>
-                     <div class="container pt-3 pb-3">
-                         <div class="row">
-                             <div class="col-lg-12 col-md-12 col-sm-12 d-flex justify-content-center">
-                                 Bạn chưa có tài khoản? 
-                                 <a class="btn-link" href="/register">&nbsp;Đăng ký ngay!</a>
-                             </div>
-                         </div>
+                 <div class="card-footer text-center">
+                     <div class="col-lg-12 col-md-12 col-sm-12 d-flex justify-content-center">
+                         Bạn chưa có tài khoản?
+                         <a class="btn-link" href="/register">&nbsp;Đăng ký ngay!</a>
                      </div>
                  </div>
+             </div>
              </EditForm>
          </div>
-@*          <div class="col-lg-4"></div>
- *@     </div>
- </div>
+     </div>
  @code {
     public LoginDTO User { get; set; } = new();
 
