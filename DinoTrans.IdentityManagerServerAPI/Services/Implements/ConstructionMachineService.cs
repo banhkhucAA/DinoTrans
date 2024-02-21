@@ -115,7 +115,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 };
             }
 
-            var machines = await _contructionMachineRepository
+            var machines = await _constructionMachineRepository
                 .AsNoTracking()
                 .Where(c => constructionMachinesIds.Contains(c.Id))
                 .ToListAsync();
