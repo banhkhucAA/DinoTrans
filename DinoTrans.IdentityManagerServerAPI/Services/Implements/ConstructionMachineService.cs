@@ -98,6 +98,43 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             }
         }
 
+        public async Task<ResponseModel<List<ContructionMachine>>> GetMachinesForTenderOverviewByIds(int TenderId)
+        {
+            var constructionMachinesIds = await _tenderConstructionMachineRepository
+                .AsNoTracking()
+                .Where(t =>  t.TenderId == TenderId)
+                .Select(t => t.ContructionMachineId)
+                .ToListAsync();
+
+            if(constructionMachinesIds == null)
+            {
+                return new ResponseModel<List<ContructionMachine>>
+                {
+                    Success = false,
+                    Message = $"Không tìm thấy Tender với Id = {TenderId} để kiểm tra máy"
+                };
+            }
+
+            var machines = await _contructionMachineRepository
+                .AsNoTracking()
+                .Where(c => constructionMachinesIds.Contains(c.Id))
+                .ToListAsync();
+            
+            if(machines == null)
+            {
+                return new ResponseModel<List<ContructionMachine>>
+                {
+                    Success = false,
+                    Message = "Máy không tồn tại"
+                };
+            }    
+            return new ResponseModel<List<ContructionMachine>>()
+            {
+                Success = true,
+                Data = machines
+            };
+        }
+
         public async Task<ResponseModel<SearchConstructionMachineDTO>> SearchConstructionMachineForTender(SearchLoadForTenderDTO dto)
         {
             var tender = await _tenderRepository
@@ -118,9 +155,9 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             var listActiveTenderIds = await _tenderRepository
                 .AsNoTracking()
                 .Where(
-                t => (t.PickUpDate <= dto.PickUpDate && t.DeiliverDate >= dto.PickUpDate)
+                t => ((t.PickUpDate <= dto.PickUpDate && t.DeiliverDate >= dto.PickUpDate)
                 || (t.PickUpDate <= dto.DeliveryDate && t.DeiliverDate >= dto.DeliveryDate)
-                || (t.PickUpDate >= dto.PickUpDate && t.DeiliverDate <= dto.DeliveryDate)
+                || (t.PickUpDate >= dto.PickUpDate && t.DeiliverDate <= dto.DeliveryDate))
                 && t.TenderStatus != TenderStatuses.Draft
                 && t.TenderStatus != TenderStatuses.Withdrawn
                 && t.TenderStatus != TenderStatuses.Completed

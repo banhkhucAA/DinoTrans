@@ -147,5 +147,39 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 };
             }
         }
+
+        public async Task<ResponseModel<Tender>> StartTender(int TenderId)
+        {
+            var tender = await _tenderRepository
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == TenderId);
+
+            if(tender == null )
+            {
+                return new ResponseModel<Tender>
+                {
+                    Success = false,
+                    Message = "Can't find tender"
+                };
+            }    
+
+            if(tender.TenderStatus != TenderStatuses.Draft)
+            {
+                return new ResponseModel<Tender>
+                {
+                    Success = false,
+                    Message = "Tender status isn't draft"
+                };
+            }    
+
+            tender.TenderStatus = TenderStatuses.Active;
+            _tenderRepository.Update(tender);
+            _tenderRepository.SaveChange();
+            return new ResponseModel<Tender>
+            {
+                Data = tender,
+                Success = true
+            };
+        }
     }
 }

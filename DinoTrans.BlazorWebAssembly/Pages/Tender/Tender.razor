@@ -5,16 +5,27 @@
 @inject IJSRuntime js
 <PageTitle>Tender Wizard</PageTitle>
 <div class="card">
-    <div class="card-header">
-        <Tender4steps SelectedStepIndex="selectedStepIndex"></Tender4steps>
-    </div>
+    @if(selectedStepIndex != 3)
+    {
+        <div class="card-header">
+            <Tender4steps SelectedStepIndex="selectedStepIndex"></Tender4steps>
+        </div>
+    }
     @if (selectedStepIndex == 0)
     {
         <TenderStep1 CompanyId="CompanyId" OnStepChange="OnStepChange"></TenderStep1>
     }
     @if (selectedStepIndex == 1)
     {
-        <TenderStep2 CompanyId="CompanyId" NewTender="newTender" OnStep2Change="OnStepChange"></TenderStep2>
+        <TenderStep2 CompanyId="CompanyId" NewTender="newTender" OnStep2Change="OnStepChange" InputStep2="InputStep2"></TenderStep2>
+    }
+    else if (selectedStepIndex == 2)
+    {
+        <TenderStep3 NewTender="newTender" FinishStep="FinishStep" TenderStep2="BackStep2"></TenderStep3>
+    }
+    else if(selectedStepIndex == 3)
+    {
+        <div>Go to tender details page to see active Tenders</div>
     }
 </div>
 
@@ -23,9 +34,29 @@
     public int CompanyId { get; set; }
     public int selectedStepIndex { get; set; }
     public DinoTrans.Shared.Entities.Tender? newTender { get; set; } = null;
+    public List<int> SelectedConstructionMachineIds { get; set; } = new();
+    public ConvertStep2 InputStep2 { get; set; } = new();
     private void OnStepChange(TenderChangeStepDTO tender)
     {
-        selectedStepIndex = tender.CurrentStep;
         newTender = tender.Tender;
+        var endDateString = newTender!.EndDate.ToString("yyyy-MM-dd");
+        DateOnly enddateOnly = DateOnly.Parse(endDateString);
+        InputStep2.PickUpDate = enddateOnly.AddDays(1);
+        InputStep2.DeliveryDate = enddateOnly.AddDays(1);
+        InputStep2.PickUpTime = new();
+        InputStep2.DeliveryTime = InputStep2.PickUpTime.AddHours(1);
+        SelectedConstructionMachineIds = tender.ConstructionMachineIds;
+        selectedStepIndex = tender.CurrentStep;
+    }
+
+    private void FinishStep(int CurrentStep)
+    {
+        selectedStepIndex = CurrentStep;
+    }
+
+    private void BackStep2(TenderBackStep2DTO dto)
+    {
+        selectedStepIndex = dto.CurrentStep;
+        InputStep2 = dto.InputStep2;
     }
 }

@@ -37,5 +37,12 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
             return Ok(result);
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> GetMachinesForTenderOverviewByIds([FromQuery] int TenderId)
+        {
+            var result = await _constructionMachineService.GetMachinesForTenderOverviewByIds(TenderId);
+            return Ok(result);
+        }
     }
 }
