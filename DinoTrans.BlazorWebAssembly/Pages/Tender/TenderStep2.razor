@@ -58,7 +58,7 @@
                        @onchange="@((ChangeEventArgs e) => ChangeText(e))"
                        placeholder="Search for construction machinery & equipment..." />
             </div>
-            <ContructionMachineList ListConstructionMachineIdsReturn="HandleChooseMachines" constructionMachinesListChooses="contructionMachinesChoose"></ContructionMachineList>
+            <ConstructionMachineList ListConstructionMachineIdsReturn="HandleChooseMachines" constructionMachinesListChooses="contructionMachinesChoose"></ConstructionMachineList>
             <div class="float-end">
                 <Pagination ActivePageNumber="@currentPageNumber"
                             TotalPages="TotalPage"
@@ -311,7 +311,7 @@
                 pageIndex = currentPageNumber,
                 pageSize = 5,
                 SearchText = searchText,
-                TenderId = NewTender.Id,
+                TenderId = NewTender!.Id,
                 PickUpDate = startDate,
                 DeliveryDate = endDate
             };

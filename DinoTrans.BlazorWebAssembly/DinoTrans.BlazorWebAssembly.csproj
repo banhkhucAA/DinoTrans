@@ -7,11 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="Pages\Counter.razor" />
     <None Include="Pages\Home.razor" />
     <None Include="Pages\Login.razor" />
     <None Include="Pages\Register.razor" />
-    <None Include="Pages\Weather.razor" />
   </ItemGroup>
 
   <ItemGroup>
