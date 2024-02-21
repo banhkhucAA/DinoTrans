@@ -5,6 +5,8 @@
 
 <div class="card-body">
     <EditForm Model="InputStep2">
+        <header><b>2. Máy xây dựng và thông tin chi tiết</b></header>
+        <hr />
         <div class="column">
             @* Thời gian nhận hàng và thời gian giao hàng *@
             <div class="col-md-12 row">
@@ -14,21 +16,15 @@
                         <label class="form-label">
                             Ngày nhận  hàng*
                         </label>
+                        <hr>
                         <input type="date" @bind="InputStep2.PickUpDate" class="form-control" @oninput="SearchOnInputChange" />
-                        @* @if (ErrorStartDate != null)
-                        {
-                            <div style="color:red">@ErrorStartDate</div>
-                        } *@
                     </div>
                     <div class="col-md-12">
                         <label class="form-label">
                             Giờ nhận  hàng*
                         </label>
+                        <hr>
                         <input type="time" @bind="InputStep2.PickUpTime" class="form-control" @oninput="SearchOnInputChange" />
-                        @* @if (ErrorStartDate != null)
-                        {
-                            <div style="color:red">@ErrorEndDate</div>
-                        } *@
                     </div>
                 </div>
                 <div class="form-group col-md-6 column">
@@ -37,12 +33,14 @@
                         <label class="form-label">
                             Ngày giao hàng*
                         </label>
+                        <hr>
                         <input type="date" @bind="InputStep2.DeliveryDate" class="form-control" @oninput="SearchOnInputChange" />
                     </div>
                     <div class="col-md-12">
                         <label class="form-label">
                             Giờ giao hàng *
                         </label>
+                        <hr>
                         <input type="time" @bind="InputStep2.DeliveryTime" class="form-control" @oninput="SearchOnInputChange" />
                     </div>
                 </div>
@@ -52,6 +50,7 @@
                 <div class="row">
                     <header class="col-md-6">Thông tin máy xây dựng</header>
                     <NewConstructionMachineDialog IsDefaultEvent=IsDefaultEvent CallDefaultEvent=HandleDefaultEvent addedmachine="recallAPI" CompanyId="CompanyId"></NewConstructionMachineDialog>
+                    <hr>
                 </div>                
             </div>
             <div>
@@ -78,21 +77,15 @@
                         <label class="form-label">
                             Địa chỉ nhận hàng *
                         </label>
-                        <input type="text" @bind="InputStep2.PickUpAddress" class="form-control" />
-                        @* @if (ErrorStartDate != null)
-                        {
-                        <div style="color:red">@ErrorStartDate</div>
-                        } *@
+                        <hr>
+                        <input type="text" @bind="InputStep2.PickUpAddress" class="form-control" placeholder="Nhập tên đường, số nhà, quận huyện,..."/>
                     </div>
                     <div class="col-md-12">
                         <label class="form-label">
                             Liên hệ nhận hàng *
                         </label>
-                        <input type="text" @bind="InputStep2.ContactAtPickUpAddress" class="form-control" />
-                        @* @if (ErrorStartDate != null)
-                        {
-                        <div style="color:red">@ErrorEndDate</div>
-                        } *@
+                        <hr>
+                        <input type="text" @bind="InputStep2.ContactAtPickUpAddress" class="form-control" placeholder="Tên người liên hệ, số điện thoại,..." />
                     </div>
                 </div>
                 <div class="form-group col-md-6 column">
@@ -101,13 +94,15 @@
                         <label class="form-label">
                             Địa chỉ giao hàng *
                         </label>
-                        <input type="text" @bind="InputStep2.DeliveryAddress" class="form-control" />
+                        <hr>
+                        <input type="text" @bind="InputStep2.DeliveryAddress" class="form-control" placeholder="Nhập tên đường, số nhà, quận huyện,..." />
                     </div>
                     <div class="col-md-12">
                         <label class="form-label">
                             Liên hệ giao hàng *
                         </label>
-                        <input type="text" @bind="InputStep2.ContactAtDeliveryAddress" class="form-control" />
+                        <hr>
+                        <input type="text" @bind="InputStep2.ContactAtDeliveryAddress" class="form-control" placeholder="Tên người liên hệ, số điện thoại,..." />
                     </div>
                 </div>
             </div>
@@ -120,6 +115,7 @@
                         <label class="form-label">
                             Mô tả *
                         </label>
+                        <hr>
                         <textarea type="text" @bind="InputStep2.Notes" class="form-control" />
                         @* @if (ErrorStartDate != null)
                         {
@@ -132,6 +128,7 @@
                             <label class="form-label">
                                 Tài liệu đính kèm *
                             </label>
+                            <hr>
                         <label class="btn btn-outline-success float-end" style="position: relative; overflow: hidden;">
                             <span>+ Upload a document</span>
                             <InputFile id="fileInput" OnChange="@HandleFileSelection" multiple style="opacity: 0; width: 150px; height: 150px; position: absolute; top: 0; left: 0; cursor: pointer; z-index: 2;" />
@@ -155,6 +152,7 @@
              </div> 
         </div>
 
+        <hr />
         <div class="form-group row float-end me-4">
             <button class="btn btn-primary mt-4" type="submit" @onclick="OnHandleSubmit">Bước tiếp theo</button>
         </div>
@@ -165,10 +163,12 @@
     public DinoTrans.Shared.Entities.Tender? NewTender { get; set; } = null;
     [Parameter]
     public int CompanyId { get; set; }
+    [Parameter]
     public ConvertStep2 InputStep2 { get; set; } = new();
     public SearchLoadForTenderDTO searchLoadForTenderDTO = new();
     public List<ContructionMachine> contructionMachines = new();
     public List<ConstructionMachinesListChoose> contructionMachinesChoose = new();
+    public List<IBrowserFile> loadedFiles = new List<IBrowserFile>(); 
     public List<int> MachineIdsStep2 { get; set; } = new();
     public int TotalPage { get; set; }
     public int currentPageNumber = 1;
@@ -176,7 +176,6 @@
     public bool IsDefaultEvent { get; set; } = false;
     public string ErrorDisplay = "";
     List<InputFileData> selectedFiles = new List<InputFileData>();
-    private List<IBrowserFile> loadedFiles = new();
     private long maxFileSize = 1024 * 1024 * 3;
     private List<string> MyDocuments { get; set; } = new();
     public class InputFileData
@@ -189,18 +188,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var endDateString = NewTender!.EndDate.ToString("yyyy-MM-dd");
-        DateOnly enddateOnly = DateOnly.Parse(endDateString);
-        InputStep2.PickUpDate = enddateOnly.AddDays(1);
-        InputStep2.DeliveryDate = enddateOnly.AddDays(1);
-        InputStep2.PickUpTime = new();
-        InputStep2.DeliveryTime = InputStep2.PickUpTime.AddHours(1);
-        InputStep2.PickUpAddress = "";
-        InputStep2.DeliveryAddress = "";
-        InputStep2.ContactAtPickUpAddress = "";
-        InputStep2.ContactAtDeliveryAddress = "";
-        InputStep2.Notes = "";
-        InputStep2.Documentations = "";
         await SearchOnInputChange();
     }
 
@@ -211,18 +198,11 @@
 
     public async void HandleFileSelection(InputFileChangeEventArgs e)
     {
-        loadedFiles = e.GetMultipleFiles().ToList();
         foreach (var file in e.GetMultipleFiles())
         {
             var buffer = new byte[file.Size];
-            try
-            {
-                await file.OpenReadStream().ReadAsync(buffer);
-            }catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            selectedFiles.Add(new InputFileData { Name = file.Name, Data = buffer });
+            selectedFiles.Add(new InputFileData { Name = file.Name, Data = buffer});
+            loadedFiles.Add(file);
         }
         StateHasChanged();
     }
@@ -230,6 +210,11 @@
     public void RemoveDocument(InputFileData input)
     {
         selectedFiles.Remove(input);
+        var loadedFileToRemove = loadedFiles.FirstOrDefault(f => f.Name == input.Name);
+        if (loadedFileToRemove != null)
+        {
+            loadedFiles.Remove(loadedFileToRemove);
+        }
         StateHasChanged();
     }
 
@@ -243,8 +228,8 @@
         }
 
         var result = new ResponseModel<Shared.Entities.Tender>();
-
-        if (loadedFiles.Count > 0)
+        var newUploadResults = new List<UploadResult>();
+        if (selectedFiles.Count > 0)
         {
             try
             {
@@ -260,58 +245,58 @@
                         fileName: file.Name);
                 }
                 var response = await Http.PostAsync($"/api/File/UploadTenderDocuments?TenderId={NewTender!.Id}", content);
-                var newUploadResults = await response.Content.ReadFromJsonAsync<List<UploadResult>>();
-                if (newUploadResults is not null && newUploadResults.Count > 0)
-                {
-                    var tenderStep2 = new UpdateTenderStep2AndCreateTenderContructionMachineDTO();
-                    tenderStep2.TenderId = NewTender.Id;
-                    tenderStep2.PickUpDateAndTime = DateTime.Parse($"{InputStep2.PickUpDate} {InputStep2.PickUpTime}");
-                    tenderStep2.DeliveryDateAndTime = DateTime.Parse($"{InputStep2.DeliveryDate} {InputStep2.DeliveryTime}");
-                    tenderStep2.ContactAtDeliveryAddress = InputStep2.ContactAtDeliveryAddress;
-                    tenderStep2.ContactAtPickUpAddress = InputStep2.ContactAtPickUpAddress;
-                    tenderStep2.ConstructionMachineIds = MachineIdsStep2;
-                    tenderStep2.PickUpAddress = InputStep2.PickUpAddress;
-                    tenderStep2.DeliveryAddress = InputStep2.DeliveryAddress;
-                    tenderStep2.Notes = InputStep2.Notes;
-                    tenderStep2.Documentations = newUploadResults.Select(u => u.FilePath).ToList();
-                    result = await TenderService.CreateTenderStep2(tenderStep2);
-                    if (result.Success)
-                    {
-                        var tender = result.Data;
-                        await OnStep2Change.InvokeAsync(new TenderChangeStepDTO
-                        {
-                            CurrentStep = 2,
-                            Tender = new Shared.Entities.Tender
-                            {
-                                Id = tender.Id,
-                                TenderStatus = tender.TenderStatus,
-                                Name = tender.Name,
-                                CompanyShipperId = tender.CompanyShipperId,
-                                CompanyCarrierId = tender.CompanyCarrierId,
-                                StartDate = tender.StartDate,
-                                EndDate = tender.EndDate,
-                                FinalPrice = tender.FinalPrice,
-                                IsCarrierComfirm = tender.IsCarrierComfirm,
-                                IsShipperComfirm = tender.IsShipperComfirm,
-                                PickUpDate = tender.PickUpDate,
-                                DeiliverDate = tender.DeiliverDate,
-                                PickUpAddress = tender.PickUpAddress,
-                                PickUpContact = tender.PickUpContact,
-                                DeliveryAddress = tender.DeliveryAddress,
-                                DeliveryContact = tender.DeliveryContact,
-                                Notes = tender.Notes,
-                                Documentations = tender.Documentations
-
-                            }
-                        });
-                    }
-                }           
+                newUploadResults = await response.Content.ReadFromJsonAsync<List<UploadResult>>();      
 
             }
             catch (Exception ex)
             {
                 await js.InvokeVoidAsync("alert", ex.Message);
+                return;
             }
+        }
+
+        var tenderStep2 = new UpdateTenderStep2AndCreateTenderContructionMachineDTO();
+        tenderStep2.TenderId = NewTender!.Id;
+        tenderStep2.PickUpDateAndTime = DateTime.Parse($"{InputStep2.PickUpDate} {InputStep2.PickUpTime}");
+        tenderStep2.DeliveryDateAndTime = DateTime.Parse($"{InputStep2.DeliveryDate} {InputStep2.DeliveryTime}");
+        tenderStep2.ContactAtDeliveryAddress = InputStep2.ContactAtDeliveryAddress;
+        tenderStep2.ContactAtPickUpAddress = InputStep2.ContactAtPickUpAddress;
+        tenderStep2.ConstructionMachineIds = MachineIdsStep2;
+        tenderStep2.PickUpAddress = InputStep2.PickUpAddress;
+        tenderStep2.DeliveryAddress = InputStep2.DeliveryAddress;
+        tenderStep2.Notes = InputStep2.Notes;
+        if (newUploadResults!.Count != 0)
+            tenderStep2.Documentations = newUploadResults.Select(u => u.FilePath).ToList();
+        result = await TenderService.CreateTenderStep2(tenderStep2);
+        if (result.Success)
+        {
+            var tender = result.Data;
+            await OnStep2Change.InvokeAsync(new TenderChangeStepDTO
+                {
+                    CurrentStep = 2,
+                    Tender = new Shared.Entities.Tender
+                    {
+                        Id = tender.Id,
+                        TenderStatus = tender.TenderStatus,
+                        Name = tender.Name,
+                        CompanyShipperId = tender.CompanyShipperId,
+                        CompanyCarrierId = tender.CompanyCarrierId,
+                        StartDate = tender.StartDate,
+                        EndDate = tender.EndDate,
+                        FinalPrice = tender.FinalPrice,
+                        IsCarrierComfirm = tender.IsCarrierComfirm,
+                        IsShipperComfirm = tender.IsShipperComfirm,
+                        PickUpDate = tender.PickUpDate,
+                        DeiliverDate = tender.DeiliverDate,
+                        PickUpAddress = tender.PickUpAddress,
+                        PickUpContact = tender.PickUpContact,
+                        DeliveryAddress = tender.DeliveryAddress,
+                        DeliveryContact = tender.DeliveryContact,
+                        Notes = tender.Notes,
+                        Documentations = tender.Documentations
+                    },
+                    ConstructionMachineIds = MachineIdsStep2
+                });
         }
     }
 

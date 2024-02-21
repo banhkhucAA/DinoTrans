@@ -64,5 +64,26 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
             var apiResponse = await response.Content.ReadAsStringAsync();
             return Generics.DeserializeJsonString<ResponseModel<Tender>>(apiResponse);
         }
+
+        public async Task<ResponseModel<Tender>> StartTender(int TenderId)
+        {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            // Gửi yêu cầu POST đến endpoint API để đăng nhập
+            var response = await _httpClient
+                .PutAsync($"{BaseUrl}/StartTender",
+                Generics.GenerateStringContent(Generics.SerializeObj(TenderId)));
+
+            // Đọc phản hồi từ API
+            if (!response.IsSuccessStatusCode)
+                return new ResponseModel<Tender>()
+                {
+                    Success = false,
+                    Message = "Không thể hoàn tất đấu thầu"
+                };
+
+            var apiResponse = await response.Content.ReadAsStringAsync();
+            return Generics.DeserializeJsonString<ResponseModel<Tender>>(apiResponse);
+        }
     }
 }

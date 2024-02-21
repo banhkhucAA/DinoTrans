@@ -1,5 +1,6 @@
 ﻿using DinoTrans.Shared.DTOs.ContructionMachine;
 using DinoTrans.Shared.DTOs.TenderSteps;
+using DinoTrans.Shared.Repositories.Implements;
 using DinoTrans.Shared.Repositories.Interfaces;
 using DinoTrans.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -32,6 +33,14 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
         public async Task<IActionResult> CreateTenderStep2(UpdateTenderStep2AndCreateTenderContructionMachineDTO dto)
         {
             var result = await _tenderService.CreateTenderStep2(dto);
+            return Ok(result);
+        }
+
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> StartTender([FromBody]int TenderId)
+        {
+            var result = await _tenderService.StartTender(TenderId);
             return Ok(result);
         }
     }
