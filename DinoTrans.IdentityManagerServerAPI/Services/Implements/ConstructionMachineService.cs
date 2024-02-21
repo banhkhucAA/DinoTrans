@@ -98,6 +98,43 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             }
         }
 
+        public async Task<ResponseModel<List<ContructionMachine>>> GetMachinesForTenderOverviewByIds(int TenderId)
+        {
+            var constructionMachinesIds = await _tenderConstructionMachineRepository
+                .AsNoTracking()
+                .Where(t =>  t.TenderId == TenderId)
+                .Select(t => t.ContructionMachineId)
+                .ToListAsync();
+
+            if(constructionMachinesIds == null)
+            {
+                return new ResponseModel<List<ContructionMachine>>
+                {
+                    Success = false,
+                    Message = $"Không tìm thấy Tender với Id = {TenderId} để kiểm tra máy"
+                };
+            }
+
+            var machines = await _constructionMachineRepository
+                .AsNoTracking()
+                .Where(c => constructionMachinesIds.Contains(c.Id))
+                .ToListAsync();
+            
+            if(machines == null)
+            {
+                return new ResponseModel<List<ContructionMachine>>
+                {
+                    Success = false,
+                    Message = "Máy không tồn tại"
+                };
+            }    
+            return new ResponseModel<List<ContructionMachine>>()
+            {
+                Success = true,
+                Data = machines
+            };
+        }
+
         public async Task<ResponseModel<SearchConstructionMachineDTO>> SearchConstructionMachineForTender(SearchLoadForTenderDTO dto)
         {
             var tender = await _tenderRepository
