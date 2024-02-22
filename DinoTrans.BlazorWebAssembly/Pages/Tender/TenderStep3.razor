@@ -169,7 +169,8 @@
             Notes = NewTender!.Notes!,
             TenderId = NewTender!.Id,
             ConstructionMachineIds = ConstructionMachines.Select(c => c.Id).ToList(),
-            Documentations = NewTender.Documentations
-        }
+            Documentations = NewTender.Documentations,
+        },
+        IsReturnFromStep3 = true
     });
 }

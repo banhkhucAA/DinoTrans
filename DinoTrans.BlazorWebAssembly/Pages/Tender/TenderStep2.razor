@@ -129,8 +129,11 @@
                                 Tài liệu đính kèm *
                             </label>
                         <label class="btn btn-outline-success float-end" style="position: relative; overflow: hidden;">
-                            <span>+ Upload a document</span>
-                            <InputFile id="fileInput" OnChange="@HandleFileSelection" multiple style="opacity: 0; width: 150px; height: 150px; position: absolute; top: 0; left: 0; cursor: pointer; z-index: 2;" />
+                            @if (!IsReturnFromStep3)
+                            {
+                                <span>+ Upload a document</span>                           
+                                <InputFile id="fileInput" OnChange="@HandleFileSelection" multiple style="opacity: 0; width: 150px; height: 150px; position: absolute; top: 0; left: 0; cursor: pointer; z-index: 2;" />
+                            }
                         </label>
                         </span>
                         <hr/>
@@ -138,11 +141,16 @@
                             @if (selectedFiles != null && selectedFiles.Count > 0)
                             {
                                 @foreach (var file in selectedFiles)
-                                {
+                                {//if nhận được là từ step 3 thì mới hiển thị để click, không thì thôi.
+                                    //vẫn phải add được vào loadFiles
                                     <tr>
-                                        <td style="padding-right:10px">@file.Name</td>
+                                        <img src="/images/PDF_file_icon.svg.png" style="max-width:20px; max-height:20px;" class="me-2"/>
+                                        <td style="padding-right:5px;">@file.Name</td>
                                         <td>
-                                            <button class="btn btn-outline-danger" @onclick="() => RemoveDocument(file)">- Remove from Tender</button>
+                                            @if (!IsReturnFromStep3)
+                                            {
+                                                <button class="btn btn-outline-danger" @onclick="() => RemoveDocument(file)">- Remove from Tender</button>
+                                            }
                                         </td>
                                     </tr>
                                 }
@@ -165,6 +173,8 @@
     public int CompanyId { get; set; }
     [Parameter]
     public ConvertStep2 InputStep2 { get; set; } = new();
+    [Parameter]
+    public bool IsReturnFromStep3 { get; set; }
     public SearchLoadForTenderDTO searchLoadForTenderDTO = new();
     public List<ContructionMachine> contructionMachines = new();
     public List<ConstructionMachinesListChoose> contructionMachinesChoose = new();
@@ -176,19 +186,15 @@
     public string searchText { get; set; } = "";
     public bool IsDefaultEvent { get; set; } = false;
     public string ErrorDisplay = "";
-    List<InputFileData> selectedFiles = new List<InputFileData>();
+    [Parameter]
+    public List<InputFileData> selectedFiles { get; set; } = new List<InputFileData>();
     private long maxFileSize = 1024 * 1024 * 3;
     private List<string> MyDocuments { get; set; } = new();
-    public class InputFileData
-    {
-        public string Name { get; set; }
-        public byte[] Data { get; set; }
-    }
     [Parameter]
-    public EventCallback<TenderChangeStepDTO> OnStep2Change{ get; set; }
+    public EventCallback<TenderStep2To3> OnStep2Change { get; set; }
 
     protected override async Task OnInitializedAsync()
-    {     
+    {
         await SearchOnInputChange();        
     }
 
@@ -197,8 +203,9 @@
         MachineIdsStep2 = MachineIds;
     }
 
-    public async void HandleFileSelection(InputFileChangeEventArgs e)
+    public async Task HandleFileSelection(InputFileChangeEventArgs e)
     {
+        if (selectedFiles == null) selectedFiles = new();
         foreach (var file in e.GetMultipleFiles())
         {
             var buffer = new byte[file.Size];
@@ -230,7 +237,7 @@
 
         var result = new ResponseModel<Shared.Entities.Tender>();
         var newUploadResults = new List<UploadResult>();
-        if (selectedFiles.Count > 0)
+        if (selectedFiles!=null && selectedFiles.Count > 0 && loadedFiles.Count > 0)
         {
             try
             {
@@ -272,7 +279,7 @@
         if (result.Success)
         {
             var tender = result.Data;
-            await OnStep2Change.InvokeAsync(new TenderChangeStepDTO
+            await OnStep2Change.InvokeAsync(new TenderStep2To3
                 {
                     CurrentStep = 2,
                     Tender = new Shared.Entities.Tender
@@ -296,7 +303,8 @@
                         Notes = tender.Notes,
                         Documentations = tender.Documentations
                     },
-                    ConstructionMachineIds = MachineIdsStep2
+                    ConstructionMachineIds = MachineIdsStep2,
+                    InputFileData = selectedFiles
                 });
         }
     }

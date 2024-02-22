@@ -302,5 +302,22 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             };
         }
 
+        public ResponseModel<ApplicationUser> GetUserById(int UserId)
+        {
+            var user = _userRepository.AsNoTracking().Where(u => u.Id == UserId).FirstOrDefault();
+            if(user == null)
+            {
+                return new ResponseModel<ApplicationUser>
+                {
+                    Success = false,
+                    Message = $"Can't find User with Id = {UserId}"
+                };
+            }
+            return new ResponseModel<ApplicationUser>
+            {
+                Data = user,
+                Success = true
+            };
+        }
     }
 }

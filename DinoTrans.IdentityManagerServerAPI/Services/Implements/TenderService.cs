@@ -96,6 +96,14 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 }    
             }
             var tenderConstructionMachineList = new List<TenderContructionMachine>();
+            var existedTenderConstructionMachines = await _tenderConstructionMachineRepository
+                .AsNoTracking()
+                .Where(c => c.TenderId == dto.TenderId)
+                .ToListAsync();
+            if(existedTenderConstructionMachines.Any())
+            {
+                _tenderConstructionMachineRepository.DeleteRange(existedTenderConstructionMachines);
+            }    
             foreach(var item in dto.ConstructionMachineIds) 
             {
                 var newTenderConstructionMachine = new TenderContructionMachine

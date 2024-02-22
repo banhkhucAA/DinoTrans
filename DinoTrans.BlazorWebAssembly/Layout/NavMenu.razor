@@ -31,7 +31,7 @@
         {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="@($"tender/CompanyId={CompanyId}")">
-                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Tender
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Tender-Wizard
                 </NavLink>
             </div>
         }
@@ -43,6 +43,16 @@
                 </NavLink>
             </div>
         }
+        <div class="nav-item px-3 ms-4">
+            <Dropdown>
+                <DropdownToggleButton Color="ButtonColor.Success">Tenders</DropdownToggleButton>
+                <DropdownMenu>
+                    <DropdownItem To="Tenders/Active" Type="BlazorBootstrap.ButtonType.Link">Action</DropdownItem>
+                    <DropdownItem To="#" Type="BlazorBootstrap.ButtonType.Link">Another action</DropdownItem>
+                    <DropdownItem To="#" Type="BlazorBootstrap.ButtonType.Link">Something else here</DropdownItem>
+                </DropdownMenu>
+            </Dropdown>
+        </div>
     </nav>
 </div>
 
