@@ -21,5 +21,6 @@ namespace DinoTrans.Shared.DTOs
         public int CurrentStep { get; set; }
         public ConvertStep2 InputStep2 { get; set; }
         public List<int> ConstructionMachineIds { get; set; }
+        public bool IsReturnFromStep3 { get; set; } = false;
     }
 }
