@@ -17,7 +17,7 @@
     }
     @if (selectedStepIndex == 1)
     {
-        <TenderStep2 CompanyId="CompanyId" NewTender="newTender" OnStep2Change="OnStepChange" InputStep2="InputStep2"></TenderStep2>
+        <TenderStep2 CompanyId="CompanyId" NewTender="newTender" OnStep2Change="OnStepChange" InputStep2="InputStep2" MachineIdsStep2="SelectedConstructionMachineIds"></TenderStep2>
     }
     else if (selectedStepIndex == 2)
     {
@@ -34,7 +34,7 @@
     public int CompanyId { get; set; }
     public int selectedStepIndex { get; set; }
     public DinoTrans.Shared.Entities.Tender? newTender { get; set; } = null;
-    public List<int> SelectedConstructionMachineIds { get; set; } = new();
+    public List<int> SelectedConstructionMachineIds = new();
     public ConvertStep2 InputStep2 { get; set; } = new();
     private void OnStepChange(TenderChangeStepDTO tender)
     {
