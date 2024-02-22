@@ -160,8 +160,8 @@
         {
             PickUpDate = DateOnly.FromDateTime(NewTender!.PickUpDate!.Value.Date),
             DeliveryDate = DateOnly.FromDateTime(NewTender!.DeiliverDate!.Value.Date),
-            PickUpTime = TimeOnly.FromDateTime(NewTender!.PickUpDate!.Value.Date),
-            DeliveryTime = TimeOnly.FromDateTime(NewTender!.DeiliverDate!.Value.Date),
+            PickUpTime = new TimeOnly(NewTender!.PickUpDate.Value.Hour, NewTender!.PickUpDate.Value.Minute),
+            DeliveryTime = new TimeOnly(NewTender!.DeiliverDate.Value.Hour, NewTender!.DeiliverDate.Value.Minute),
             PickUpAddress = NewTender!.PickUpAddress!,
             DeliveryAddress = NewTender!.DeliveryAddress!,
             ContactAtPickUpAddress = NewTender!.PickUpContact!,

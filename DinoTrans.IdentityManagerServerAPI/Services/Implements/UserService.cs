@@ -126,6 +126,8 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 }
 
                 // Thêm vai trò cho người dùng
+
+                if(userDTO.Role == "Quản trị viên công ty") userDTO.Role = Role.CompanyAdministrator;
                 var findRole = await _roleManager.FindByNameAsync(userDTO.Role);
                 if (findRole is null)
                 {
