@@ -1,6 +1,7 @@
 ﻿using DinoTrans.IdentityManagerServerAPI.Services.Implements;
 using DinoTrans.Shared.DTOs;
 using DinoTrans.Shared.DTOs.ContructionMachine;
+using DinoTrans.Shared.DTOs.SearchDTO;
 using DinoTrans.Shared.DTOs.TenderSteps;
 using DinoTrans.Shared.DTOs.UserResponse;
 using DinoTrans.Shared.Entities;
@@ -64,6 +65,13 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
         public async Task<IActionResult> StartTender([FromBody]int TenderId)
         {
             var result = await _tenderService.StartTender(TenderId);
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SearchActiveBy([FromBody] SearchTenderActiveDTO dto)
+        {
+            var result = await _tenderService.SearchActiveBy(dto, _currentUser);
             return Ok(result);
         }
     }

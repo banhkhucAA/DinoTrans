@@ -1,4 +1,6 @@
 ﻿@page "/Tenders/Active"
+@inject ITenderService TenderService
+@inject IJSRuntime js
 <PageTitle>TendersActive</PageTitle>
 <div class="card-body">
     <div>Tất cả thầu đang hoạt động</div>
@@ -69,12 +71,48 @@
                     </tr>
                 </thead>
                 <tbody>
-                
+                    @foreach (var item in listActive!)
+                    {
+                        <tr>
+                            <td style="min-width:150px; word-wrap: break-word">@($"#000{item.TenderId}")</td>
+                            <td style="min-width:150px; word-wrap: break-word">@item.TenderName</td>
+                            <td style="min-width:150px; word-wrap: break-word">
+                                @foreach(var machine in item.ConstructionMachines)
+                                {
+                                    <div>machine.Name - machine.SerialNumber - machine.Brand</div>
+                                }
+                            </td>
+                            <td style="min-width:150px; word-wrap: break-word">@item.From</td>
+                            <td style="min-width:150px; word-wrap: break-word">@item.To</td>
+                            <td style="min-width:150px; word-wrap: break-word">@item.PickUpDate</td>
+                            <td style="min-width:150px; word-wrap: break-word">@item.DeliveryDate</td>
+                            <td style="min-width:150px; word-wrap: break-word">@item.CompanyShipperName</td>
+                            <td style="min-width:150px; word-wrap: break-word">@item.Status</td>
+                            <td style="min-width:150px; word-wrap: break-word">@item.TimeRemaining</td>
+                            <td style="min-width:150px; word-wrap: break-word">@item.Bids</td>
+                            <td style="min-width:150px; word-wrap: break-word">abc</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 @code {
-
+    public List<TenderActiveDTO> listActive { get; set; } = new();
+    public ApplicationUser _user { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await TenderService.SearchActiveBy(new SearchTenderActiveDTO
+        {
+            searchLoads = 0,
+            searchOffers = 0
+        }, _user);
+        if (result.Success)
+            listActive = result.Data;
+        else
+        {
+            await js.InvokeVoidAsync("alert", result.Message);
+        }
+    }
 }

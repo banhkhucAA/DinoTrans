@@ -12,6 +12,6 @@ namespace DinoTrans.Shared.Services.Interfaces
         Task<ResponseModel<Tender>> CreateTenderStep1(CreateTenderStep1DTO dto);
         Task<ResponseModel<Tender>> CreateTenderStep2(UpdateTenderStep2AndCreateTenderContructionMachineDTO dto);
         Task<ResponseModel<Tender>> StartTender(int TenderId);
-        Task<ResponseModel<TenderActiveDTO>> SearchActiveBy (SearchTenderActiveDTO dto, ApplicationUser currentUser);
+        Task<ResponseModel<List<TenderActiveDTO>>> SearchActiveBy (SearchTenderActiveDTO dto, ApplicationUser? currentUser);
     }
 }
