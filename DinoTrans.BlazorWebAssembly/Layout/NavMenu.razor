@@ -43,15 +43,19 @@
                 </NavLink>
             </div>
         }
-        <div class="nav-item px-3 ms-4">
-            <Dropdown>
-                <DropdownToggleButton Color="ButtonColor.Success">Tenders</DropdownToggleButton>
-                <DropdownMenu>
-                    <DropdownItem To="Tenders/Active" Type="BlazorBootstrap.ButtonType.Link">Action</DropdownItem>
-                    <DropdownItem To="#" Type="BlazorBootstrap.ButtonType.Link">Another action</DropdownItem>
-                    <DropdownItem To="#" Type="BlazorBootstrap.ButtonType.Link">Something else here</DropdownItem>
-                </DropdownMenu>
-            </Dropdown>
+        <div class="nav-item px-3 column">
+            <NavLink class="nav-link" @onclick="ShowTendersPages">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Chi tiết đấu thầu
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3 column nav-submenu" id="submenu">
+            @if (IsDisplayTendersPages)
+            {
+                <NavLink class="nav-link" href="/Tenders/Active">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Đang hoạt động
+                </NavLink>
+            }
         </div>
     </nav>
 </div>
@@ -64,6 +68,7 @@
     public AuthenticationState? authState = null;
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
     public int CompanyId = new();
+    private bool IsDisplayTendersPages = false;
     protected override async Task OnInitializedAsync()
     {
         var customState = (CustomAuthenticationStateProvider)AuthenticationState;
@@ -89,6 +94,11 @@
                 NavManager.NavigateTo("/register");
             }
         }
+    }
+
+    private void ShowTendersPages()
+    {
+        IsDisplayTendersPages = !IsDisplayTendersPages;
     }
 
     private void ToggleNavMenu()
