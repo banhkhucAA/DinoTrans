@@ -11,13 +11,14 @@
                     <label class="form-label">
                         Tên thầu *
                     </label>
-                    <input type="text" @bind="tender_1.TenderName" class="form-control" placeholder="Nhập tên của cuộc đấu thầu"/>
+                    <input type="text" @bind="tender_1.TenderName" class="form-control" placeholder=""/>
             </div>
 
-            <div class="form-group col-md-12 row">
-                <div class="col-md-6">
+            <div class="form-group col-md-12">
+                <div class="row">
+                <div class="col-md-6 mt-3">
                     <label class="form-label">
-                        Please select the tender start date *
+                        Ngày bắt đầu đấu thầu *
                     </label>
                     <input type="date" @bind="tender_1.TenderStartDate" class="form-control" />
                     @if(ErrorStartDate != null)
@@ -25,9 +26,10 @@
                         <div style="color:red">@ErrorStartDate</div>
                     }
                 </div>
-                <div class="col-md-6">
+
+                <div class="col-md-6 mt-3">
                     <label class="form-label">
-                        Please select the tender end date *
+                        Ngày kết thúc đấu thầu *
                     </label>
                     <input type="date" @bind="tender_1.TenderEndDate" class="form-control" />
                     @if (ErrorStartDate != null)
@@ -35,28 +37,32 @@
                         <div style="color:red">@ErrorEndDate</div>
                     }
                 </div>
+                </div>
             </div>
 
-            <div class="form-group col-md-12 row">
-                <div class="col-md-6">
+            <div class="form-group col-md-12">
+                <div class="row">
+
+                <div class="col-md-6 mt-3">
                     <label class="form-label">
-                        Please select the tender start time *
+                        Giờ bắt đầu đấu thầu *
                     </label>
                     <input type="time" @bind="tender_1.TenderStartTime" class="form-control" />
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6 mt-3">
                     <label class="form-label">
-                        Please select the tender end time *
+                        Giờ kết thúc đấu thầu *
                     </label>
                     <input type="time" @bind="tender_1.TenderEndTime" class="form-control" />
                 </div>
             </div>
+            </div>
         </div>
         <hr />
-        <div class="form-group row float-end me-4">
+        <div class="form-group row float-end">
             @if (!IsBusy || IsError)
             {
-                <button class="btn btn-primary mt-4" @onclick=HandleNextStep type="submit">Next step</button>
+                <button class="btn btn-primary mt-4" @onclick=HandleNextStep type="submit">Bước tiếp theo</button>
             }
             else
             {

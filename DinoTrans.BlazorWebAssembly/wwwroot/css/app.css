@@ -42,8 +42,23 @@ a, .btn-link {
         box-shadow: none;
         border: 1px solid rgb(0, 123, 85);
     }
+.btn:active {
+    background-color: rgb(0, 123, 85);
+    box-shadow: none;
+    border: 1px solid rgb(0, 123, 85);
+}
+.btn:first-child:active {
+    background-color: rgb(0, 123, 85);
+    box-shadow: none;
+    border: 1px solid rgb(0, 123, 85);
+}
+    :not(.btn-check) + .btn:active {
+        background-color: rgb(0, 123, 85);
+        box-shadow: none;
+        border: 1px solid rgb(0, 123, 85);
+    }
 
-        .form-control {
+.form-control {
     border: 1px solid #ccc;
     border-radius: 0;
 }
@@ -140,4 +155,15 @@ a, .btn-link {
 
 code {
     color: #c02d76;
+}
+
+.rz-steps-buttons {
+    display:none !important;
+}
+
+.rz-steps .rz-state-highlight .rz-steps-number {
+    background-color: rgb(0, 123, 85) !important;
+}
+.rz-steps .rz-state-highlight .rz-steps-title {
+    color: rgb(0, 123, 85) !important;
 }
