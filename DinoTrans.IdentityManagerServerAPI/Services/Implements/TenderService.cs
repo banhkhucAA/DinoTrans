@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Identity;
 using DinoTrans.Shared.DTOs.UserResponse;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using DinoTrans.Shared.DTOs.SearchDTO;
+using Microsoft.IdentityModel.Tokens;
+using NHibernate.Engine;
 
 namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
 {
@@ -154,6 +157,61 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                     Message = ex.Message
                 };
             }
+        }
+
+        public async Task<ResponseModel<TenderActiveDTO>> SearchActiveBy(SearchTenderActiveDTO dto, ApplicationUser currentUser)
+        {
+            var listActive1 = from t in _tenderRepository.AsNoTracking()
+                              where t.TenderStatus == TenderStatuses.Active || t.TenderStatus == TenderStatuses.ToAssign
+                              join tc in _tenderConstructionMachineRepository.AsNoTracking() on t.Id equals tc.TenderId
+                              join c in _contructionMachineRepository.AsNoTracking() on tc.ContructionMachineId equals c.Id into machines
+                              select new TenderActiveDTO
+                              {
+                                  TenderId = t.Id,
+                                  TenderName = t.Name,
+                                  ConstructionMachines = machines.ToList(),
+                                  From = t.PickUpAddress,
+                                  To = t.DeliveryAddress,
+                                  PickUpDate = t.PickUpDate.ToString(),
+                                  DeliveryDate = t.DeiliverDate.ToString(),
+                                  Status = t.TenderStatus.ToString(),
+                                  TimeRemaining = 0,
+                                  Bids = 0
+                              };
+
+            var listActive = _tenderRepository
+                .AsNoTracking()
+                .Where(t => t.TenderStatus == TenderStatuses.Active || t.TenderStatus == TenderStatuses.ToAssign);
+
+            var currentUserCompany = _companyRepository
+                .AsNoTracking()
+                .Where(c => c.Id == currentUser.CompanyId)
+                .FirstOrDefault();
+
+            if(currentUserCompany!.Role == CompanyRoleEnum.Shipper)
+            {
+                listActive = listActive.Where(c =>            
+                    c.CompanyShipperId == currentUser.CompanyId);
+            }
+            else if(currentUserCompany!.Role == CompanyRoleEnum.Carrier)
+            {
+                listActive = listActive
+                    .Where(c =>  c.TenderStatus == TenderStatuses.Active);
+            }
+            var constructionMachineIds = _tenderConstructionMachineRepository
+                .AsNoTracking()
+                .Where(t => listActive.Select(l => l.Id).Contains(t.TenderId))
+                .Select(t => t.ContructionMachineId);
+            var constructionMachines = 
+            listActive = listActive.Where(c => dto.SearchText.IsNullOrEmpty()
+                    || c.Name.Contains(dto.SearchText!))
+                    .Skip((dto.pageIndex - 1) * dto.pageSize)
+                    .Take(dto.pageSize);
+
+            return new ResponseModel<TenderActiveDTO>
+            {
+
+            };    
         }
 
         public async Task<ResponseModel<Tender>> StartTender(int TenderId)

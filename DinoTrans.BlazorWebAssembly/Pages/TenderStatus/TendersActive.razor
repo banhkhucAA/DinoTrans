@@ -1,0 +1,80 @@
+﻿@page "/Tenders/Active"
+<PageTitle>TendersActive</PageTitle>
+<div class="card-body">
+    <div>Tất cả thầu đang hoạt động</div>
+    <hr />
+    <div class="col-md-12 row">
+        <div class="col-md-6 column">
+            <div>
+                <label class="form-label">
+                    Tìm kiếm đấu thầu
+                </label>
+            </div>
+            <div>
+                <input type="text" placeholder="Tìm kiếm theo số hiệu thầu và tên máy..." size="45" maxlength="45">
+            </div>
+        </div>
+
+        <div class="col-md-3 column">
+            <div>
+                <label class="form-label">
+                    Lọc theo hạng cân
+                </label>
+            </div>
+            <div>
+                <select title="Tất cả">
+                    <option>Tất cả</option>
+                    <option>Dưới 8 tấn</option>
+                    <option>Từ 8 tới 22 tấn</option>
+                    <option>Trên 22 tấn</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-md-3 column">
+            <div>
+                <label class="form-label">
+                    Lọc theo số lượng công ty đấu giá
+                </label>
+            </div>
+            <div>
+                <select title="Tất cả">
+                    <option>Tất cả</option>
+                    <option>Không có công ty nào</option>
+                    <option>Có dưới 5 công ty</option>
+                    <option>Có trên 5 công ty</option>
+                </select>
+            </div>
+        </div>
+
+        <br />
+        <br />
+
+        <div style="overflow-x: auto;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="min-width:150px; word-wrap: break-word">Số hiệu thầu</th>
+                        <th style="min-width:150px; word-wrap: break-word">Tên thầu</th>
+                        <th style="min-width:150px; word-wrap: break-word">Danh sách máy</th>
+                        <th style="min-width:150px; word-wrap: break-word">Địa chỉ nhận</th>
+                        <th style="min-width:150px; word-wrap: break-word">Địa chỉ giao</th>
+                        <th style="min-width:150px; word-wrap: break-word">Thời gian nhận sớm nhất</th>
+                        <th style="min-width:150px; word-wrap: break-word">Thời gian giao sớm nhất</th>
+                        <th style="min-width:150px; word-wrap: break-word">Công ty tạo thầu</th>
+                        <th style="min-width:150px; word-wrap: break-word">Trạng thái</th>
+                        <th style="min-width:150px; word-wrap: break-word">Thời gian còn lại</th>
+                        <th style="min-width:150px; word-wrap: break-word">Số lượng đặt giá</th>
+                        <th style="min-width:150px; word-wrap: break-word">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@code {
+
+}
