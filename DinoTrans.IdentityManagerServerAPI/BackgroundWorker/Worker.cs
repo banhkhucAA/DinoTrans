@@ -27,16 +27,19 @@ namespace DinoTrans.IdentityManagerServerAPI.BackgroundWorker
                     var tenders = await _tenderServiceFactory.GetTendersActiveForAuto();
                     if (!tenders.Success) return;
                     var listTenderIds = new List<int>();
-                    foreach (var tender in tenders.Data)
+                    if (tenders.Data.Count > 0)
                     {
-                        // Kiểm tra xem buổi đấu giá đã kết thúc chưa
-                        if (DateTime.UtcNow > tender.EndDate)
+                        foreach (var tender in tenders.Data)
                         {
-                            // Cập nhật trạng thái của buổi đấu giá từ active sang end
-                            listTenderIds.Add(tender.Id);
+                            // Kiểm tra xem buổi đấu giá đã kết thúc chưa
+                            if (DateTime.Now > tender.EndDate)
+                            {
+                                // Cập nhật trạng thái của buổi đấu giá từ active sang end
+                                listTenderIds.Add(tender.Id);
+                            }
                         }
+                        await _tenderServiceFactory.UpdateStatusAuto(listTenderIds);
                     }
-                    await _tenderServiceFactory.UpdateStatusAuto(listTenderIds);
                 }
                 catch (Exception ex)
                 {
@@ -44,7 +47,7 @@ namespace DinoTrans.IdentityManagerServerAPI.BackgroundWorker
                 }
 
                 // Chờ một khoảng thời gian trước khi kiểm tra lại
-                await Task.Delay(TimeSpan.FromMinutes(20), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }
         }
     }

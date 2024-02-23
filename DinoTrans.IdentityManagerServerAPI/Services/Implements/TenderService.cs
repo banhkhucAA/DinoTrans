@@ -175,7 +175,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 .Where(t => t.TenderStatus == TenderStatuses.Active || t.TenderStatus == TenderStatuses.ToAssign)
                 .ToListAsync();
 
-            if (allTenderActive != null && allTenderActive.Count != 0)
+            if (allTenderActive != null)
             {
                 foreach (var item in allTenderActive)
                 {

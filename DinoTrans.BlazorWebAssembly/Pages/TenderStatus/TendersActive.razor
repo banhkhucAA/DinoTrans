@@ -89,7 +89,13 @@
                         <td class="table-tender">@item.DeliveryDate</td>
                         <td class="table-tender">@item.CompanyShipperName</td>
                         <td class="table-tender">@item.Status</td>
-                        <td class="table-tender">@item.TimeRemaining</td>
+                        @{
+                            int totalSeconds = (int)item.TimeRemaining;
+                            int hours = totalSeconds / 3600;
+                            int minutes = (totalSeconds % 3600) / 60;
+                            int seconds = totalSeconds % 60;
+                        }
+                        <td class="table-tender">@($"{hours}h:{minutes}m:{seconds}s")</td>
                         <td class="table-tender">@item.Bids</td>
                         <td class="table-tender">abc</td>
                     </tr>
@@ -109,7 +115,9 @@
             searchOffers = 0
         }, _user);
         if (result.Success)
+        {
             listActive = result.Data;
+        }
         else
         {
             await js.InvokeVoidAsync("alert", result.Message);

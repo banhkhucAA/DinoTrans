@@ -24,11 +24,11 @@ namespace DinoTrans.IdentityManagerServerAPI.ServiceFactory
                 var tenderService = serviceProvider.GetRequiredService<ITenderService>();
                 result = await tenderService.GetTendersActiveForAuto();
                 if (result.Success)
-                    return new ResponseModel<List<Tender>>
-                    {
-                        Data = result.Data,
-                        Success = true
-                    };
+                return new ResponseModel<List<Tender>>
+                {
+                    Data = result.Data,
+                    Success = true
+                };
                 else return new ResponseModel<List<Tender>>
                 {
                     Success = false
