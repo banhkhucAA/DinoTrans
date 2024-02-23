@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Identity;
 using DinoTrans.Shared.DTOs.UserResponse;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using DinoTrans.Shared.DTOs.SearchDTO;
+using Microsoft.IdentityModel.Tokens;
+using NHibernate.Engine;
 
 namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
 {
@@ -21,18 +24,21 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
         private readonly IConstructionMachineRepository _contructionMachineRepository;
         private readonly ITenderConstructionMachineRepository _tenderConstructionMachineRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ITenderBidRepository _tenderBidRepository;
 
         public TenderService(ITenderRepository tenderRepository,
             ICompanyRepository companyRepository, 
             IConstructionMachineRepository contructionMachineRepository,
             ITenderConstructionMachineRepository tenderConstructionMachineRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            ITenderBidRepository tenderBidRepository)
         {
             _tenderRepository = tenderRepository;
             _companyRepository = companyRepository;
             _contructionMachineRepository = contructionMachineRepository;
             _tenderConstructionMachineRepository = tenderConstructionMachineRepository;
             _unitOfWork = unitOfWork;
+            _tenderBidRepository = tenderBidRepository;
         }
 
         public async Task<ResponseModel<Tender>> CreateTenderStep1(CreateTenderStep1DTO dto)
@@ -96,6 +102,14 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 }    
             }
             var tenderConstructionMachineList = new List<TenderContructionMachine>();
+            var existedTenderConstructionMachines = await _tenderConstructionMachineRepository
+                .AsNoTracking()
+                .Where(c => c.TenderId == dto.TenderId)
+                .ToListAsync();
+            if(existedTenderConstructionMachines.Any())
+            {
+                _tenderConstructionMachineRepository.DeleteRange(existedTenderConstructionMachines);
+            }    
             foreach(var item in dto.ConstructionMachineIds) 
             {
                 var newTenderConstructionMachine = new TenderContructionMachine
@@ -146,6 +160,60 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                     Message = ex.Message
                 };
             }
+        }
+
+        public async Task<ResponseModel<List<TenderActiveDTO>>> SearchActiveBy(SearchTenderActiveDTO dto, ApplicationUser currentUser)
+        {
+            var listActive = _tenderRepository
+            .AsNoTracking()
+            .Include(t => t.CompanyShipper)
+            .Where(t => t.TenderStatus == TenderStatuses.Active || t.TenderStatus == TenderStatuses.ToAssign)
+;
+
+            var currentUserCompany = _companyRepository
+                .AsNoTracking()
+                .Where(c => c.Id == currentUser.CompanyId)
+                .FirstOrDefault();
+
+            if (currentUserCompany!.Role == CompanyRoleEnum.Shipper)
+            {
+                listActive = listActive.Where(t =>
+                    t.CompanyShipper.Id == currentUser.CompanyId);
+            }
+            else if (currentUserCompany!.Role == CompanyRoleEnum.Carrier)
+            {
+                listActive = listActive
+                    .Where(c => c.TenderStatus == TenderStatuses.Active);
+            }
+
+            /*var listActiveNotPaging = listActive.Where(c => dto.SearchText.IsNullOrEmpty()
+                        || c.Name.Contains(dto.SearchText!)
+                        || c.ConstructionMachines.Any(cm => cm.Name.Contains(dto.SearchText!))
+                        && (
+                            (dto.searchLoads == SearchActiveByMachines.All)
+                            || (dto.searchLoads == SearchActiveByMachines.LessThan8Tons && c.ConstructionMachines.Any(cm => cm.Weight < 8000))
+                            || (dto.searchLoads == SearchActiveByMachines.From8To22Tons && c.ConstructionMachines.Any(cm => cm.Weight >= 8000 && cm.Weight < 22000))
+                            || (dto.searchLoads == SearchActiveByMachines.MoreThan8Tons && c.ConstructionMachines.Any(cm => cm.Weight >= 22000))
+                            )
+                        && (
+                            (dto.searchOffers == SearchActiveByOffers.All)
+                            || (dto.searchOffers == SearchActiveByOffers.NoOffers && c.Bids == 0)
+                            || (dto.searchOffers == SearchActiveByOffers.Max5Offers && c.Bids <= 5)
+                            || (dto.searchOffers == SearchActiveByOffers.MoreThan5Offers && c.Bids > 5)
+                            )
+                        );
+
+            listActive = listActiveNotPaging
+                        .Skip((dto.pageIndex - 1) * dto.pageSize)
+                        .Take(dto.pageSize);*/
+
+            return new ResponseModel<List<TenderActiveDTO>>
+            {
+                /*Data = listActive.ToList(),
+                Success = true,
+                Total = listActiveNotPaging.Count(),
+                PageCount = listActiveNotPaging.Count() / 10 + 1*/
+            };    
         }
 
         public async Task<ResponseModel<Tender>> StartTender(int TenderId)

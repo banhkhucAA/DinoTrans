@@ -2,6 +2,7 @@
 using DinoTrans.Shared.DTOs;
 using DinoTrans.Shared.DTOs.TenderSteps;
 using DinoTrans.Shared.DTOs.UserResponse;
+using DinoTrans.Shared.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +20,6 @@ namespace DinoTrans.Shared.Services.Interfaces
         Task<GeneralResponse> ChangeUserPassword(ChangePasswordDTO changePasswordDTO);
         Task<GeneralResponse> UpdateIsAdminConfirm();
         Task<ResponseModel<CompanyRoleEnum>> GetCompanyRole(int CompanyId);
+        ResponseModel<ApplicationUser> GetUserById(int UserId);
     }
 }

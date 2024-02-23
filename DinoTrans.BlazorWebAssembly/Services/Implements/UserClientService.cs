@@ -6,6 +6,7 @@ using DinoTrans.Shared.DTOs.UserResponse;
 using static DinoTrans.Shared.DTOs.ServiceResponses;
 using AutoMapper.Configuration;
 using DinoTrans.Shared.Contracts;
+using DinoTrans.Shared.Entities;
 
 namespace DinoTrans.BlazorWebAssembly.Services.Implements
 {
@@ -127,6 +128,9 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
 
         }
 
-
+        public ResponseModel<ApplicationUser> GetUserById(int UserId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

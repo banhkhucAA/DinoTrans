@@ -1,6 +1,8 @@
 ﻿using Blazored.LocalStorage;
+using DinoTrans.BlazorWebAssembly.Pages.Tender;
 using DinoTrans.Shared.DTOs;
 using DinoTrans.Shared.DTOs.ContructionMachine;
+using DinoTrans.Shared.DTOs.SearchDTO;
 using DinoTrans.Shared.DTOs.TenderSteps;
 using DinoTrans.Shared.Entities;
 using DinoTrans.Shared.GenericModels;
@@ -23,7 +25,7 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
             _configuration = configuration;
             _localStorageService = localStorageService;
         }
-        public async Task<ResponseModel<Tender>> CreateTenderStep1(CreateTenderStep1DTO dto)
+        public async Task<ResponseModel<Shared.Entities.Tender>> CreateTenderStep1(CreateTenderStep1DTO dto)
         {
             string token = await _localStorageService.GetItemAsStringAsync("token");
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
@@ -34,17 +36,17 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
 
             // Đọc phản hồi từ API
             if (!response.IsSuccessStatusCode)
-                return new ResponseModel<Tender>()
+                return new ResponseModel<Shared.Entities.Tender>()
                 {
                     Success = false,
                     Message = "Không thể tạo mới Tender"
                 };
 
             var apiResponse = await response.Content.ReadAsStringAsync();
-            return Generics.DeserializeJsonString<ResponseModel<Tender>>(apiResponse);
+            return Generics.DeserializeJsonString<ResponseModel<Shared.Entities.Tender>>(apiResponse);
         }
 
-        public async Task<ResponseModel<Tender>> CreateTenderStep2(UpdateTenderStep2AndCreateTenderContructionMachineDTO dto)
+        public async Task<ResponseModel<Shared.Entities.Tender>> CreateTenderStep2(UpdateTenderStep2AndCreateTenderContructionMachineDTO dto)
         {
             string token = await _localStorageService.GetItemAsStringAsync("token");
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
@@ -55,17 +57,17 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
 
             // Đọc phản hồi từ API
             if (!response.IsSuccessStatusCode)
-                return new ResponseModel<Tender>()
+                return new ResponseModel<Shared.Entities.Tender>()
                 {
                     Success = false,
                     Message = "Không thể hoàn tất bước 2"
                 };
 
             var apiResponse = await response.Content.ReadAsStringAsync();
-            return Generics.DeserializeJsonString<ResponseModel<Tender>>(apiResponse);
+            return Generics.DeserializeJsonString<ResponseModel<Shared.Entities.Tender>>(apiResponse);
         }
 
-        public async Task<ResponseModel<Tender>> StartTender(int TenderId)
+        public async Task<ResponseModel<Shared.Entities.Tender>> StartTender(int TenderId)
         {
             string token = await _localStorageService.GetItemAsStringAsync("token");
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
@@ -76,14 +78,35 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
 
             // Đọc phản hồi từ API
             if (!response.IsSuccessStatusCode)
-                return new ResponseModel<Tender>()
+                return new ResponseModel<Shared.Entities.Tender>()
                 {
                     Success = false,
                     Message = "Không thể hoàn tất đấu thầu"
                 };
 
             var apiResponse = await response.Content.ReadAsStringAsync();
-            return Generics.DeserializeJsonString<ResponseModel<Tender>>(apiResponse);
+            return Generics.DeserializeJsonString<ResponseModel<Shared.Entities.Tender>>(apiResponse);
+        }
+
+        public async Task<ResponseModel<List<TenderActiveDTO>>> SearchActiveBy(SearchTenderActiveDTO dto, ApplicationUser? currentUser)
+        {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            // Gửi yêu cầu POST đến endpoint API để đăng nhập
+            var response = await _httpClient
+            .PostAsync($"{BaseUrl}/SearchActiveBy",
+                Generics.GenerateStringContent(Generics.SerializeObj(dto)));
+
+            // Đọc phản hồi từ API
+            if (!response.IsSuccessStatusCode)
+                return new ResponseModel<List<TenderActiveDTO>>()
+                {
+                    Success = false,
+                    Message = "Không thể tìm kiếm"
+                };
+
+            var apiResponse = await response.Content.ReadAsStringAsync();
+            return Generics.DeserializeJsonString<ResponseModel<List<TenderActiveDTO>>>(apiResponse);
         }
     }
 }

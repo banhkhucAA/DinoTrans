@@ -53,6 +53,7 @@
     public AuthenticationState? authState = null;
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
     public int CompanyId = new();
+    private bool IsDisplayTendersPages = false;
     protected override async Task OnInitializedAsync()
     {
         var customState = (CustomAuthenticationStateProvider)AuthenticationState;
@@ -79,6 +80,11 @@
                 NavManager.NavigateTo("/register");
             }
         }
+    }
+
+    private void ShowTendersPages()
+    {
+        IsDisplayTendersPages = !IsDisplayTendersPages;
     }
 
     private void ToggleNavMenu()

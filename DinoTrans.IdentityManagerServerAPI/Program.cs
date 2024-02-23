@@ -80,7 +80,7 @@ builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<ITenderRepository, TenderRepository>();
 builder.Services.AddScoped<IConstructionMachineRepository, ConstructionMachineRepository>();
 builder.Services.AddScoped<ITenderConstructionMachineRepository, TenderConstructionMachineRepository>();
-
+builder.Services.AddScoped<ITenderBidRepository, TenderBidRepository>();
 
 
 //Services

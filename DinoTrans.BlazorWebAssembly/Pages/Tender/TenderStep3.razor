@@ -9,6 +9,9 @@
         Từ ngày @TenderStartTime tới ngày @TenderEndTime
     </div>
     <br />
+    <div>
+        Số hiệu thầu: @($"#000{NewTender!.Id}")
+    </div>
     <label>Thông tin chi tiết</label>
     <div style="border:1px solid grey">
         @foreach (var item in ConstructionMachines!)
@@ -160,8 +163,8 @@
         {
             PickUpDate = DateOnly.FromDateTime(NewTender!.PickUpDate!.Value.Date),
             DeliveryDate = DateOnly.FromDateTime(NewTender!.DeiliverDate!.Value.Date),
-            PickUpTime = TimeOnly.FromDateTime(NewTender!.PickUpDate!.Value.Date),
-            DeliveryTime = TimeOnly.FromDateTime(NewTender!.DeiliverDate!.Value.Date),
+            PickUpTime = new TimeOnly(NewTender!.PickUpDate.Value.Hour, NewTender!.PickUpDate.Value.Minute),
+            DeliveryTime = new TimeOnly(NewTender!.DeiliverDate.Value.Hour, NewTender!.DeiliverDate.Value.Minute),
             PickUpAddress = NewTender!.PickUpAddress!,
             DeliveryAddress = NewTender!.DeliveryAddress!,
             ContactAtPickUpAddress = NewTender!.PickUpContact!,
@@ -169,7 +172,8 @@
             Notes = NewTender!.Notes!,
             TenderId = NewTender!.Id,
             ConstructionMachineIds = ConstructionMachines.Select(c => c.Id).ToList(),
-            Documentations = NewTender.Documentations
-        }
+            Documentations = NewTender.Documentations,
+        },
+        IsReturnFromStep3 = true
     });
 }
