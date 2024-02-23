@@ -48,54 +48,54 @@
                 </select>
             </div>
         </div>
+    </div>
 
-        <br />
-        <br />
+    <br />
+    <br />
 
-        <div style="overflow-x: auto;">
-            <table class="table">
-                <thead>
+    <div style="overflow-x: auto;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="table-tender">Số hiệu thầu</th>
+                    <th class="table-tender">Tên thầu</th>
+                    <th class="table-tender">Danh sách máy</th>
+                    <th class="table-tender">Địa chỉ nhận</th>
+                    <th class="table-tender">Địa chỉ giao</th>
+                    <th class="table-tender">Thời gian nhận sớm nhất</th>
+                    <th class="table-tender">Thời gian giao sớm nhất</th>
+                    <th class="table-tender">Công ty tạo thầu</th>
+                    <th class="table-tender">Trạng thái</th>
+                    <th class="table-tender">Thời gian còn lại</th>
+                    <th class="table-tender">Số lượng đặt giá</th>
+                    <th class="table-tender">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in listActive!)
+                {
                     <tr>
-                        <th style="min-width:150px; word-wrap: break-word">Số hiệu thầu</th>
-                        <th style="min-width:150px; word-wrap: break-word">Tên thầu</th>
-                        <th style="min-width:150px; word-wrap: break-word">Danh sách máy</th>
-                        <th style="min-width:150px; word-wrap: break-word">Địa chỉ nhận</th>
-                        <th style="min-width:150px; word-wrap: break-word">Địa chỉ giao</th>
-                        <th style="min-width:150px; word-wrap: break-word">Thời gian nhận sớm nhất</th>
-                        <th style="min-width:150px; word-wrap: break-word">Thời gian giao sớm nhất</th>
-                        <th style="min-width:150px; word-wrap: break-word">Công ty tạo thầu</th>
-                        <th style="min-width:150px; word-wrap: break-word">Trạng thái</th>
-                        <th style="min-width:150px; word-wrap: break-word">Thời gian còn lại</th>
-                        <th style="min-width:150px; word-wrap: break-word">Số lượng đặt giá</th>
-                        <th style="min-width:150px; word-wrap: break-word">Hành động</th>
+                        <td class="table-tender">@($"#000{item.TenderId}")</td>
+                        <td class="table-tender">@item.TenderName</td>
+                        <td class="table-tender">
+                            @foreach(var machine in item.ConstructionMachines)
+                            {
+                                <div style="display: block;">@machine.Name - @machine.SerialNumber - @machine.Brand</div>
+                            }
+                        </td>
+                        <td class="table-tender">@item.From</td>
+                        <td class="table-tender">@item.To</td>
+                        <td class="table-tender">@item.PickUpDate</td>
+                        <td class="table-tender">@item.DeliveryDate</td>
+                        <td class="table-tender">@item.CompanyShipperName</td>
+                        <td class="table-tender">@item.Status</td>
+                        <td class="table-tender">@item.TimeRemaining</td>
+                        <td class="table-tender">@item.Bids</td>
+                        <td class="table-tender">abc</td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in listActive!)
-                    {
-                        <tr>
-                            <td style="min-width:150px; word-wrap: break-word">@($"#000{item.TenderId}")</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.TenderName</td>
-                            <td style="min-width:150px; word-wrap: break-word">
-                                @foreach(var machine in item.ConstructionMachines)
-                                {
-                                    <div>machine.Name - machine.SerialNumber - machine.Brand</div>
-                                }
-                            </td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.From</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.To</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.PickUpDate</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.DeliveryDate</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.CompanyShipperName</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.Status</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.TimeRemaining</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.Bids</td>
-                            <td style="min-width:150px; word-wrap: break-word">abc</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 @code {

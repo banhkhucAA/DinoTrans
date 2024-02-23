@@ -31,6 +31,14 @@
                             </NavLink>
                         </div>
                     }
+                    @if (authState != null && authState.User.Identity.IsAuthenticated && (companyRole == CompanyRoleEnum.Admin || companyRole == CompanyRoleEnum.Shipper))
+                    {
+                        <div class="nav-item">
+                            <NavLink class="nav-link" href="/Tenders/Active">
+                                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Danh sách thầu
+                            </NavLink>
+                        </div>
+                    }
 @*                     @if (authState != null && authState.User.Identity.IsAuthenticated && companyRole == CompanyRoleEnum.Shipper)
                     {
                         <div class="nav-item">

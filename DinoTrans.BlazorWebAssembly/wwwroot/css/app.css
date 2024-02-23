@@ -167,3 +167,10 @@ code {
 .rz-steps .rz-state-highlight .rz-steps-title {
     color: rgb(0, 123, 85) !important;
 }
+
+.table-tender {
+    min-width: 150px!important;
+    word-wrap: break-word!important;
+    border:1px solid black;
+    white-space:nowrap;
+}

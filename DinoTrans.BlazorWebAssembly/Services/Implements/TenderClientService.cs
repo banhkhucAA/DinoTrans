@@ -108,5 +108,15 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
             var apiResponse = await response.Content.ReadAsStringAsync();
             return Generics.DeserializeJsonString<ResponseModel<List<TenderActiveDTO>>>(apiResponse);
         }
+
+        public Task<ResponseModel<List<Shared.Entities.Tender>>> GetTendersActiveForAuto()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<GeneralResponse> UpdateStatusAuto(List<int> TenderIds)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
