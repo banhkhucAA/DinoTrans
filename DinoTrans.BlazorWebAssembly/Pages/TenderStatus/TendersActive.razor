@@ -1,6 +1,7 @@
 ﻿@page "/Tenders/Active"
 @inject ITenderService TenderService
 @inject IJSRuntime js
+@using System.Timers
 <PageTitle>TendersActive</PageTitle>
 <div class="card-body">
     <div>Tất cả thầu đang hoạt động</div>
@@ -72,7 +73,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in listActive!)
+                @foreach (var item in activeTimeElapses!)
                 {
                     <tr>
                         <td class="table-tender">@($"#000{item.TenderId}")</td>
@@ -89,13 +90,7 @@
                         <td class="table-tender">@item.DeliveryDate</td>
                         <td class="table-tender">@item.CompanyShipperName</td>
                         <td class="table-tender">@item.Status</td>
-                        @{
-                            int totalSeconds = (int)item.TimeRemaining;
-                            int hours = totalSeconds / 3600;
-                            int minutes = (totalSeconds % 3600) / 60;
-                            int seconds = totalSeconds % 60;
-                        }
-                        <td class="table-tender">@($"{hours}h:{minutes}m:{seconds}s")</td>
+                        <td class="table-tender">@item.TimeLeft</td>
                         <td class="table-tender">@item.Bids</td>
                         <td class="table-tender">abc</td>
                     </tr>
@@ -107,20 +102,87 @@
 @code {
     public List<TenderActiveDTO> listActive { get; set; } = new();
     public ApplicationUser _user { get; set; }
+    public List<ActiveTimeElapse> activeTimeElapses { get; set; } = new();
+    public class ActiveTimeElapse
+    {
+        public int TenderId { get; set; }
+        public string TenderName { get; set; }
+        public List<ContructionMachine> ConstructionMachines { get; set; }
+        public string From { get; set; }
+        public string To { get; set; }
+        public DateTime PickUpDate { get; set; }
+        public DateTime DeliveryDate { get; set; }
+        public string Status { get; set; }
+        public double TimeRemaining { get; set; }
+        public int Bids { get; set; }
+        public int CompanyShipperId { get; set; }
+        public string CompanyShipperName { get; set; }
+        public Timer Timer { get; set; }
+        public string TimeLeft { get; set; }
+    }
     protected override async Task OnInitializedAsync()
+    {
+        await CallSearchActiveBy();
+
+    }
+
+    private async Task CallSearchActiveBy()
     {
         var result = await TenderService.SearchActiveBy(new SearchTenderActiveDTO
         {
             searchLoads = 0,
             searchOffers = 0
         }, _user);
+
         if (result.Success)
         {
             listActive = result.Data;
+            activeTimeElapses = new();
+            foreach (var item in listActive)
+            {
+                activeTimeElapses.Add(new ActiveTimeElapse
+                {
+                    TenderId = item.TenderId,
+                    TenderName = item.TenderName,
+                    ConstructionMachines = item.ConstructionMachines,
+                    From = item.From,
+                    To = item.To,
+                    PickUpDate = item.PickUpDate,
+                    DeliveryDate = item.DeliveryDate,
+                    Status = item.Status,
+                    TimeRemaining = item.TimeRemaining,
+                    Bids = item.Bids,
+                    CompanyShipperId = item.CompanyShipperId,
+                    CompanyShipperName = item.CompanyShipperName,
+                    Timer = new(1000)
+                });
+            }
+            foreach (var item in activeTimeElapses)
+            {
+                item.Timer.Elapsed += (sender, EventArgs) => CountDown(item);
+                item.Timer.Start();
+            }
         }
         else
         {
             await js.InvokeVoidAsync("alert", result.Message);
         }
+    }
+
+    private async void CountDown(ActiveTimeElapse item)
+    {
+        item.TimeRemaining--;
+        int hours = (int)item.TimeRemaining / 3600;
+        int minutes = (int)item.TimeRemaining / 60 - hours * 60;
+        int seconds = (int)item.TimeRemaining - hours * 3600 - minutes * 60;
+        item.TimeLeft = $"{hours}h:{minutes}m:{seconds}s";
+        if (hours <= 0 && minutes <= 0 && seconds <=0)
+        {
+            item.Timer.Stop();
+            var result = await TenderService.UpdateStatusAuto(new List<int> { item.TenderId });
+            if(result.Flag)
+                await CallSearchActiveBy();
+        }
+        StateHasChanged();
     }
 }

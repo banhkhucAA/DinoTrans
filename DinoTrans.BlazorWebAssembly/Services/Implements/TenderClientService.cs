@@ -114,9 +114,21 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
             throw new NotImplementedException();
         }
 
-        public Task<GeneralResponse> UpdateStatusAuto(List<int> TenderIds)
+        public async Task<GeneralResponse> UpdateStatusAuto(List<int> TenderIds)
         {
-            throw new NotImplementedException();
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            // Gửi yêu cầu POST đến endpoint API để đăng nhập
+            var response = await _httpClient
+            .PostAsync($"{BaseUrl}/UpdateStatusAuto",
+                Generics.GenerateStringContent(Generics.SerializeObj(TenderIds)));
+
+            // Đọc phản hồi từ API
+            if (!response.IsSuccessStatusCode)
+                return new GeneralResponse(false, "Fail to execute");
+
+            var apiResponse = await response.Content.ReadAsStringAsync();
+            return Generics.DeserializeJsonString<GeneralResponse>(apiResponse);
         }
     }
 }
