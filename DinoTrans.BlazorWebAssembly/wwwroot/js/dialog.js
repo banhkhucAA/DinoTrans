@@ -19,3 +19,10 @@ window.closeModalViewPictures = function (Id) {
 window.closeModal = function () {
     document.getElementById('my-dialog').close();
 }
+
+window.updateCountdown = function (elementId, text) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.innerText = text;
+    }
+};

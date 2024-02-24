@@ -1,6 +1,7 @@
 ﻿@page "/Tenders/Active"
 @inject ITenderService TenderService
 @inject IJSRuntime js
+@using System.Timers
 <PageTitle>TendersActive</PageTitle>
 <div class="card-body">
     <div>Tất cả thầu đang hoạt động</div>
@@ -48,71 +49,140 @@
                 </select>
             </div>
         </div>
+    </div>
 
-        <br />
-        <br />
+    <br />
+    <br />
 
-        <div style="overflow-x: auto;">
-            <table class="table">
-                <thead>
+    <div style="overflow-x: auto;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="table-tender">Số hiệu thầu</th>
+                    <th class="table-tender">Tên thầu</th>
+                    <th class="table-tender">Danh sách máy</th>
+                    <th class="table-tender">Địa chỉ nhận</th>
+                    <th class="table-tender">Địa chỉ giao</th>
+                    <th class="table-tender">Thời gian nhận sớm nhất</th>
+                    <th class="table-tender">Thời gian giao sớm nhất</th>
+                    <th class="table-tender">Công ty tạo thầu</th>
+                    <th class="table-tender">Trạng thái</th>
+                    <th class="table-tender">Thời gian còn lại</th>
+                    <th class="table-tender">Số lượng đặt giá</th>
+                    <th class="table-tender">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in activeTimeElapses!)
+                {
                     <tr>
-                        <th style="min-width:150px; word-wrap: break-word">Số hiệu thầu</th>
-                        <th style="min-width:150px; word-wrap: break-word">Tên thầu</th>
-                        <th style="min-width:150px; word-wrap: break-word">Danh sách máy</th>
-                        <th style="min-width:150px; word-wrap: break-word">Địa chỉ nhận</th>
-                        <th style="min-width:150px; word-wrap: break-word">Địa chỉ giao</th>
-                        <th style="min-width:150px; word-wrap: break-word">Thời gian nhận sớm nhất</th>
-                        <th style="min-width:150px; word-wrap: break-word">Thời gian giao sớm nhất</th>
-                        <th style="min-width:150px; word-wrap: break-word">Công ty tạo thầu</th>
-                        <th style="min-width:150px; word-wrap: break-word">Trạng thái</th>
-                        <th style="min-width:150px; word-wrap: break-word">Thời gian còn lại</th>
-                        <th style="min-width:150px; word-wrap: break-word">Số lượng đặt giá</th>
-                        <th style="min-width:150px; word-wrap: break-word">Hành động</th>
+                        <td class="table-tender">@($"#000{item.TenderId}")</td>
+                        <td class="table-tender">@item.TenderName</td>
+                        <td class="table-tender">
+                            @foreach(var machine in item.ConstructionMachines)
+                            {
+                                <div style="display: block;">@machine.Name - @machine.SerialNumber - @machine.Brand</div>
+                            }
+                        </td>
+                        <td class="table-tender">@item.From</td>
+                        <td class="table-tender">@item.To</td>
+                        <td class="table-tender">@item.PickUpDate</td>
+                        <td class="table-tender">@item.DeliveryDate</td>
+                        <td class="table-tender">@item.CompanyShipperName</td>
+                        <td class="table-tender">@item.Status</td>
+                        <td class="table-tender">@item.TimeLeft</td>
+                        <td class="table-tender">@item.Bids</td>
+                        <td class="table-tender">abc</td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in listActive!)
-                    {
-                        <tr>
-                            <td style="min-width:150px; word-wrap: break-word">@($"#000{item.TenderId}")</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.TenderName</td>
-                            <td style="min-width:150px; word-wrap: break-word">
-                                @foreach(var machine in item.ConstructionMachines)
-                                {
-                                    <div>machine.Name - machine.SerialNumber - machine.Brand</div>
-                                }
-                            </td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.From</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.To</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.PickUpDate</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.DeliveryDate</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.CompanyShipperName</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.Status</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.TimeRemaining</td>
-                            <td style="min-width:150px; word-wrap: break-word">@item.Bids</td>
-                            <td style="min-width:150px; word-wrap: break-word">abc</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 @code {
     public List<TenderActiveDTO> listActive { get; set; } = new();
     public ApplicationUser _user { get; set; }
+    public List<ActiveTimeElapse> activeTimeElapses { get; set; } = new();
+    public class ActiveTimeElapse
+    {
+        public int TenderId { get; set; }
+        public string TenderName { get; set; }
+        public List<ContructionMachine> ConstructionMachines { get; set; }
+        public string From { get; set; }
+        public string To { get; set; }
+        public DateTime PickUpDate { get; set; }
+        public DateTime DeliveryDate { get; set; }
+        public string Status { get; set; }
+        public double TimeRemaining { get; set; }
+        public int Bids { get; set; }
+        public int CompanyShipperId { get; set; }
+        public string CompanyShipperName { get; set; }
+        public Timer Timer { get; set; }
+        public string TimeLeft { get; set; }
+    }
     protected override async Task OnInitializedAsync()
+    {
+        await CallSearchActiveBy();
+
+    }
+
+    private async Task CallSearchActiveBy()
     {
         var result = await TenderService.SearchActiveBy(new SearchTenderActiveDTO
         {
             searchLoads = 0,
             searchOffers = 0
         }, _user);
+
         if (result.Success)
+        {
             listActive = result.Data;
+            activeTimeElapses = new();
+            foreach (var item in listActive)
+            {
+                activeTimeElapses.Add(new ActiveTimeElapse
+                {
+                    TenderId = item.TenderId,
+                    TenderName = item.TenderName,
+                    ConstructionMachines = item.ConstructionMachines,
+                    From = item.From,
+                    To = item.To,
+                    PickUpDate = item.PickUpDate,
+                    DeliveryDate = item.DeliveryDate,
+                    Status = item.Status,
+                    TimeRemaining = item.TimeRemaining,
+                    Bids = item.Bids,
+                    CompanyShipperId = item.CompanyShipperId,
+                    CompanyShipperName = item.CompanyShipperName,
+                    Timer = new(1000)
+                });
+            }
+            foreach (var item in activeTimeElapses)
+            {
+                item.Timer.Elapsed += (sender, EventArgs) => CountDown(item);
+                item.Timer.Start();
+            }
+        }
         else
         {
             await js.InvokeVoidAsync("alert", result.Message);
         }
+    }
+
+    private async void CountDown(ActiveTimeElapse item)
+    {
+        item.TimeRemaining--;
+        int hours = (int)item.TimeRemaining / 3600;
+        int minutes = (int)item.TimeRemaining / 60 - hours * 60;
+        int seconds = (int)item.TimeRemaining - hours * 3600 - minutes * 60;
+        item.TimeLeft = $"{hours}h:{minutes}m:{seconds}s";
+        if (hours <= 0 && minutes <= 0 && seconds <=0)
+        {
+            item.Timer.Stop();
+            var result = await TenderService.UpdateStatusAuto(new List<int> { item.TenderId });
+            if(result.Flag)
+                await CallSearchActiveBy();
+        }
+        StateHasChanged();
     }
 }

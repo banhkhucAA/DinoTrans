@@ -17,7 +17,7 @@ namespace DinoTrans.Shared.DTOs
         public DateTime PickUpDate { get; set; }
         public DateTime DeliveryDate { get; set; }    
         public string Status { get; set; }
-        public float TimeRemaining { get; set; }
+        public double TimeRemaining { get; set; }
         public int Bids { get; set; }
         public int CompanyShipperId { get; set; }
         public string CompanyShipperName { get; set; }

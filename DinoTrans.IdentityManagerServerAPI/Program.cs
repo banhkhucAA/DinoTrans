@@ -12,6 +12,9 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
+using DinoTrans.IdentityManagerServerAPI.SignalR;
+using DinoTrans.IdentityManagerServerAPI.BackgroundWorker;
+using DinoTrans.IdentityManagerServerAPI.ServiceFactory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,8 +90,10 @@ builder.Services.AddScoped<ITenderBidRepository, TenderBidRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITenderService, TenderService>();
 builder.Services.AddScoped<IConstructionMachineService, ConstructionMachineService>();
+builder.Services.AddScoped<ITenderBidService,  TenderBidService>();
+builder.Services.AddSingleton<TenderServiceFactory>();
 
-
+builder.Services.AddHostedService<TenderBackgroundService>();
 
 
 var app = builder.Build();
@@ -115,5 +120,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
 
 app.Run();

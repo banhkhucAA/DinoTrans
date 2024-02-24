@@ -25,13 +25,17 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
         private readonly ITenderConstructionMachineRepository _tenderConstructionMachineRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITenderBidRepository _tenderBidRepository;
+        private readonly IConstructionMachineService _machineService;
+        private readonly ITenderBidService _tenderBidService;
 
         public TenderService(ITenderRepository tenderRepository,
             ICompanyRepository companyRepository, 
             IConstructionMachineRepository contructionMachineRepository,
             ITenderConstructionMachineRepository tenderConstructionMachineRepository,
             IUnitOfWork unitOfWork,
-            ITenderBidRepository tenderBidRepository)
+            ITenderBidRepository tenderBidRepository,
+            IConstructionMachineService machineService,
+            ITenderBidService tenderBidService)
         {
             _tenderRepository = tenderRepository;
             _companyRepository = companyRepository;
@@ -39,6 +43,8 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             _tenderConstructionMachineRepository = tenderConstructionMachineRepository;
             _unitOfWork = unitOfWork;
             _tenderBidRepository = tenderBidRepository;
+            _machineService = machineService;
+            _tenderBidService = tenderBidService;
         }
 
         public async Task<ResponseModel<Tender>> CreateTenderStep1(CreateTenderStep1DTO dto)
@@ -162,32 +168,90 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             }
         }
 
+        public async Task<ResponseModel<List<Tender>>> GetTendersActiveForAuto()
+        {
+            var allTenderActive = await _tenderRepository
+                .AsNoTracking()
+                .Where(t => t.TenderStatus == TenderStatuses.Active || t.TenderStatus == TenderStatuses.ToAssign)
+                .ToListAsync();
+
+            if (allTenderActive != null)
+            {
+                foreach (var item in allTenderActive)
+                {
+                    var AnyBids = _tenderBidRepository
+                        .AsNoTracking()
+                        .Any(t => t.TenderId == item.Id);
+                    if (AnyBids)
+                        allTenderActive.Remove(item);
+                }
+            }
+            else
+            {
+                return new ResponseModel<List<Tender>>
+                {
+                    Success = false
+                };
+            }    
+
+            return new ResponseModel<List<Tender>>
+            {
+                Success = true,
+                Data = allTenderActive!
+            };
+        }
+
         public async Task<ResponseModel<List<TenderActiveDTO>>> SearchActiveBy(SearchTenderActiveDTO dto, ApplicationUser currentUser)
         {
             var listActive = _tenderRepository
             .AsNoTracking()
             .Include(t => t.CompanyShipper)
             .Where(t => t.TenderStatus == TenderStatuses.Active || t.TenderStatus == TenderStatuses.ToAssign)
-;
+            .ToList();
 
             var currentUserCompany = _companyRepository
-                .AsNoTracking()
-                .Where(c => c.Id == currentUser.CompanyId)
-                .FirstOrDefault();
+                                    .AsNoTracking()
+                                    .Where(c => c.Id == currentUser.CompanyId)
+                                    .FirstOrDefault();
 
             if (currentUserCompany!.Role == CompanyRoleEnum.Shipper)
             {
                 listActive = listActive.Where(t =>
-                    t.CompanyShipper.Id == currentUser.CompanyId);
+                    t.CompanyShipperId! == currentUser.CompanyId).ToList();
             }
             else if (currentUserCompany!.Role == CompanyRoleEnum.Carrier)
             {
                 listActive = listActive
-                    .Where(c => c.TenderStatus == TenderStatuses.Active);
+                    .Where(c => c.TenderStatus == TenderStatuses.Active).ToList();
             }
 
-            /*var listActiveNotPaging = listActive.Where(c => dto.SearchText.IsNullOrEmpty()
-                        || c.Name.Contains(dto.SearchText!)
+            var listTenderActiveDTO = new List<TenderActiveDTO>();
+            foreach (var item in listActive)
+            {
+                var timeRemains = (item.EndDate - DateTime.Now).TotalSeconds;
+                var newTenderActiveDTO = new TenderActiveDTO
+                {
+                    TenderId = item.Id,
+                    TenderName = item.Name,
+                    From = item.PickUpAddress,
+                    To = item.DeliveryAddress,
+                    PickUpDate = (DateTime)item.PickUpDate,
+                    DeliveryDate = (DateTime)item.DeiliverDate,
+                    Status = item.TenderStatus.ToString(),
+                    TimeRemaining = timeRemains > 0 ? timeRemains : 0,
+                    CompanyShipperId = item.CompanyShipperId,
+                    CompanyShipperName = item.CompanyShipper!.CompanyName
+                };
+
+                var constructionMachines = await _machineService.GetMachinesForTenderOverviewByIds(item.Id);
+                newTenderActiveDTO.ConstructionMachines = constructionMachines.Data;
+                var Bids = await _tenderBidService.GetTenderBidsByTenderId(item.Id);
+                newTenderActiveDTO.Bids = Bids.Data.Count();
+                listTenderActiveDTO.Add(newTenderActiveDTO);
+            }    
+
+            var listActiveNotPaging = listTenderActiveDTO.Where(c => dto.SearchText.IsNullOrEmpty()
+                        || c.TenderName.Contains(dto.SearchText!)
                         || c.ConstructionMachines.Any(cm => cm.Name.Contains(dto.SearchText!))
                         && (
                             (dto.searchLoads == SearchActiveByMachines.All)
@@ -203,16 +267,16 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                             )
                         );
 
-            listActive = listActiveNotPaging
+            var listActivePaging = listActiveNotPaging
                         .Skip((dto.pageIndex - 1) * dto.pageSize)
-                        .Take(dto.pageSize);*/
+                        .Take(dto.pageSize);
 
             return new ResponseModel<List<TenderActiveDTO>>
             {
-                /*Data = listActive.ToList(),
+                Data = listActivePaging.ToList(),
                 Success = true,
                 Total = listActiveNotPaging.Count(),
-                PageCount = listActiveNotPaging.Count() / 10 + 1*/
+                PageCount = listActiveNotPaging.Count() / 10 + 1
             };    
         }
 
@@ -248,6 +312,23 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 Data = tender,
                 Success = true
             };
+        }
+
+        public async Task<GeneralResponse> UpdateStatusAuto(List<int> TenderIds)
+        {
+            var listTenders = await _tenderRepository
+                .AsNoTracking()
+                .Where(t => TenderIds.Contains(t.Id))
+                .ToListAsync();
+
+            foreach(var item in listTenders)
+            {
+                item.TenderStatus = TenderStatuses.Withdrawn;
+            }
+
+            _tenderRepository.UpdateRange(listTenders);
+            _tenderRepository.SaveChange();
+            return new GeneralResponse(true, "Cập nhật thành công");
         }
     }
 }

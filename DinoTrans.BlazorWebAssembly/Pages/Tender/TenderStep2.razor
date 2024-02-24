@@ -17,14 +17,14 @@
                             Ngày nhận  hàng*
                         </label>
                         <hr>
-                        <input type="date" @bind="InputStep2.PickUpDate" class="form-control" @oninput="SearchOnInputChange" />
+                        <input type="date" @bind="InputStep2.PickUpDate" class="form-control" @oninput="UpdatePickUpDate" />
                     </div>
                     <div class="col-md-12">
                         <label class="form-label">
                             Giờ nhận  hàng*
                         </label>
                         <hr>
-                        <input type="time" @bind="InputStep2.PickUpTime" class="form-control" @oninput="SearchOnInputChange" />
+                        <input type="time" @bind="InputStep2.PickUpTime" class="form-control" @oninput="UpdatePickUpTime" />
                     </div>
                 </div>
                 <div class="form-group col-md-6 column">
@@ -34,14 +34,14 @@
                             Ngày giao hàng*
                         </label>
                         <hr>
-                        <input type="date" @bind="InputStep2.DeliveryDate" class="form-control" @oninput="SearchOnInputChange" />
+                        <input type="date" @bind="InputStep2.DeliveryDate" class="form-control" @oninput="UpdateDeliveryDate" />
                     </div>
                     <div class="col-md-12">
                         <label class="form-label">
                             Giờ giao hàng *
                         </label>
                         <hr>
-                        <input type="time" @bind="InputStep2.DeliveryTime" class="form-control" @oninput="SearchOnInputChange" />
+                        <input type="time" @bind="InputStep2.DeliveryTime" class="form-control" @oninput="UpdateDeliveryTime" />
                     </div>
                 </div>
             </div>
@@ -309,6 +309,42 @@
                     ConstructionMachineIds = MachineIdsStep2,
                     InputFileData = selectedFiles
                 });
+        }
+    }
+
+    private async Task UpdateDeliveryDate(ChangeEventArgs e)
+    {
+        if (DateOnly.TryParse(e.Value.ToString(), out DateOnly result))
+        {
+            InputStep2.DeliveryDate = result;
+            await SearchOnInputChange();
+        }
+    }
+
+    private async Task UpdatePickUpDate(ChangeEventArgs e)
+    {
+        if (DateOnly.TryParse(e.Value.ToString(), out DateOnly result))
+        {
+            InputStep2.PickUpDate = result;
+            await SearchOnInputChange();
+        }
+    }
+
+    private async Task UpdatePickUpTime(ChangeEventArgs e)
+    {
+        if (TimeOnly.TryParse(e.Value.ToString(), out TimeOnly result))
+        {
+            InputStep2.PickUpTime = result;
+            await SearchOnInputChange();
+        }
+    }
+
+    private async Task UpdateDeliveryTime(ChangeEventArgs e)
+    {
+        if (TimeOnly.TryParse(e.Value.ToString(), out TimeOnly result))
+        {
+            InputStep2.DeliveryTime = result;
+            await SearchOnInputChange();
         }
     }
 
