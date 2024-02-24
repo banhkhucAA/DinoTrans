@@ -16,7 +16,7 @@
     <div style="border:1px solid grey">
         @foreach (var item in ConstructionMachines!)
         {
-            <div style="padding:5px;">Tên máy: @item.Name - Nhãn hiệu: @item.Brand - Biển số: @item.SerialNumber</div>
+            <div style="padding:5px;">Tên máy: @item.Name - Nhãn hiệu: @item.Brand - Số sêri: @item.SerialNumber</div>
         }
     </div>
     <br />
@@ -27,7 +27,7 @@
                     Thông tin nhận hàng
                 </label>
                 <hr />
-                <div><strong>Thời gian nhận hàng sớm nhất: </strong></div>
+                <div><strong>Thời gian nhận hàng sớm nhất </strong></div>
                 <div>@TenderPickUpDate</div>
                 <div><strong>Địa chỉ nhận hàng </strong></div>
                 <div>@NewTender!.PickUpAddress</div>
@@ -67,7 +67,7 @@
                     Thông tin giao hàng
                 </label>
                 <hr />
-                <div><strong>Thời gian giao hàng sớm nhất: </strong></div>
+                <div><strong>Thời gian giao hàng sớm nhất </strong></div>
                 <div>@TenderDeliveryDate</div>
                 <div><strong>Địa chỉ giao hàng </strong></div>
                 <div>@NewTender!.DeliveryAddress</div>
@@ -83,14 +83,14 @@
                 </textarea>
             </div>
         </div>
-        <div class="col-md-4 column">
-            <img src="images/490px-Magnifying_glass_icon.svg.png"/>
-        </div>
+        <div class="col-md-4 column" style="display: float-end">
+<img src="images/490px-Magnifying_glass_icon.svg.png" width="200">      
+</div>
     </div>
     <div class="form-group row float-end me-4">
         <div class="d-flex">
-            <button class="btn btn-outline-success mt-4 me-2" type="submit" @onclick="BackToStep2" style="white-space: nowrap;">&lt; Previous step</button>
-            <button class="btn btn-primary mt-4" type="submit" @onclick="StartTender">Start tender &gt;</button>
+            <button class="btn btn-outline-success mt-4 me-2" type="submit" @onclick="BackToStep2" style="white-space: nowrap; border-radius: 0;">&lt; Bước trước</button>
+            <button class="btn btn-primary mt-4" type="submit" @onclick="StartTender">Bắt đầu đấu thầu &gt;</button>
         </div>
     </div>
 

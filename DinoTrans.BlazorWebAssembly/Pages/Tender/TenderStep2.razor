@@ -128,14 +128,17 @@
                             <label class="form-label">
                                 Tài liệu đính kèm *
                             </label>
-                        <label class="btn btn-outline-success float-end" style="position: relative; overflow: hidden;">
-                            @if (!IsReturnFromStep3)
-                            {
-                                <span>+ Upload a document</span>                           
+                        @if (!IsReturnFromStep3)
+                        {
+                            <label class="btn btn-outline-success float-end" style="position: relative; overflow: hidden;">
+
+                                
+                                <span>+ Thêm tài liệu</span>                           
                                 <InputFile id="fileInput" OnChange="@HandleFileSelection" multiple style="opacity: 0; width: 150px; height: 150px; position: absolute; top: 0; left: 0; cursor: pointer; z-index: 2;" />
-                            }
-                        </label>
-                        </span>
+                                
+                            </label>
+                        }
+                    </span>
                         <hr/>
                         <div class="mt-3">
                             @if (selectedFiles != null && selectedFiles.Count > 0)

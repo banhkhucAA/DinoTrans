@@ -64,14 +64,14 @@
                 if (ListConstructionMachineIds.Contains(item.Id))
                 {
                     item.IsSelected = true;
-                    item.ButtonText = "- Remove Construction Machine";
+                    item.ButtonText = "- Bỏ chọn máy xây dựng";
                     item.ButtonStyle = "btn-outline-danger";
                     item.ButtonWidth = "300px";
                 }
                 else
                 {
                     item.IsSelected = false;
-                    item.ButtonText = "+ Add Construction Machine";
+                    item.ButtonText = "+ Chọn máy xây dựng";
                     item.ButtonStyle = "btn-outline-success";
                     item.ButtonWidth = "260px";
                 }
@@ -87,14 +87,14 @@
         machine.IsSelected = !machine.IsSelected;
         if(machine.IsSelected)
         {
-            machine.ButtonText = "- Remove Construction Machine";
+            machine.ButtonText = "- Bỏ chọn máy xây dựng";
             machine.ButtonStyle = "btn-outline-danger";
             machine.ButtonWidth = "300px";
             ListConstructionMachineIds.Add(machine.Id);
         }
         else
         {
-            machine.ButtonText = "+ Add Construction Machine";
+            machine.ButtonText = "+ Chọn máy xây dựng";
             machine.ButtonStyle = "btn-outline-success";
             machine.ButtonWidth = "260px";
             ListConstructionMachineIds.Remove(machine.Id);

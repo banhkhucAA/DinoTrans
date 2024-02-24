@@ -19,7 +19,7 @@ namespace DinoTrans.Shared.DTOs
         public float Width { get; set; }
         public float Height { get; set; }
         public float Weight { get; set; }
-        public string ButtonText { get; set; } = "+ Add Construction Machine";
+        public string ButtonText { get; set; } = "+ Chọn máy xây dựng";
         public string ButtonStyle { get; set; } = "btn-outline-success";
         public bool IsSelected { get; set; } = false;
         public string ButtonWidth = "260px";
