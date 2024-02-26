@@ -1,0 +1,87 @@
+﻿@page "/Tenders/Active/{TenderId:int}"
+@inject IJSRuntime js
+@inject ITenderService TenderService
+<div class="card">
+    <div class="card-header">
+        Tenders > <b>Tender Details</b>
+    </div>
+    <br />
+    <div class="card-body">
+        <label class="form-label">
+            Mã số và thời gian thầu
+        </label>
+        <hr />
+        <div class="col-md-12 row">
+            <div class="col-md-6">
+                <div><b>Thời gian bắt đầu</b></div>
+                <div>
+                    <div><input type="text" disabled @bind="TenderStartTime" class="input-disabled" /></div>
+                </div>
+
+                <div>
+                    <div><b>Số hiệu thầu</b></div>
+                </div>
+                <div>
+                    <div><input type="text" disabled @bind="TenderCode" class="input-disabled" /></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div>
+                    <div><b>Thời gian kết thúc</b></div>
+                </div>
+                <div>
+                    <div><input type="text" disabled @bind="TenderEndTime" class="input-disabled" /></div>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="col-md-12">
+            <div class="col-md-6">
+                <label class="form-label">
+                    Thông tin địa chỉ và liên hệ
+                </label>
+                <hr />
+                <div><b>Thời gian nhận muộn nhất</b></div>
+                <div><input type="text" disabled @bind="TenderPickUpDate" class="input-disabled" /></div>
+                <div><b>Thời gian nhận muộn nhất</b></div>
+                <div><input type="text" disabled @bind="TenderPickUpDate" class="input-disabled" /></div>
+            </div>
+            <div class="col-md-6">
+
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+    </div>
+</div>
+@code {
+    [Parameter]
+    public int TenderId{ get;set; }
+    public TenderDetailsDTO tenderDetailsDTO { get; set; } = new();
+    public string TenderStartTime = "";
+    public string TenderEndTime = "";
+    public string TenderPickUpDate = "";
+    public string TenderDeliveryDate = "";
+    public string TenderCode = "";
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await TenderService.GetTenderById(TenderId);
+        if(result.Success)
+        {
+            tenderDetailsDTO = result.Data;
+            TenderStartTime = $"{tenderDetailsDTO!.StartDate.Day.ToString()}.{tenderDetailsDTO.StartDate.Month.ToString()}.{tenderDetailsDTO.StartDate.Year.ToString()}, {tenderDetailsDTO!.StartDate.Hour.ToString()}h:{tenderDetailsDTO!.StartDate.Minute.ToString()}p";
+            TenderEndTime = $"{tenderDetailsDTO!.EndDate.Day.ToString()}.{tenderDetailsDTO.EndDate.Month.ToString()}.{tenderDetailsDTO.EndDate.Year.ToString()}, {tenderDetailsDTO!.EndDate.Hour.ToString()}h:{tenderDetailsDTO!.EndDate.Minute.ToString()}p";
+            TenderPickUpDate = $"{tenderDetailsDTO!.PickUpDate!.Value.Day.ToString()}.{tenderDetailsDTO!.PickUpDate!.Value.Month.ToString()}.{tenderDetailsDTO!.PickUpDate!.Value.Year.ToString()}, {tenderDetailsDTO!.PickUpDate!.Value.Hour.ToString()}h:{tenderDetailsDTO!.PickUpDate!.Value.Minute.ToString()}p";
+            TenderCode = $"#000{tenderDetailsDTO.TenderId}";
+            TenderDeliveryDate = $"{tenderDetailsDTO!.DeiliverDate!.Value.Day.ToString()}.{tenderDetailsDTO!.DeiliverDate!.Value.Month.ToString()}.{tenderDetailsDTO!.DeiliverDate!.Value.Year.ToString()}, {tenderDetailsDTO!.DeiliverDate!.Value.Hour.ToString()}h:{tenderDetailsDTO!.DeiliverDate!.Value.Minute.ToString()}p";
+        }
+        else
+        {
+            await js.InvokeVoidAsync("alert", result.Message);
+        }
+    }
+}

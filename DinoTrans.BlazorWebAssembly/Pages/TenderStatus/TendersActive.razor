@@ -1,10 +1,11 @@
 ﻿@page "/Tenders/Active"
 @inject ITenderService TenderService
 @inject IJSRuntime js
+@inject NavigationManager nav
 @using System.Timers
 <PageTitle>TendersActive</PageTitle>
 <div class="card-body">
-    <div>Tất cả thầu đang hoạt động</div>
+    <div><b>Tất cả thầu đang hoạt động</b></div>
     <hr />
     <div class="col-md-12 row">
         <div class="col-md-6 column">
@@ -14,7 +15,7 @@
                 </label>
             </div>
             <div>
-                <input type="text" placeholder="Tìm kiếm theo số hiệu thầu và tên máy..." size="45" maxlength="45">
+                <input type="text" placeholder="Tìm kiếm theo số hiệu thầu, tên thầu và tên máy..." size="45" maxlength="45" @bind="searchDTO.SearchText" @oninput="SetSearchTextChange">
             </div>
         </div>
 
@@ -25,11 +26,11 @@
                 </label>
             </div>
             <div>
-                <select title="Tất cả">
-                    <option>Tất cả</option>
-                    <option>Dưới 8 tấn</option>
-                    <option>Từ 8 tới 22 tấn</option>
-                    <option>Trên 22 tấn</option>
+                <select title="Tất cả" @oninput="SetLoadsChange">
+                    <option value="0" label="Tất cả">Tất cả</option>
+                    <option value="1" label="Dưới 8 tấn">Dưới 8 tấn</option>
+                    <option value="2" label="Từ 8 tới 22 tấn">Từ 8 tới 22 tấn</option>
+                    <option value="3" label="Trên 22 tấn">Trên 22 tấn</option>
                 </select>
             </div>
         </div>
@@ -41,11 +42,11 @@
                 </label>
             </div>
             <div>
-                <select title="Tất cả">
-                    <option>Tất cả</option>
-                    <option>Không có công ty nào</option>
-                    <option>Có dưới 5 công ty</option>
-                    <option>Có trên 5 công ty</option>
+                <select title="Tất cả" @oninput="SetOffersChange">
+                    <option value="0">Tất cả</option>
+                    <option value="1">Không có công ty nào</option>
+                    <option value="2">Có dưới 5 công ty</option>
+                    <option value="3">Có trên 5 công ty</option>
                 </select>
             </div>
         </div>
@@ -63,8 +64,8 @@
                     <th class="table-tender">Danh sách máy</th>
                     <th class="table-tender">Địa chỉ nhận</th>
                     <th class="table-tender">Địa chỉ giao</th>
-                    <th class="table-tender">Thời gian nhận sớm nhất</th>
-                    <th class="table-tender">Thời gian giao sớm nhất</th>
+                    <th class="table-tender">Thời gian nhận muộn nhất</th>
+                    <th class="table-tender">Thời gian giao muộn nhất</th>
                     <th class="table-tender">Công ty tạo thầu</th>
                     <th class="table-tender">Trạng thái</th>
                     <th class="table-tender">Thời gian còn lại</th>
@@ -91,18 +92,44 @@
                         <td class="table-tender">@item.CompanyShipperName</td>
                         <td class="table-tender">@item.Status</td>
                         <td class="table-tender">@item.TimeLeft</td>
-                        <td class="table-tender">@item.Bids</td>
-                        <td class="table-tender">abc</td>
+                        <td class="table-tender">
+                            <button class="button-offers">
+                                @item.Bids Đề nghị
+                            </button>
+                        </td>
+                        <td class="table-tender">
+                            <span>
+                                <button @onclick="() => TenderDetails(item.TenderId)">
+                                    <img class="img-active-tenders" src="/images/eye-1915455_960_720.png" alt="Eye Icon">
+                                </button>
+                                <button>
+                                    <img class="img-active-tenders" src="/images/BackArrow.png" alt="Back Arrow">
+                                </button>
+                            </span>
+                        </td>
                     </tr>
                 }
             </tbody>
         </table>
+    </div>
+
+    <div class="float-end">
+        <Pagination ActivePageNumber="@searchDTO.pageIndex"
+                    TotalPages="TotalPage"
+                    DisplayPages="2"
+                    FirstLinkIcon="IconName.ChevronDoubleLeft"
+                    PreviousLinkIcon="IconName.ChevronLeft"
+                    NextLinkIcon="IconName.ChevronRight"
+                    LastLinkIcon="IconName.ChevronDoubleRight"
+                    PageChanged="OnPageChangedAsync" />
     </div>
 </div>
 @code {
     public List<TenderActiveDTO> listActive { get; set; } = new();
     public ApplicationUser _user { get; set; }
     public List<ActiveTimeElapse> activeTimeElapses { get; set; } = new();
+    public SearchTenderActiveDTO searchDTO = new SearchTenderActiveDTO();
+    public int TotalPage { get; set; }
     public class ActiveTimeElapse
     {
         public int TenderId { get; set; }
@@ -120,23 +147,52 @@
         public Timer Timer { get; set; }
         public string TimeLeft { get; set; }
     }
+    private async Task OnPageChangedAsync(int newPageNumber)
+    {
+        await Task.Run(() => { searchDTO.pageIndex = newPageNumber; });
+        await CallSearchActiveBy();
+    }
+    public async Task SetSearchTextChange(ChangeEventArgs e)
+    {
+        searchDTO.SearchText = e.Value.ToString();
+        searchDTO.pageIndex = 1;
+        await CallSearchActiveBy();
+    }
+    public async Task SetLoadsChange(ChangeEventArgs e)
+    {
+        if (SearchActiveByMachines.TryParse(e.Value.ToString(), out SearchActiveByMachines searchLoads))
+        {
+            searchDTO.searchLoads = searchLoads;
+            await CallSearchActiveBy();
+        }
+    }
+    public async Task SetOffersChange(ChangeEventArgs e)
+    {
+        if (SearchActiveByOffers.TryParse(e.Value.ToString(), out SearchActiveByOffers searchOffers))
+        {
+            searchDTO.searchOffers = searchOffers;
+            await CallSearchActiveBy();
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
         await CallSearchActiveBy();
 
     }
 
+    public void TenderDetails(int TenderId)
+    {
+        nav.NavigateTo($"/Tenders/Active/{TenderId}");
+    }
+
     private async Task CallSearchActiveBy()
     {
-        var result = await TenderService.SearchActiveBy(new SearchTenderActiveDTO
-        {
-            searchLoads = 0,
-            searchOffers = 0
-        }, _user);
+        var result = await TenderService.SearchActiveBy(searchDTO, _user);
 
         if (result.Success)
         {
             listActive = result.Data;
+            TotalPage = result.PageCount;
             activeTimeElapses = new();
             foreach (var item in listActive)
             {

@@ -3,6 +3,7 @@ using DinoTrans.BlazorWebAssembly.Pages.Tender;
 using DinoTrans.Shared.DTOs;
 using DinoTrans.Shared.DTOs.ContructionMachine;
 using DinoTrans.Shared.DTOs.SearchDTO;
+using DinoTrans.Shared.DTOs.TendersActive;
 using DinoTrans.Shared.DTOs.TenderSteps;
 using DinoTrans.Shared.Entities;
 using DinoTrans.Shared.GenericModels;
@@ -129,6 +130,26 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
 
             var apiResponse = await response.Content.ReadAsStringAsync();
             return Generics.DeserializeJsonString<GeneralResponse>(apiResponse);
+        }
+
+        public async Task<ResponseModel<TenderDetailsDTO>> GetTenderById(int Id)
+        {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            // Gửi yêu cầu POST đến endpoint API để đăng nhập
+            var response = await _httpClient
+            .GetAsync($"{BaseUrl}/GetTenderById?TenderId={Id}");
+
+            // Đọc phản hồi từ API
+            if (!response.IsSuccessStatusCode)
+            return new ResponseModel<TenderDetailsDTO>()
+            {
+                Success = false,
+                Message = "Không thể tìm kiếm"
+            };
+
+            var apiResponse = await response.Content.ReadAsStringAsync();
+            return Generics.DeserializeJsonString<ResponseModel<TenderDetailsDTO>>(apiResponse);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using DinoTrans.Shared.DTOs;
 using DinoTrans.Shared.DTOs.ContructionMachine;
 using DinoTrans.Shared.DTOs.SearchDTO;
+using DinoTrans.Shared.DTOs.TendersActive;
 using DinoTrans.Shared.DTOs.TenderSteps;
 using DinoTrans.Shared.Entities;
 using static DinoTrans.Shared.DTOs.ServiceResponses;
@@ -15,5 +16,6 @@ namespace DinoTrans.Shared.Services.Interfaces
         Task<ResponseModel<List<TenderActiveDTO>>> SearchActiveBy (SearchTenderActiveDTO dto, ApplicationUser? currentUser);
         Task<ResponseModel<List<Tender>>> GetTendersActiveForAuto();
         Task<GeneralResponse> UpdateStatusAuto(List<int> TenderIds);
+        Task<ResponseModel<TenderDetailsDTO>> GetTenderById(int Id);
     }
 }

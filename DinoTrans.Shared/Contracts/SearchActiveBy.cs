@@ -11,7 +11,7 @@ namespace DinoTrans.Shared.Contracts
         All,
         LessThan8Tons,
         From8To22Tons,
-        MoreThan8Tons
+        From22Tons
     }
 
     public enum SearchActiveByOffers

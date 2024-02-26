@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using DinoTrans.Shared.DTOs.SearchDTO;
 using Microsoft.IdentityModel.Tokens;
 using NHibernate.Engine;
+using DinoTrans.Shared.DTOs.TendersActive;
 
 namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
 {
@@ -168,6 +169,53 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             }
         }
 
+        public async Task<ResponseModel<TenderDetailsDTO>> GetTenderById(int Id)
+        {
+            var result = (from t in _tenderRepository.AsNoTracking().Where(t => t.Id == Id)
+                          join tc in _tenderConstructionMachineRepository.AsNoTracking() on t.Id equals tc.TenderId into tenderConstructionMachines
+                         let constructionMachines = (from c in _contructionMachineRepository.AsNoTracking()
+                                                     join tsResult in tenderConstructionMachines on c.Id equals tsResult.ContructionMachineId
+                                                     where tsResult.TenderId == Id
+                                                     select new ConstructionMachinesForTendersDTO
+                                                     {
+                                                         Id = c.Id,
+                                                         Name = c.Name,
+                                                         Brand = c.Brand,
+                                                         SerialNumber = c.SerialNumber,
+                                                         CompanyShipperId = c.CompanyShipperId,
+                                                         Image = c.Image,
+                                                         Length = c.Length,
+                                                         Width = c.Width,
+                                                         Height = c.Height,
+                                                         Weight = c.Weight
+                                                     }).ToList()
+                         select new TenderDetailsDTO
+                         {
+                             TenderId = t.Id,
+                             TenderName = t.Name,
+                             TenderStatus = t.TenderStatus,
+                             CompanyShipperId = t.CompanyShipperId,
+                             CompanyCarrierId = t.CompanyCarrierId,
+                             StartDate = t.StartDate,
+                             EndDate = t.EndDate,
+                             PickUpDate = t.PickUpDate,
+                             DeiliverDate = t.DeiliverDate,
+                             PickUpAddress = t.PickUpAddress,
+                             PickUpContact = t.PickUpContact,
+                             DeliveryAddress = t.DeliveryAddress,
+                             DeliveryContact = t.DeliveryContact,
+                             Notes = t.Notes,
+                             Documentations = t.Documentations,
+                             ConstructionMachines = constructionMachines
+                         }).FirstOrDefault();
+
+            return new ResponseModel<TenderDetailsDTO>
+            {
+                Data = result!,
+                Success = true
+            };
+        }
+
         public async Task<ResponseModel<List<Tender>>> GetTendersActiveForAuto()
         {
             var allTenderActive = await _tenderRepository
@@ -252,21 +300,37 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
 
             var listActiveNotPaging = listTenderActiveDTO.Where(c => dto.SearchText.IsNullOrEmpty()
                         || c.TenderName.Contains(dto.SearchText!)
-                        || c.ConstructionMachines.Any(cm => cm.Name.Contains(dto.SearchText!))
-                        && (
-                            (dto.searchLoads == SearchActiveByMachines.All)
-                            || (dto.searchLoads == SearchActiveByMachines.LessThan8Tons && c.ConstructionMachines.Any(cm => cm.Weight < 8000))
-                            || (dto.searchLoads == SearchActiveByMachines.From8To22Tons && c.ConstructionMachines.Any(cm => cm.Weight >= 8000 && cm.Weight < 22000))
-                            || (dto.searchLoads == SearchActiveByMachines.MoreThan8Tons && c.ConstructionMachines.Any(cm => cm.Weight >= 22000))
-                            )
-                        && (
-                            (dto.searchOffers == SearchActiveByOffers.All)
-                            || (dto.searchOffers == SearchActiveByOffers.NoOffers && c.Bids == 0)
-                            || (dto.searchOffers == SearchActiveByOffers.Max5Offers && c.Bids <= 5)
-                            || (dto.searchOffers == SearchActiveByOffers.MoreThan5Offers && c.Bids > 5)
-                            )
-                        );
+                        || c.ConstructionMachines.Any(cm => cm.Name.Contains(dto.SearchText!))); 
 
+            switch(dto.searchLoads)
+            {
+                case SearchActiveByMachines.All:
+                    break;
+                case SearchActiveByMachines.LessThan8Tons:
+                    listActiveNotPaging = listActiveNotPaging.Where(l => l.ConstructionMachines.Any(c => c.Weight < 8000));
+                    break;
+                case SearchActiveByMachines.From8To22Tons:
+                    listActiveNotPaging = listActiveNotPaging.Where(l => l.ConstructionMachines.Any(c => c.Weight >= 8000 &&  c.Weight < 22000));
+                    break;
+                case SearchActiveByMachines.From22Tons:
+                    listActiveNotPaging = listActiveNotPaging.Where(l => l.ConstructionMachines.Any(c => c.Weight >= 22000));
+                    break;
+            }    
+
+            switch(dto.searchOffers)
+            {
+                case SearchActiveByOffers.All:
+                    break;
+                case SearchActiveByOffers.NoOffers:
+                    listActiveNotPaging = listActiveNotPaging.Where(l => l.Bids == 0);
+                    break;
+                case SearchActiveByOffers.MoreThan5Offers:
+                    listActiveNotPaging = listActiveNotPaging.Where(l => l.Bids > 5);
+                    break;
+                case SearchActiveByOffers.Max5Offers:
+                    listActiveNotPaging = listActiveNotPaging.Where(l => l.Bids <= 5);
+                    break;
+            }    
             var listActivePaging = listActiveNotPaging
                         .Skip((dto.pageIndex - 1) * dto.pageSize)
                         .Take(dto.pageSize);
