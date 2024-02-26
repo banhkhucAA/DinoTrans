@@ -180,8 +180,8 @@
         {
             item.Timer.Stop();
             var result = await TenderService.UpdateStatusAuto(new List<int> { item.TenderId });
-            if(result.Flag)
-                await CallSearchActiveBy();
+            if (result.Flag)
+                activeTimeElapses.Remove(item);
         }
         StateHasChanged();
     }

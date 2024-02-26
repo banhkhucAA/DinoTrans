@@ -73,6 +73,7 @@
             color: #2fac66;
         }
 a.nav-link {
+    cursor: pointer;
 }
 a.navbar-brand {
     margin: 0;
