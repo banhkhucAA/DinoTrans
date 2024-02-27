@@ -381,16 +381,36 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
         public async Task<GeneralResponse> UpdateStatusAuto(List<int> TenderIds)
         {
             var listTenders = await _tenderRepository
-                .AsNoTracking()
+                .Queryable()
                 .Where(t => TenderIds.Contains(t.Id))
                 .ToListAsync();
 
             foreach(var item in listTenders)
             {
                 item.TenderStatus = TenderStatuses.Withdrawn;
+                item.WithdrawReason = "Auto withdraw by system";
             }
 
             _tenderRepository.UpdateRange(listTenders);
+            _tenderRepository.SaveChange();
+            return new GeneralResponse(true, "Cập nhật thành công");
+        }
+
+        public async Task<GeneralResponse> UpdateWithdrawTender(WithdrawTenderDTO withdrawTenderDTO)
+        {
+            var tender = await _tenderRepository
+                .Queryable()
+                .Where(t => t.Id == withdrawTenderDTO.TenderID)
+                .FirstOrDefaultAsync();
+
+            if(tender == null)
+            {
+                return new GeneralResponse(false, "Không tìm thấy Tender");
+            }
+
+            tender.TenderStatus = TenderStatuses.Withdrawn;
+            tender.WithdrawReason = withdrawTenderDTO.WithdrawReason;
+            _tenderRepository.Update(tender);
             _tenderRepository.SaveChange();
             return new GeneralResponse(true, "Cập nhật thành công");
         }

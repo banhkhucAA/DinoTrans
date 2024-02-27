@@ -9,10 +9,14 @@
         Từ ngày @TenderStartTime tới ngày @TenderEndTime
     </div>
     <br />
+
+    <label>Thông tin chi tiết</label>
     <div>
         Số hiệu thầu: @($"#000{NewTender!.Id}")
     </div>
-    <label>Thông tin chi tiết</label>
+    <div>
+        Tên thầu: @($"#000{NewTender!.Name}")
+    </div>
     <div style="border:1px solid grey">
         @foreach (var item in ConstructionMachines!)
         {

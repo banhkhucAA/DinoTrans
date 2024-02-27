@@ -4,124 +4,124 @@
 @inject NavigationManager nav
 @using System.Timers
 <PageTitle>TendersActive</PageTitle>
-<div class="card-body">
-    <div><b>Tất cả thầu đang hoạt động</b></div>
-    <hr />
-    <div class="col-md-12 row">
-        <div class="col-md-6 column">
-            <div>
-                <label class="form-label">
-                    Tìm kiếm đấu thầu
-                </label>
+<div class="card">
+    <div class="card-body">
+        <div><b>Tất cả thầu đang hoạt động</b></div>
+        <hr />
+        <div class="col-md-12 row">
+            <div class="col-md-6 column">
+                <div>
+                    <label class="form-label">
+                        Tìm kiếm đấu thầu
+                    </label>
+                </div>
+                <div>
+                    <input type="text" placeholder="Tìm kiếm theo số hiệu thầu, tên thầu và tên máy..." size="45" maxlength="45" @bind="searchDTO.SearchText" @oninput="SetSearchTextChange">
+                </div>
             </div>
-            <div>
-                <input type="text" placeholder="Tìm kiếm theo số hiệu thầu, tên thầu và tên máy..." size="45" maxlength="45" @bind="searchDTO.SearchText" @oninput="SetSearchTextChange">
+
+            <div class="col-md-3 column">
+                <div>
+                    <label class="form-label">
+                        Lọc theo hạng cân
+                    </label>
+                </div>
+                <div>
+                    <select title="Tất cả" @oninput="SetLoadsChange">
+                        <option value="0" label="Tất cả">Tất cả</option>
+                        <option value="1" label="Dưới 8 tấn">Dưới 8 tấn</option>
+                        <option value="2" label="Từ 8 tới 22 tấn">Từ 8 tới 22 tấn</option>
+                        <option value="3" label="Trên 22 tấn">Trên 22 tấn</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-3 column">
+                <div>
+                    <label class="form-label">
+                        Lọc theo số lượng công ty đấu giá
+                    </label>
+                </div>
+                <div>
+                    <select title="Tất cả" @oninput="SetOffersChange">
+                        <option value="0">Tất cả</option>
+                        <option value="1">Không có công ty nào</option>
+                        <option value="2">Có dưới 5 công ty</option>
+                        <option value="3">Có trên 5 công ty</option>
+                    </select>
+                </div>
             </div>
         </div>
 
-        <div class="col-md-3 column">
-            <div>
-                <label class="form-label">
-                    Lọc theo hạng cân
-                </label>
-            </div>
-            <div>
-                <select title="Tất cả" @oninput="SetLoadsChange">
-                    <option value="0" label="Tất cả">Tất cả</option>
-                    <option value="1" label="Dưới 8 tấn">Dưới 8 tấn</option>
-                    <option value="2" label="Từ 8 tới 22 tấn">Từ 8 tới 22 tấn</option>
-                    <option value="3" label="Trên 22 tấn">Trên 22 tấn</option>
-                </select>
-            </div>
-        </div>
+        <br />
+        <br />
 
-        <div class="col-md-3 column">
-            <div>
-                <label class="form-label">
-                    Lọc theo số lượng công ty đấu giá
-                </label>
-            </div>
-            <div>
-                <select title="Tất cả" @oninput="SetOffersChange">
-                    <option value="0">Tất cả</option>
-                    <option value="1">Không có công ty nào</option>
-                    <option value="2">Có dưới 5 công ty</option>
-                    <option value="3">Có trên 5 công ty</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <br />
-    <br />
-
-    <div style="overflow-x: auto;">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="table-tender">Số hiệu thầu</th>
-                    <th class="table-tender">Tên thầu</th>
-                    <th class="table-tender">Danh sách máy</th>
-                    <th class="table-tender">Địa chỉ nhận</th>
-                    <th class="table-tender">Địa chỉ giao</th>
-                    <th class="table-tender">Thời gian nhận muộn nhất</th>
-                    <th class="table-tender">Thời gian giao muộn nhất</th>
-                    <th class="table-tender">Công ty tạo thầu</th>
-                    <th class="table-tender">Trạng thái</th>
-                    <th class="table-tender">Thời gian còn lại</th>
-                    <th class="table-tender">Số lượng đặt giá</th>
-                    <th class="table-tender">Hành động</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in activeTimeElapses!)
-                {
+        <div style="overflow-x: auto;">
+            <table class="table">
+                <thead>
                     <tr>
-                        <td class="table-tender">@($"#000{item.TenderId}")</td>
-                        <td class="table-tender">@item.TenderName</td>
-                        <td class="table-tender">
-                            @foreach(var machine in item.ConstructionMachines)
-                            {
-                                <div style="display: block;">@machine.Name - @machine.SerialNumber - @machine.Brand</div>
-                            }
-                        </td>
-                        <td class="table-tender">@item.From</td>
-                        <td class="table-tender">@item.To</td>
-                        <td class="table-tender">@item.PickUpDate</td>
-                        <td class="table-tender">@item.DeliveryDate</td>
-                        <td class="table-tender">@item.CompanyShipperName</td>
-                        <td class="table-tender">@item.Status</td>
-                        <td class="table-tender">@item.TimeLeft</td>
-                        <td class="table-tender">
-                            <button class="button-offers">
-                                @item.Bids Đề nghị
-                            </button>
-                        </td>
-                        <td class="table-tender">
-                            <span>
-                                <button @onclick="() => TenderDetails(item.TenderId)">
-                                    <img class="img-active-tenders" src="/images/eye-1915455_960_720.png" alt="Eye Icon">
-                                </button>
-                                <button>
-                                    <img class="img-active-tenders" src="/images/BackArrow.png" alt="Back Arrow">
-                                </button>
-                            </span>
-                        </td>
+                        <th class="table-tender">Số hiệu thầu</th>
+                        <th class="table-tender">Tên thầu</th>
+                        <th class="table-tender">Danh sách máy</th>
+                        <th class="table-tender">Địa chỉ nhận</th>
+                        <th class="table-tender">Địa chỉ giao</th>
+                        <th class="table-tender">Thời gian nhận muộn nhất</th>
+                        <th class="table-tender">Thời gian giao muộn nhất</th>
+                        <th class="table-tender">Công ty tạo thầu</th>
+                        <th class="table-tender">Trạng thái</th>
+                        <th class="table-tender">Thời gian còn lại</th>
+                        <th class="table-tender">Số lượng đặt giá</th>
+                        <th class="table-tender">Hành động</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @foreach (var item in activeTimeElapses!)
+                    {
+                        <tr>
+                            <td class="table-tender">@($"#000{item.TenderId}")</td>
+                            <td class="table-tender">@item.TenderName</td>
+                            <td class="table-tender">
+                                @foreach(var machine in item.ConstructionMachines)
+                                {
+                                    <div style="display: block;">@machine.Name - @machine.SerialNumber - @machine.Brand</div>
+                                }
+                            </td>
+                            <td class="table-tender">@item.From</td>
+                            <td class="table-tender">@item.To</td>
+                            <td class="table-tender">@item.PickUpDate</td>
+                            <td class="table-tender">@item.DeliveryDate</td>
+                            <td class="table-tender">@item.CompanyShipperName</td>
+                            <td class="table-tender">@item.Status</td>
+                            <td class="table-tender">@item.TimeLeft</td>
+                            <td class="table-tender">
+                                <button class="button-offers">
+                                    @item.Bids Đề nghị
+                                </button>
+                            </td>
+                            <td class="table-tender">
+                                <span>
+                                    <button @onclick="() => TenderDetails(item.TenderId)">
+                                        <img class="img-active-tenders" src="/images/eye-1915455_960_720.png" alt="Eye Icon">
+                                    </button>
+                                    <WithdrawDialog TenderId="item.TenderId" ChangeData="HandleEvent"></WithdrawDialog>
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
-    <div class="float-end">
-        <Pagination ActivePageNumber="@searchDTO.pageIndex"
-                    TotalPages="TotalPage"
-                    DisplayPages="2"
-                    FirstLinkIcon="IconName.ChevronDoubleLeft"
-                    PreviousLinkIcon="IconName.ChevronLeft"
-                    NextLinkIcon="IconName.ChevronRight"
-                    LastLinkIcon="IconName.ChevronDoubleRight"
-                    PageChanged="OnPageChangedAsync" />
+        <div class="float-end">
+            <Pagination ActivePageNumber="@searchDTO.pageIndex"
+                        TotalPages="TotalPage"
+                        DisplayPages="2"
+                        FirstLinkIcon="IconName.ChevronDoubleLeft"
+                        PreviousLinkIcon="IconName.ChevronLeft"
+                        NextLinkIcon="IconName.ChevronRight"
+                        LastLinkIcon="IconName.ChevronDoubleRight"
+                        PageChanged="OnPageChangedAsync" />
+        </div>
     </div>
 </div>
 @code {
@@ -147,6 +147,11 @@
         public Timer Timer { get; set; }
         public string TimeLeft { get; set; }
     }
+    public async Task HandleEvent()
+    {
+        searchDTO.pageIndex = 1;
+        await CallSearchActiveBy();
+    }
     private async Task OnPageChangedAsync(int newPageNumber)
     {
         await Task.Run(() => { searchDTO.pageIndex = newPageNumber; });
@@ -163,6 +168,7 @@
         if (SearchActiveByMachines.TryParse(e.Value.ToString(), out SearchActiveByMachines searchLoads))
         {
             searchDTO.searchLoads = searchLoads;
+            searchDTO.pageIndex = 1;
             await CallSearchActiveBy();
         }
     }
@@ -171,6 +177,7 @@
         if (SearchActiveByOffers.TryParse(e.Value.ToString(), out SearchActiveByOffers searchOffers))
         {
             searchDTO.searchOffers = searchOffers;
+            searchDTO.pageIndex = 1;
             await CallSearchActiveBy();
         }
     }

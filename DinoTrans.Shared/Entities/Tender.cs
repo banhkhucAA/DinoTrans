@@ -49,7 +49,7 @@ namespace DinoTrans.Shared.Entities
             }
             set => Documentations = JsonConvert.SerializeObject(value);
         }
-
+        public string? WithdrawReason { get; set; }
 
     }
 }

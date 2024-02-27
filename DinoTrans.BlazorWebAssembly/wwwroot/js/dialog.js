@@ -2,6 +2,13 @@
     document.getElementById('my-dialog').showModal();
 }
 
+window.OpenDialog = function (ModalId) {
+    document.getElementById(ModalId).showModal();
+}
+
+window.CloseDialog = function (ModalId) {
+    document.getElementById(ModalId).close();
+}
 
 window.NotOpenDialog = function () {
     const elem = document.getElementById('my-dialog');

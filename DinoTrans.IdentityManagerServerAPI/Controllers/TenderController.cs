@@ -86,5 +86,12 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
             var result = await _tenderService.GetTenderById(TenderId);
             return Ok(result);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateWithdrawTender([FromBody] WithdrawTenderDTO dto)
+        {
+            var result = await _tenderService.UpdateWithdrawTender(dto);
+            return Ok(result);
+        }
     }
 }

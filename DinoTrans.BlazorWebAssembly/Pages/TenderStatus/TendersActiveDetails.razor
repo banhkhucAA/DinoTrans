@@ -1,6 +1,7 @@
 ﻿@page "/Tenders/Active/{TenderId:int}"
 @inject IJSRuntime js
 @inject ITenderService TenderService
+@inject NavigationManager nav
 <div class="card">
     <div class="card-header">
         Tenders > <b>Tender Details</b>
@@ -14,24 +15,15 @@
         <div class="col-md-12 row">
             <div class="col-md-6">
                 <div><b>Thời gian bắt đầu</b></div>
-                <div>
-                    <div><input type="text" disabled @bind="TenderStartTime" class="input-disabled" /></div>
-                </div>
-
-                <div>
-                    <div><b>Số hiệu thầu</b></div>
-                </div>
-                <div>
-                    <div><input type="text" disabled @bind="TenderCode" class="input-disabled" /></div>
-                </div>
+                <div><input type="text" disabled @bind="TenderStartTime" class="input-disabled" /></div>
+                <div><b>Số hiệu thầu</b></div>
+                <div><input type="text" disabled @bind="TenderCode" class="input-disabled" /></div>
             </div>
             <div class="col-md-6">
-                <div>
-                    <div><b>Thời gian kết thúc</b></div>
-                </div>
-                <div>
-                    <div><input type="text" disabled @bind="TenderEndTime" class="input-disabled" /></div>
-                </div>
+                <div><b>Thời gian kết thúc</b></div>
+                <div><input type="text" disabled @bind="TenderEndTime" class="input-disabled" /></div>
+                <div><b>Tên thầu</b></div>
+                <div><input type="text" disabled @bind="@tenderDetailsDTO.TenderName" class="input-disabled" /></div>
             </div>
         </div>
 
@@ -40,22 +32,101 @@
         <div class="col-md-12">
             <div class="col-md-6">
                 <label class="form-label">
-                    Thông tin địa chỉ và liên hệ
+                    Thông tin địa chỉ và liên hệ nơi nhận
                 </label>
                 <hr />
                 <div><b>Thời gian nhận muộn nhất</b></div>
                 <div><input type="text" disabled @bind="TenderPickUpDate" class="input-disabled" /></div>
-                <div><b>Thời gian nhận muộn nhất</b></div>
-                <div><input type="text" disabled @bind="TenderPickUpDate" class="input-disabled" /></div>
+                <div><b>Địa chỉ nơi nhận</b></div>
+                <div><input type="text" disabled @bind="tenderDetailsDTO.PickUpAddress" class="input-disabled" /></div>
+                <div><b>Liên hệ nơi nhận</b></div>
+                <div><input type="text" disabled @bind="tenderDetailsDTO.PickUpContact" class="input-disabled" /></div>
             </div>
+            <br />
             <div class="col-md-6">
-
+                <label class="form-label">
+                    Thông tin địa chỉ và liên hệ nơi giao
+                </label>
+                <hr />
+                <div><b>Thời gian giao muộn nhất</b></div>
+                <div><input type="text" disabled @bind="TenderDeliveryDate" class="input-disabled" /></div>
+                <div><b>Địa chỉ nơi nhận</b></div>
+                <div><input type="text" disabled @bind="tenderDetailsDTO.DeliveryAddress" class="input-disabled" /></div>
+                <div><b>Liên hệ nơi nhận</b></div>
+                <div><input type="text" disabled @bind="tenderDetailsDTO.DeliveryContact" class="input-disabled" /></div>
             </div>
         </div>
     </div>
+    <br />
 
     <div class="card-body">
+        <label class="form-label">
+            Thông tin danh sách máy xây dựng
+        </label>
+        <hr />
+        @if (tenderDetailsDTO.ConstructionMachines != null && tenderDetailsDTO.ConstructionMachines.Count != 0)
+        {
+            @for (int i = 0; i < tenderDetailsDTO.ConstructionMachines.Count; i++)
+            {
+                <div><i>@($"Máy {i + 1}")</i></div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <div><b>Tên máy</b></div>
+                        <div><b>Nhãn hiệu</b></div>
+                        <div><b>Số seri</b></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div><input type="text" disabled @bind="tenderDetailsDTO.ConstructionMachines[i].Name" class="input-disabled" /></div>
+                        <div><input type="text" disabled @bind="tenderDetailsDTO.ConstructionMachines[i].Brand" class="input-disabled" /></div>
+                        <div><input type="text" disabled @bind="tenderDetailsDTO.ConstructionMachines[i].SerialNumber" class="input-disabled" /></div>
+                    </div>
+                </div>
 
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div><b>Chiều dài (mm)</b></div>
+                            <div>
+                                <input type="text" disabled @bind="tenderDetailsDTO.ConstructionMachines[i].Length" class="input-disabled" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div><b>Chiều rộng (mm)</b></div>
+                            <div><input type="text" disabled @bind="tenderDetailsDTO.ConstructionMachines[i].Width" class="input-disabled" /></div>
+                        </div>
+                        @if (tenderDetailsDTO.ConstructionMachines[i].Image != null)
+                        {
+                            <div class="row">
+                                <div><b>Xem ảnh</b></div>
+                                <div>
+                                    @{
+                                        var image = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(tenderDetailsDTO.ConstructionMachines[i].Image!);
+                                    }
+                                    <ViewAllConstructionMachinePictures MachineId="@tenderDetailsDTO.ConstructionMachines[i].Id" ListImanges="image"></ViewAllConstructionMachinePictures>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div><b>Chiều cao (mm)</b></div>
+                            <div><input type="text" disabled @bind="tenderDetailsDTO.ConstructionMachines[i].Height" class="input-disabled" /></div>
+                        </div>
+                        <div class="row">
+                            <div><b>Cân nặng (kg)</b></div>
+                            <div><input type="text" disabled @bind="tenderDetailsDTO.ConstructionMachines[i].Weight" class="input-disabled" /></div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+            }
+            <br />
+            <div class="card-footer">
+                <div class="float-end">
+                    <button class="btn btn-outline-success" @onclick="BackToActive">&lt Quay lại</button>
+                </div>
+            </div>
+        }
     </div>
 </div>
 @code {
@@ -83,5 +154,9 @@
         {
             await js.InvokeVoidAsync("alert", result.Message);
         }
+    }
+    private void BackToActive()
+    {
+        nav.NavigateTo("/Tenders/Active");
     }
 }

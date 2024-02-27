@@ -16,6 +16,7 @@ namespace DinoTrans.Shared.Services.Interfaces
         Task<ResponseModel<List<TenderActiveDTO>>> SearchActiveBy (SearchTenderActiveDTO dto, ApplicationUser? currentUser);
         Task<ResponseModel<List<Tender>>> GetTendersActiveForAuto();
         Task<GeneralResponse> UpdateStatusAuto(List<int> TenderIds);
+        Task<GeneralResponse> UpdateWithdrawTender(WithdrawTenderDTO withdrawTenderDTO);
         Task<ResponseModel<TenderDetailsDTO>> GetTenderById(int Id);
     }
 }
