@@ -249,6 +249,36 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             };
         }
 
+        public async Task<ResponseModel<List<TenderActiveDTO>>> SearchActiveBy_Test(SearchTenderActiveDTO dto, ApplicationUser currentUser)
+        {
+            var tenders = _tenderRepository.AsNoTracking();
+            var machines = _contructionMachineRepository.AsNoTracking();
+            var tenderBids = _tenderBidRepository.AsNoTracking();
+            var tenderConstructionMachines = _tenderConstructionMachineRepository.AsNoTracking();
+            var result = from t in tenders
+                         join tc in tenderConstructionMachines on t.Id equals tc.TenderId into ttc
+                         from tenderConstructionMachine in ttc
+                         select new
+                         {
+                             Tender = t,
+                             ConstructionMachines = ttc.DefaultIfEmpty()
+                         };
+
+            var result1 = from t in result
+                          group t by t.Tender into tenderGroup
+                          select new
+                          {
+                              Tender = tenderGroup.Key,
+                              ConstructionMachines = result.Where(x => x.Tender == tenderGroup.Key).ToList()
+                          };
+
+            var abc = result1.ToList();
+            return new ResponseModel<List<TenderActiveDTO>>
+            {
+
+            };
+        }
+
         public async Task<ResponseModel<List<TenderActiveDTO>>> SearchActiveBy(SearchTenderActiveDTO dto, ApplicationUser currentUser)
         {
             var listActive = _tenderRepository

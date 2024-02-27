@@ -72,6 +72,12 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
             var result = await _tenderService.SearchActiveBy(dto, _currentUser);
             return Ok(result);
         }
+        [HttpPost]
+        public async Task<IActionResult> SearchActiveBy_Test([FromBody] SearchTenderActiveDTO dto)
+        {
+            var result = await _tenderService.SearchActiveBy_Test(dto, _currentUser);
+            return Ok(result);
+        }
 
         [HttpPost]
         public async Task<IActionResult> UpdateStatusAuto([FromBody] List<int> TenderIds)
