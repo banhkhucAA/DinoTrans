@@ -257,11 +257,11 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             var tenderConstructionMachines = _tenderConstructionMachineRepository.AsNoTracking();
             var result = from t in tenders
                          join tc in tenderConstructionMachines on t.Id equals tc.TenderId into ttc
-                         from tenderConstructionMachine in ttc
+                         from tenderConstructionMachine in ttc.DefaultIfEmpty()
                          select new
                          {
                              Tender = t,
-                             ConstructionMachines = ttc.DefaultIfEmpty()
+                             ConstructionMachines = tenderConstructionMachine
                          };
 
             var result1 = from t in result
