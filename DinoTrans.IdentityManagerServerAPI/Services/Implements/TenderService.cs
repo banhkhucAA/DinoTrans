@@ -249,35 +249,60 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             };
         }
 
-        public async Task<ResponseModel<List<TenderActiveDTO>>> SearchActiveBy_Test(SearchTenderActiveDTO dto, ApplicationUser currentUser)
+        /*public async Task<ResponseModel<List<TenderActiveDTO_Test>>> SearchActiveBy_Test(SearchTenderActiveDTO dto, ApplicationUser currentUser)
         {
             var tenders = _tenderRepository.AsNoTracking();
             var machines = _contructionMachineRepository.AsNoTracking();
             var tenderBids = _tenderBidRepository.AsNoTracking();
             var tenderConstructionMachines = _tenderConstructionMachineRepository.AsNoTracking();
-            var result = from t in tenders
+            var companies = _companyRepository.AsNoTracking();
+            var queryResult = (from t in tenders
+                         join comShip in companies on t.CompanyShipperId equals comShip.Id
                          join tc in tenderConstructionMachines on t.Id equals tc.TenderId into ttc
+
                          from tenderConstructionMachine in ttc.DefaultIfEmpty()
+                         join m in machines on tenderConstructionMachine.ContructionMachineId equals m.Id into tMachines
+
+                         from machine in tMachines.DefaultIfEmpty()
+                         join tb in tenderBids on t.Id equals tb.TenderId into ttb
+
+                         from bids in ttb.DefaultIfEmpty()
+                         group new {Tender = t, ConstructionMachines = tenderConstructionMachine,  machines = machine, bids = bids , companyShipper = comShip } by t into tenderGroup
                          select new
                          {
-                             Tender = t,
-                             ConstructionMachines = tenderConstructionMachine
-                         };
+                             Tender = tenderGroup.Key,
+                             ConstructionMachines = tenderGroup.Select(t => t.machines).ToList(),
+                             Bids = tenderGroup.Select(tb => tb.bids).ToList(),
+                             CompanyShipper = tenderGroup.Select(c => c.companyShipper).ToList(),
+                         }).ToList();
 
-            var result1 = from t in result
-                          group t by t.Tender into tenderGroup
-                          select new
-                          {
-                              Tender = tenderGroup.Key,
-                              ConstructionMachines = result.Where(x => x.Tender == tenderGroup.Key).ToList()
-                          };
-
-            var abc = result1.ToList();
-            return new ResponseModel<List<TenderActiveDTO>>
+            var result = new List<TenderActiveDTO_Test>();
+            foreach(var item in queryResult) 
             {
+                var timeRemains = (item.Tender.EndDate - DateTime.Now).TotalSeconds;
+                result.Add(new TenderActiveDTO_Test
+                {
+                    TenderId = item.Tender.Id,
+                    TenderName = item.Tender.Name,
+                    ConstructionMachines = item.ConstructionMachines,
+                    TenderBids = item.Bids,
+                    From = item.Tender.PickUpAddress,
+                    To = item.Tender.DeliveryAddress,
+                    PickUpDate = (DateTime)item.Tender.PickUpDate,
+                    DeliveryDate = (DateTime)item.Tender.DeiliverDate,
+                    Status = item.Tender.TenderStatus.ToString(),
+                    TimeRemaining = timeRemains > 0?timeRemains:0,
+                    CompanyShipperId = item.Tender.CompanyShipperId,
+                    CompanyShipperName = item.CompanyShipper.FirstOrDefault().CompanyName,
+                });
+            }
 
+            return new ResponseModel<List<TenderActiveDTO_Test>>
+            {
+                Data = result,
+                Success = true
             };
-        }
+        }*/
 
         public async Task<ResponseModel<List<TenderActiveDTO>>> SearchActiveBy(SearchTenderActiveDTO dto, ApplicationUser currentUser)
         {
@@ -324,7 +349,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 var constructionMachines = await _machineService.GetMachinesForTenderOverviewByIds(item.Id);
                 newTenderActiveDTO.ConstructionMachines = constructionMachines.Data;
                 var Bids = await _tenderBidService.GetTenderBidsByTenderId(item.Id);
-                newTenderActiveDTO.Bids = Bids.Data.Count();
+                newTenderActiveDTO.Bids = Bids.Data;
                 listTenderActiveDTO.Add(newTenderActiveDTO);
             }    
 
@@ -352,13 +377,13 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 case SearchActiveByOffers.All:
                     break;
                 case SearchActiveByOffers.NoOffers:
-                    listActiveNotPaging = listActiveNotPaging.Where(l => l.Bids == 0);
+                    listActiveNotPaging = listActiveNotPaging.Where(l => l.Bids.Count == 0);
                     break;
                 case SearchActiveByOffers.MoreThan5Offers:
-                    listActiveNotPaging = listActiveNotPaging.Where(l => l.Bids > 5);
+                    listActiveNotPaging = listActiveNotPaging.Where(l => l.Bids.Count > 5);
                     break;
                 case SearchActiveByOffers.Max5Offers:
-                    listActiveNotPaging = listActiveNotPaging.Where(l => l.Bids <= 5);
+                    listActiveNotPaging = listActiveNotPaging.Where(l => l.Bids.Count <= 5);
                     break;
             }    
             var listActivePaging = listActiveNotPaging

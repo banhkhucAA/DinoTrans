@@ -5,11 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static DinoTrans.Shared.DTOs.ServiceResponses;
 
 namespace DinoTrans.Shared.Services.Interfaces
 {
     public interface ITenderBidService
     {
         Task<ResponseModel<List<TenderBid>>> GetTenderBidsByTenderId(int TenderId);
+        Task<GeneralResponse> SubmitTenderBid(TenderBidDTO dto, ApplicationUser currentUser);
+
     }
 }

@@ -1,0 +1,76 @@
+﻿@inject IJSRuntime js
+@inject ITenderService TenderService
+<button @onclick="OpenDialog" class="button-offers">
+    <img class="img-active-tenders" src="/images/hammerBid.png" alt="Hammer">
+</button>
+<dialog style="position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); min-width:600px; min-height:500px" id="withdraw-dialog-@TenderId">
+    <div class="card">
+        <div class="card-header text-center">
+            <img src="/images/hammerBid.png" style="min-width:50px;min-height:50px;max-width:100px;max-height:100px;">
+            <div>Đề xuất giá vận tải</div>
+        </div>
+        <div class="card-body text-center row col-md-12">
+            <div class="col-md-6" style="padding:5px;border:1px solid black">
+                Lưu ý rằng đề xuất giá vận tải đã bao gồm
+                <span>- Chi phí vận chuyển</span>
+                <span>- Giấy phép vận chuyển</span>
+                <span>- Phụ phí xăng dầu</span>
+            </div>
+            <div class="col-md-6">
+                <div>Giá vận tải (VNĐ)</div>
+                <div><input type="number" placeholder="Nhập giá vận chuyển mong muôn"/></div>
+            </div>
+
+        </div>
+        <div class="card-footer row">
+            <div class="form-group col-md-6">
+                <button class="btn btn-outline-danger ms-2" type="submit" @onclick="Close">Hủy</button>
+            </div>
+            <div class="form-group col-md-6">
+                <button style="max-width:100px" class="btn btn-outline-success float-end me-2" type="submit" @onclick="Withdraw">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</dialog>
+@code {
+    [Parameter]
+    public int TenderId { get; set; }
+    public WithdrawTenderDTO withdrawTenderDTO { get; set; }
+    [Parameter]
+    public EventCallback ChangeData { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        withdrawTenderDTO = new WithdrawTenderDTO
+            {
+                TenderID = TenderId,
+                WithdrawReason = "",
+            };
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        withdrawTenderDTO.TenderID = TenderId;
+    }
+    public async Task OpenDialog()
+    {
+        await js.InvokeVoidAsync("OpenDialog", $"withdraw-dialog-{TenderId}");
+    }
+
+    async void Close()
+    {
+        withdrawTenderDTO.TenderID = 0;
+        withdrawTenderDTO.WithdrawReason = "";
+        await js.InvokeVoidAsync("CloseDialog", $"withdraw-dialog-{TenderId}");
+    }
+
+    public async Task Withdraw()
+    {
+        var result = await TenderService.UpdateWithdrawTender(withdrawTenderDTO);
+        if (result.Flag)
+        {
+            await ChangeData.InvokeAsync();
+            Close();
+        }
+        else
+            await js.InvokeVoidAsync("alert", result.Message);
+    }
+}

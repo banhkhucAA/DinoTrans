@@ -81,18 +81,18 @@
                                     <label class="form-label">Địa chỉ công ty</label>
                                     <input @bind="User.CompanyAddress" class="form-control" type="text" placeholder="" />
                                 </div>
-<div class="form-group mb-3">
-    <label class="form-label">Vai trò công ty</label>
-    <div class="input-group">
-        <select @bind="User.CompanyRole" class="form-control">
-            <option value="@CompanyRoleEnum.Shipper">Công ty máy xây dựng</option>
-            <option value="@CompanyRoleEnum.Carrier">Công ty vận chuyển</option>
-        </select>
-        <div class="input-group-append">
-            <span class="input-group-text"><i class="bi bi-caret-down"></i></span>
-        </div>
-    </div>
-</div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Vai trò công ty</label>
+                                    <div class="input-group">
+                                        <select @bind="User.CompanyRole" class="form-control">
+                                            <option value="@CompanyRoleEnum.Shipper">Công ty máy xây dựng</option>
+                                            <option value="@CompanyRoleEnum.Carrier">Công ty vận chuyển</option>
+                                        </select>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><i class="bi bi-caret-down"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
                         </div>
                         </div>
                         <!-- Nút đăng ký -->

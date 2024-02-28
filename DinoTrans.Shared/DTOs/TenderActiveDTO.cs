@@ -18,12 +18,12 @@ namespace DinoTrans.Shared.DTOs
         public DateTime DeliveryDate { get; set; }    
         public string Status { get; set; }
         public double TimeRemaining { get; set; }
-        public int Bids { get; set; }
+        public List<TenderBid> Bids { get; set; }
         public int CompanyShipperId { get; set; }
         public string CompanyShipperName { get; set; }
     }
 
-    public class TenderActiveDTO_Test
+    /*public class TenderActiveDTO_Test
     {
         public int TenderId { get; set; }
         public string TenderName { get; set; }
@@ -37,5 +37,5 @@ namespace DinoTrans.Shared.DTOs
         public double TimeRemaining { get; set; }
         public int CompanyShipperId { get; set; }
         public string CompanyShipperName { get; set; }
-    }
+    }*/
 }

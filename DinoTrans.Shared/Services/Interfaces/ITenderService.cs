@@ -14,11 +14,10 @@ namespace DinoTrans.Shared.Services.Interfaces
         Task<ResponseModel<Tender>> CreateTenderStep2(UpdateTenderStep2AndCreateTenderContructionMachineDTO dto);
         Task<ResponseModel<Tender>> StartTender(int TenderId);
         Task<ResponseModel<List<TenderActiveDTO>>> SearchActiveBy (SearchTenderActiveDTO dto, ApplicationUser? currentUser);
-        Task<ResponseModel<List<TenderActiveDTO>>> SearchActiveBy_Test(SearchTenderActiveDTO dto, ApplicationUser? currentUser);
-        Task<ResponseModel<List<Tender>>> GetTendersActiveForAuto();
+/*        Task<ResponseModel<List<TenderActiveDTO_Test>>> SearchActiveBy_Test(SearchTenderActiveDTO dto, ApplicationUser? currentUser);
+*/        Task<ResponseModel<List<Tender>>> GetTendersActiveForAuto();
         Task<GeneralResponse> UpdateStatusAuto(List<int> TenderIds);
         Task<GeneralResponse> UpdateWithdrawTender(WithdrawTenderDTO withdrawTenderDTO);
         Task<ResponseModel<TenderDetailsDTO>> GetTenderById(int Id);
-
     }
 }
