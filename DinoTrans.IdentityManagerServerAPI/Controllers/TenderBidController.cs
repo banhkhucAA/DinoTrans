@@ -27,7 +27,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
             _tenderBidService = tenderBidService;
             _contextAccessor = httpContextAccessor;
             _userService = userService;
-            var applicationUser = _contextAccessor!.HttpContext!.User.Claims as ClaimsIdentity;
+            var applicationUser = _contextAccessor!.HttpContext!.User.Identity as ClaimsIdentity;
             if (applicationUser != null && applicationUser.Claims.Any())
             {
                 var userIdParse = int.TryParse(applicationUser.FindFirst(ClaimTypes.NameIdentifier).Value, out int userId);
@@ -44,6 +44,13 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
         public async Task<IActionResult> SubmitTenderBid(TenderBidDTO dto)
         {
             var result = await _tenderBidService.SubmitTenderBid(dto, _currentUser);
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChooseTenderBid([FromBody] int TenderBidId)
+        {
+            var result = await _tenderBidService.ChooseTenderBid(TenderBidId, _currentUser);
             return Ok(result);
         }
     }

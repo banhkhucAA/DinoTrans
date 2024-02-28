@@ -29,6 +29,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<ITenderService, TenderClientService>();
 builder.Services.AddScoped<IConstructionMachineService, ConstructionMachineClientService>();
+builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
+builder.Services.AddScoped<ITenderBidService, TenderBidClientService>();
 
 
 builder.Services.AddMudServices();

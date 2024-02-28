@@ -1,6 +1,6 @@
 ﻿@inject IJSRuntime js
 @inject ITenderService TenderService
-<button @onclick="OpenDialog">
+<button style="border:none" @onclick="OpenDialog">
     <img class="img-active-tenders" src="/images/BackArrow.png" alt="Back Arrow">
 </button>
 <dialog style="position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); min-width:600px; min-height:500px" id="withdraw-dialog-@TenderId">

@@ -90,24 +90,26 @@
                             </td>
                             <td class="table-tender">@item.From</td>
                             <td class="table-tender">@item.To</td>
-                            <td class="table-tender">@item.PickUpDate</td>
-                            <td class="table-tender">@item.DeliveryDate</td>
+                            <td class="table-tender">@item.PickUpDate.ToString("dd-MM-yyyy hh:mm:s tt")</td>
+                            <td class="table-tender">@item.DeliveryDate.ToString("dd-MM-yyyy hh:mm:s tt")</td>
                             <td class="table-tender">@item.CompanyShipperName</td>
                             <td class="table-tender">@item.Status</td>
                             <td class="table-tender">@item.TimeLeft</td>
                             <td class="table-tender">
-                                <button class="button-offers">
-                                    @item.Bids.Count() Đề nghị
-                                </button>
+                                <ListTenderBidDialog companyRole="companyRole" listBids="@item.Bids" Finish="HandleCallBack"></ListTenderBidDialog>
                             </td>
                             <td class="table-tender">
                                 <span>
-                                    <button @onclick="() => TenderDetails(item.TenderId)">
+                                    <button style="border:none" @onclick="() => TenderDetails(item.TenderId)">
                                         <img class="img-active-tenders" src="/images/eye-1915455_960_720.png" alt="Eye Icon">
                                     </button>
                                     @if (authState != null && authState.User.Identity.IsAuthenticated && (companyRole == CompanyRoleEnum.Admin || companyRole == CompanyRoleEnum.Shipper))
                                     {
                                         <WithdrawDialog TenderId="item.TenderId" ChangeData="HandleEvent"></WithdrawDialog>
+                                    }
+                                    @if (authState != null && authState.User.Identity.IsAuthenticated && (companyRole == CompanyRoleEnum.Carrier))
+                                    {
+                                        <DialogBid TenderId="item.TenderId" ChangeData="HandleCallBack"></DialogBid>
                                     }
                                 </span>
                             </td>
@@ -136,7 +138,7 @@
     public SearchTenderActiveDTO searchDTO = new SearchTenderActiveDTO();
     public int TotalPage { get; set; }
     public AuthenticationState? authState = null;
-    private CompanyRoleEnum companyRole = new();
+    public CompanyRoleEnum companyRole = new();
     public class ActiveTimeElapse
     {
         public int TenderId { get; set; }
@@ -153,6 +155,11 @@
         public string CompanyShipperName { get; set; }
         public Timer Timer { get; set; }
         public string TimeLeft { get; set; }
+    }
+    public async Task HandleCallBack()
+    {
+        searchDTO.pageIndex = 1;
+        await CallSearchActiveBy();
     }
     public async Task HandleEvent()
     {

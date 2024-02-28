@@ -13,6 +13,6 @@ namespace DinoTrans.Shared.Services.Interfaces
     {
         Task<ResponseModel<List<TenderBid>>> GetTenderBidsByTenderId(int TenderId);
         Task<GeneralResponse> SubmitTenderBid(TenderBidDTO dto, ApplicationUser currentUser);
-
+        Task<GeneralResponse> ChooseTenderBid(int TenderBidId, ApplicationUser currentUser);
     }
 }

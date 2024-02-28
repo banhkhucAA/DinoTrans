@@ -1,0 +1,93 @@
+﻿@inject IJSRuntime js
+@inject ITenderBidService TenderBidService
+@if (companyRole == CompanyRoleEnum.Admin || companyRole == CompanyRoleEnum.Shipper)
+{
+    <button style="border:none" @onclick="OpenDialog" class="button-offers">
+        <div>@listBids.Count Offers</div>
+    </button>
+}
+else
+{
+    <button disabled style="border:none" @onclick="OpenDialog" class="button-offers">
+        <div>@listBids.Count Offers</div>
+    </button>
+}
+<dialog style="position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); min-width:700px; height:auto" id="bids-details-@listBids.Select(l => l.TenderId).FirstOrDefault()">
+    <div class="card">
+        <div class="card-header text-center">
+            <img src="/images/hammerBid.png" style="min-width:50px;min-height:50px;max-width:100px;max-height:100px;">
+            <h1>Tổng quan đề nghị</h1>
+            <b>Tất cả các đề nghị của các công ty vận tải dành cho bạn</b>
+        </div>
+        <div class="card-body row col-md-12">
+            @foreach(var item in listBids)
+            {
+                <div style="min-height:200px;" class="row">
+                    <div class="col-md-6">
+                        <div>
+                            Công ty thầu
+                        </div>
+                        <hr/>
+                        <div>
+                            <b style="white-space:nowrap;word-wrap: break-word!important;">@item.CompanyCarrier!.CompanyName</b>
+                            <div>@item.CompanyCarrier.Email</div>
+                            <div>@item.CompanyCarrier.Address</div>
+                            <div>@item.CompanyCarrier.PhoneNumber</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div>
+                            Giá tiền (VNĐ)
+                        </div>
+                        <hr />
+                        <div>
+                            <b>@item.TransportPrice.ToString("N0")</b>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div></div>
+                        <br />
+                        <hr />
+                        <ConfirmSelectBid TenderBidId="@item.Id" CompanyName="@item.CompanyCarrier!.CompanyName" Finish="HandleCallBack"></ConfirmSelectBid>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="card-footer row">
+            <div class="form-group col-md-6">
+                <button class="btn btn-outline-danger ms-2" type="submit" @onclick="Close">Đóng</button>
+            </div>
+        </div>
+    </div>
+</dialog>
+@code {
+    [Parameter]
+    public List<TenderBid> listBids { get; set; }
+    [Parameter]
+    public CompanyRoleEnum companyRole { get; set; }
+    [Parameter]
+    public EventCallback Finish { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (listBids == null) listBids = new();
+    }
+    public async Task OpenDialog()
+    {
+        var tenderId = $"{@listBids.Select(l => l.TenderId).FirstOrDefault()}";
+        await js.InvokeVoidAsync("OpenDialog", $"bids-details-{tenderId}");
+    }
+
+    async void Close()
+    {
+        var tenderId = $"{@listBids.Select(l => l.TenderId).FirstOrDefault()}";
+        listBids = new();
+        await js.InvokeVoidAsync("CloseDialog", $"bids-details-{tenderId}");
+    }
+
+    void HandleCallBack()
+    {
+        Close();
+        Finish.InvokeAsync();
+    }
+}

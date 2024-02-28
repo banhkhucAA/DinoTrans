@@ -223,6 +223,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 .Where(t => t.TenderStatus == TenderStatuses.Active || t.TenderStatus == TenderStatuses.ToAssign)
                 .ToListAsync();
 
+            var result = allTenderActive.ToList();
             if (allTenderActive != null)
             {
                 foreach (var item in allTenderActive)
@@ -231,7 +232,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                         .AsNoTracking()
                         .Any(t => t.TenderId == item.Id);
                     if (AnyBids)
-                        allTenderActive.Remove(item);
+                        result.Remove(item);
                 }
             }
             else
@@ -245,7 +246,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             return new ResponseModel<List<Tender>>
             {
                 Success = true,
-                Data = allTenderActive!
+                Data = result!
             };
         }
 
@@ -322,11 +323,6 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 listActive = listActive.Where(t =>
                     t.CompanyShipperId! == currentUser.CompanyId).ToList();
             }
-            else if (currentUserCompany!.Role == CompanyRoleEnum.Carrier)
-            {
-                listActive = listActive
-                    .Where(c => c.TenderStatus == TenderStatuses.Active).ToList();
-            }
 
             var listTenderActiveDTO = new List<TenderActiveDTO>();
             foreach (var item in listActive)
@@ -350,8 +346,19 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 newTenderActiveDTO.ConstructionMachines = constructionMachines.Data;
                 var Bids = await _tenderBidService.GetTenderBidsByTenderId(item.Id);
                 newTenderActiveDTO.Bids = Bids.Data;
-                listTenderActiveDTO.Add(newTenderActiveDTO);
-            }    
+                var hasChoose = false;
+                foreach(var bid in newTenderActiveDTO.Bids)
+                {
+                    if(bid.CompanyCarrierId == currentUser.CompanyId)
+                    {
+                        hasChoose = true;
+                        break;
+                    }    
+                }   
+                  
+                if(!hasChoose)
+                    listTenderActiveDTO.Add(newTenderActiveDTO);
+            }
 
             var listActiveNotPaging = listTenderActiveDTO.Where(c => dto.SearchText.IsNullOrEmpty()
                         || c.TenderName.Contains(dto.SearchText!)

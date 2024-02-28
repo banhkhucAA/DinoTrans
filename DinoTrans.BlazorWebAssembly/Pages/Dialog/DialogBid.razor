@@ -1,33 +1,33 @@
 ﻿@inject IJSRuntime js
-@inject ITenderService TenderService
-<button @onclick="OpenDialog" class="button-offers">
+@inject ITenderBidService TenderBidService
+<button style="border:none" @onclick="OpenDialog" class="button-offers">
     <img class="img-active-tenders" src="/images/hammerBid.png" alt="Hammer">
 </button>
-<dialog style="position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); min-width:600px; min-height:500px" id="withdraw-dialog-@TenderId">
+<dialog style="position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); min-width:700px; min-height:370px" id="make-offer">
     <div class="card">
         <div class="card-header text-center">
             <img src="/images/hammerBid.png" style="min-width:50px;min-height:50px;max-width:100px;max-height:100px;">
             <div>Đề xuất giá vận tải</div>
         </div>
         <div class="card-body text-center row col-md-12">
-            <div class="col-md-6" style="padding:5px;border:1px solid black">
-                Lưu ý rằng đề xuất giá vận tải đã bao gồm
-                <span>- Chi phí vận chuyển</span>
-                <span>- Giấy phép vận chuyển</span>
-                <span>- Phụ phí xăng dầu</span>
+            <div class="col-md-8" style="padding:5px;border:1px solid black">
+                <div>Lưu ý rằng đề xuất giá vận tải đã bao gồm</div>
+                <div>- Chi phí vận chuyển</div>
+                <div>- Giấy phép vận chuyển</div>
+                <div>- Phụ phí xăng dầu</div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div>Giá vận tải (VNĐ)</div>
-                <div><input type="number" placeholder="Nhập giá vận chuyển mong muôn"/></div>
+                <div><input type="text" placeholder="Nhập giá vận chuyển" value="@PriceDisplay" @oninput="ChangeValue" /></div>
             </div>
 
         </div>
-        <div class="card-footer row">
+        <div class="card-footer row fixed-bottom">
             <div class="form-group col-md-6">
                 <button class="btn btn-outline-danger ms-2" type="submit" @onclick="Close">Hủy</button>
             </div>
             <div class="form-group col-md-6">
-                <button style="max-width:100px" class="btn btn-outline-success float-end me-2" type="submit" @onclick="Withdraw">Xác nhận</button>
+                <button style="max-width:100px" class="btn btn-outline-success float-end me-2" type="submit" @onclick="Bid">Đặt giá</button>
             </div>
         </div>
     </div>
@@ -35,36 +35,41 @@
 @code {
     [Parameter]
     public int TenderId { get; set; }
-    public WithdrawTenderDTO withdrawTenderDTO { get; set; }
+    public TenderBidDTO newTenderBid { get; set; } = new();
     [Parameter]
     public EventCallback ChangeData { get; set; }
-    protected override async Task OnInitializedAsync()
-    {
-        withdrawTenderDTO = new WithdrawTenderDTO
-            {
-                TenderID = TenderId,
-                WithdrawReason = "",
-            };
-    }
+    public ApplicationUser _applicationUser;
+    public string PriceDisplay = "";
+    public bool IsPriceSet = false;
     protected override async Task OnParametersSetAsync()
     {
-        withdrawTenderDTO.TenderID = TenderId;
+        newTenderBid.TenderId = TenderId;
     }
     public async Task OpenDialog()
     {
-        await js.InvokeVoidAsync("OpenDialog", $"withdraw-dialog-{TenderId}");
+        await js.InvokeVoidAsync("OpenDialog", "make-offer");
     }
-
+    public void ChangeValue(ChangeEventArgs e)
+    {
+        if (float.TryParse(e.Value.ToString(), out float transportPrice))
+        {
+            newTenderBid.TransportPrice = transportPrice;
+            IsPriceSet = true;
+            PriceDisplay = newTenderBid.TransportPrice.ToString("N0");
+        }
+        else IsPriceSet = false;
+    }
     async void Close()
     {
-        withdrawTenderDTO.TenderID = 0;
-        withdrawTenderDTO.WithdrawReason = "";
-        await js.InvokeVoidAsync("CloseDialog", $"withdraw-dialog-{TenderId}");
+        newTenderBid = new();
+        await js.InvokeVoidAsync("CloseDialog", "make-offer");
     }
 
-    public async Task Withdraw()
+    public async Task Bid()
     {
-        var result = await TenderService.UpdateWithdrawTender(withdrawTenderDTO);
+        if (!IsPriceSet)
+            await js.InvokeVoidAsync("alert", "Vui lòng nhập đúng số tiền");
+        var result = await TenderBidService.SubmitTenderBid(newTenderBid, _applicationUser);
         if (result.Flag)
         {
             await ChangeData.InvokeAsync();
