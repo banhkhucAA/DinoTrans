@@ -220,7 +220,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
         {
             var allTenderActive = await _tenderRepository
                 .AsNoTracking()
-                .Where(t => t.TenderStatus == TenderStatuses.Active || t.TenderStatus == TenderStatuses.ToAssign)
+                .Where(t => t.TenderStatus == TenderStatuses.Active)
                 .ToListAsync();
 
             var result = allTenderActive.ToList();
@@ -310,8 +310,10 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             var listActive = _tenderRepository
             .AsNoTracking()
             .Include(t => t.CompanyShipper)
-            .Where(t => t.TenderStatus == TenderStatuses.Active || t.TenderStatus == TenderStatuses.ToAssign)
+            .Where(t => t.TenderStatus == TenderStatuses.Active)
             .ToList();
+
+            listActive = listActive.Where(t => (t.EndDate - DateTime.Now).TotalNanoseconds > 0).ToList();
 
             var currentUserCompany = _companyRepository
                                     .AsNoTracking()
@@ -406,6 +408,98 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             };    
         }
 
+        public async Task<ResponseModel<List<TenderActiveDTO>>> SearchToAssignBy(SearchTenderActiveDTO dto, ApplicationUser? currentUser)
+        {
+            var listToAssign = _tenderRepository
+            .AsNoTracking()
+            .Include(t => t.CompanyShipper)
+            .Where(t => t.TenderStatus == TenderStatuses.Active)
+            .ToList();
+
+            var currentUserCompany = _companyRepository
+                                    .AsNoTracking()
+                                    .Where(c => c.Id == currentUser.CompanyId)
+                                    .FirstOrDefault();
+
+            if (currentUserCompany!.Role == CompanyRoleEnum.Shipper)
+            {
+                listToAssign = listToAssign.Where(t =>
+                    t.CompanyShipperId! == currentUser.CompanyId).ToList();
+
+                listToAssign = listToAssign.Where(t => (t.EndDate - DateTime.Now).TotalNanoseconds <= 0).ToList();
+            }
+
+            var listTenderToAssignDTO = new List<TenderActiveDTO>();
+            foreach (var item in listToAssign)
+            {
+                var newTenderToAssignDTO = new TenderActiveDTO
+                {
+                    TenderId = item.Id,
+                    TenderName = item.Name,
+                    From = item.PickUpAddress,
+                    To = item.DeliveryAddress,
+                    PickUpDate = (DateTime)item.PickUpDate,
+                    DeliveryDate = (DateTime)item.DeiliverDate,
+                    Status = item.TenderStatus.ToString(),
+                    TimeRemaining = 0,
+                    CompanyShipperId = item.CompanyShipperId,
+                    CompanyShipperName = item.CompanyShipper!.CompanyName
+                };
+
+                var constructionMachines = await _machineService.GetMachinesForTenderOverviewByIds(item.Id);
+                newTenderToAssignDTO.ConstructionMachines = constructionMachines.Data;
+                var Bids = await _tenderBidService.GetTenderBidsByTenderId(item.Id);
+                newTenderToAssignDTO.Bids = Bids.Data;
+                if(newTenderToAssignDTO.Bids.Count > 0)
+                    listTenderToAssignDTO.Add(newTenderToAssignDTO);
+            }
+
+            var listToAssignNotPaging = listTenderToAssignDTO.Where(c => dto.SearchText.IsNullOrEmpty()
+                        || c.TenderName.Contains(dto.SearchText!)
+                        || c.ConstructionMachines.Any(cm => cm.Name.Contains(dto.SearchText!)));
+
+            switch (dto.searchLoads)
+            {
+                case SearchActiveByMachines.All:
+                    break;
+                case SearchActiveByMachines.LessThan8Tons:
+                    listToAssignNotPaging = listToAssignNotPaging.Where(l => l.ConstructionMachines.Any(c => c.Weight < 8000));
+                    break;
+                case SearchActiveByMachines.From8To22Tons:
+                    listToAssignNotPaging = listToAssignNotPaging.Where(l => l.ConstructionMachines.Any(c => c.Weight >= 8000 && c.Weight < 22000));
+                    break;
+                case SearchActiveByMachines.From22Tons:
+                    listToAssignNotPaging = listToAssignNotPaging.Where(l => l.ConstructionMachines.Any(c => c.Weight >= 22000));
+                    break;
+            }
+
+            switch (dto.searchOffers)
+            {
+                case SearchActiveByOffers.All:
+                    break;
+                case SearchActiveByOffers.NoOffers:
+                    listToAssignNotPaging = listToAssignNotPaging.Where(l => l.Bids.Count == 0);
+                    break;
+                case SearchActiveByOffers.MoreThan5Offers:
+                    listToAssignNotPaging = listToAssignNotPaging.Where(l => l.Bids.Count > 5);
+                    break;
+                case SearchActiveByOffers.Max5Offers:
+                    listToAssignNotPaging = listToAssignNotPaging.Where(l => l.Bids.Count <= 5);
+                    break;
+            }
+            var listActivePaging = listToAssignNotPaging
+                        .Skip((dto.pageIndex - 1) * dto.pageSize)
+                        .Take(dto.pageSize);
+
+            return new ResponseModel<List<TenderActiveDTO>>
+            {
+                Data = listActivePaging.ToList(),
+                Success = true,
+                Total = listToAssignNotPaging.Count(),
+                PageCount = listToAssignNotPaging.Count() / 10 + 1
+            };
+        }
+
         public async Task<ResponseModel<Tender>> StartTender(int TenderId)
         {
             var tender = await _tenderRepository
@@ -456,6 +550,11 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             _tenderRepository.UpdateRange(listTenders);
             _tenderRepository.SaveChange();
             return new GeneralResponse(true, "Cập nhật thành công");
+        }
+
+        public Task<GeneralResponse> UpdateStatusToAssign(int TenderId)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<GeneralResponse> UpdateWithdrawTender(WithdrawTenderDTO withdrawTenderDTO)

@@ -18,27 +18,21 @@ namespace DinoTrans.Shared.Contracts
         /// carrier đặt giá trong thời gian này còn shipper hết thời gian này mới chọn carrier thắng, khi đc đặt giá màn shipper vẫn là active còn thằng 
         /// Shipper màn active tender luôn xuất hiện trong khoảng thời gian đặt giá
         /// Carrier chỉ cần đặt một giá là nó sẽ từ active chuyển sang màn selection
-        Active = 2, 
-        /// <summary>
-        /// Tender period end, tender move to To Assign
-        /// </summary>
-        /// Đối với màn shipper có tender bid và chọn carrier
-        /// chỉ cho shipper khi hết thời gian đấu thầu nó sẽ là màn selection, carrier có màn selection nhưng không phải trạng thái toasign mà nó dựa vào bản ghi trong tenderbid
-        ToAssign = 3,
+        Active = 2,
         /// <summary>
         /// Tender withdrawn
         /// </summary>
         /// Shipper khi mà hết thời gian đấu thầu không có Carrier nào đặt giá
         /// Khi cả hai bên đã ở trạng thái inexcecution 
-        Withdrawn = 4,
+        Withdrawn = 3,
         /// <summary>
         /// Tender assigned, transport in execution
         /// </summary>
         /// Khi carrier đặt giá 
-        InExcecution = 5,
+        InExcecution = 4,
         /// <summary>
         /// Tender marked as complete by both company
         /// </summary>
-        Completed = 6
+        Completed = 5
     }
 }

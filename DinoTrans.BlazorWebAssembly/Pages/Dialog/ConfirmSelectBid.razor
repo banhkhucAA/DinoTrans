@@ -1,6 +1,8 @@
 ﻿@inject IJSRuntime js
 @inject ITenderBidService TenderBidService
+
 <button class="btn btn-outline-success" @onclick="Submit">Chọn đề nghị</button>
+
 <dialog style="position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); min-width:500px; min-height:150px" id="confirm-select-TenderBid-@TenderBidId">
     <div class="card">
         <div class="card-header text-center">

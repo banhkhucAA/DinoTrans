@@ -72,6 +72,13 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
             var result = await _tenderService.SearchActiveBy(dto, _currentUser);
             return Ok(result);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SearchToAssignBy([FromBody] SearchTenderActiveDTO dto)
+        {
+            var result = await _tenderService.SearchToAssignBy(dto, _currentUser);
+            return Ok(result);
+        }
         /*[HttpPost]
         public async Task<IActionResult> SearchActiveBy_Test([FromBody] SearchTenderActiveDTO dto)
         {

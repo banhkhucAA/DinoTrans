@@ -94,9 +94,16 @@
                             <td class="table-tender">@item.DeliveryDate.ToString("dd-MM-yyyy hh:mm:s tt")</td>
                             <td class="table-tender">@item.CompanyShipperName</td>
                             <td class="table-tender">@item.Status</td>
-                            <td class="table-tender">@item.TimeLeft</td>
+                            @if (item.TimeRemaining > 0)
+                            {
+                                <td class="table-tender">@item.TimeLeft</td>
+                            }
+                            else
+                            {
+                                <td class="table-tender">Hết hạn</td>
+                            }
                             <td class="table-tender">
-                                <ListTenderBidDialog companyRole="companyRole" listBids="@item.Bids" Finish="HandleCallBack"></ListTenderBidDialog>
+                                <ListTenderBidDialog IsActiveScreen="@IsActiveScreen" companyRole=" companyRole" listBids="@item.Bids" Finish="HandleCallBack"></ListTenderBidDialog>
                             </td>
                             <td class="table-tender">
                                 <span>
@@ -139,6 +146,7 @@
     public int TotalPage { get; set; }
     public AuthenticationState? authState = null;
     public CompanyRoleEnum companyRole = new();
+    public bool IsActiveScreen { get; set; }
     public class ActiveTimeElapse
     {
         public int TenderId { get; set; }
@@ -159,23 +167,23 @@
     public async Task HandleCallBack()
     {
         searchDTO.pageIndex = 1;
-        await CallSearchActiveBy();
+        await CallSearch();
     }
     public async Task HandleEvent()
     {
         searchDTO.pageIndex = 1;
-        await CallSearchActiveBy();
+        await CallSearch();
     }
     private async Task OnPageChangedAsync(int newPageNumber)
     {
         await Task.Run(() => { searchDTO.pageIndex = newPageNumber; });
-        await CallSearchActiveBy();
+        await CallSearch();
     }
     public async Task SetSearchTextChange(ChangeEventArgs e)
     {
         searchDTO.SearchText = e.Value.ToString();
         searchDTO.pageIndex = 1;
-        await CallSearchActiveBy();
+        await CallSearch();
     }
     public async Task SetLoadsChange(ChangeEventArgs e)
     {
@@ -183,7 +191,7 @@
         {
             searchDTO.searchLoads = searchLoads;
             searchDTO.pageIndex = 1;
-            await CallSearchActiveBy();
+            await CallSearch();
         }
     }
     public async Task SetOffersChange(ChangeEventArgs e)
@@ -192,7 +200,7 @@
         {
             searchDTO.searchOffers = searchOffers;
             searchDTO.pageIndex = 1;
-            await CallSearchActiveBy();
+            await CallSearch();
         }
     }
     protected override async Task OnInitializedAsync()
@@ -208,52 +216,89 @@
                 companyRole = response.Data;
             }
         }
-        await CallSearchActiveBy();
-
+        await CallSearch();
     }
 
     public void TenderDetails(int TenderId)
     {
-        nav.NavigateTo($"/Tenders/Active/{TenderId}");
+        nav.NavigateTo($"/Tenders/Details/{TenderId}");
     }
 
-    private async Task CallSearchActiveBy()
+    private async Task CallSearch()
     {
-        var result = await TenderService.SearchActiveBy(searchDTO, _user);
-
-        if (result.Success)
+        if (nav.Uri.Contains("Active"))
         {
-            listActive = result.Data;
-            TotalPage = result.PageCount;
-            activeTimeElapses = new();
-            foreach (var item in listActive)
+            IsActiveScreen = true;
+            var result = await TenderService.SearchActiveBy(searchDTO, _user);
+
+            if (result.Success)
             {
-                activeTimeElapses.Add(new ActiveTimeElapse
+                listActive = result.Data;
+                TotalPage = result.PageCount;
+                activeTimeElapses = new();
+                foreach (var item in listActive)
                 {
-                    TenderId = item.TenderId,
-                    TenderName = item.TenderName,
-                    ConstructionMachines = item.ConstructionMachines,
-                    From = item.From,
-                    To = item.To,
-                    PickUpDate = item.PickUpDate,
-                    DeliveryDate = item.DeliveryDate,
-                    Status = item.Status,
-                    TimeRemaining = item.TimeRemaining,
-                    Bids = item.Bids,
-                    CompanyShipperId = item.CompanyShipperId,
-                    CompanyShipperName = item.CompanyShipperName,
-                    Timer = new(1000)
-                });
+                    activeTimeElapses.Add(new ActiveTimeElapse
+                    {
+                        TenderId = item.TenderId,
+                        TenderName = item.TenderName,
+                        ConstructionMachines = item.ConstructionMachines,
+                        From = item.From,
+                        To = item.To,
+                        PickUpDate = item.PickUpDate,
+                        DeliveryDate = item.DeliveryDate,
+                        Status = item.Status,
+                        TimeRemaining = item.TimeRemaining,
+                        Bids = item.Bids,
+                        CompanyShipperId = item.CompanyShipperId,
+                        CompanyShipperName = item.CompanyShipperName,
+                        Timer = new(1000)
+                    });
+                }
+                foreach (var item in activeTimeElapses)
+                {
+                    item.Timer.Elapsed += (sender, EventArgs) => CountDown(item);
+                    item.Timer.Start();
+                }
             }
-            foreach (var item in activeTimeElapses)
+            else
             {
-                item.Timer.Elapsed += (sender, EventArgs) => CountDown(item);
-                item.Timer.Start();
+                await js.InvokeVoidAsync("alert", result.Message);
             }
         }
         else
         {
-            await js.InvokeVoidAsync("alert", result.Message);
+            IsActiveScreen = false;
+            var result = await TenderService.SearchToAssignBy(searchDTO, _user);
+
+            if (result.Success)
+            {
+                listActive = result.Data;
+                TotalPage = result.PageCount;
+                activeTimeElapses = new();
+                foreach (var item in listActive)
+                {
+                    activeTimeElapses.Add(new ActiveTimeElapse
+                    {
+                        TenderId = item.TenderId,
+                        TenderName = item.TenderName,
+                        ConstructionMachines = item.ConstructionMachines,
+                        From = item.From,
+                        To = item.To,
+                        PickUpDate = item.PickUpDate,
+                        DeliveryDate = item.DeliveryDate,
+                        Status = item.Status,
+                        TimeRemaining = item.TimeRemaining,
+                        Bids = item.Bids,
+                        CompanyShipperId = item.CompanyShipperId,
+                        CompanyShipperName = item.CompanyShipperName,
+                    });
+                }
+            }
+            else
+            {
+                await js.InvokeVoidAsync("alert", result.Message);
+            }
         }
     }
 
@@ -267,9 +312,16 @@
         if (hours <= 0 && minutes <= 0 && seconds <=0)
         {
             item.Timer.Stop();
-            var result = await TenderService.UpdateStatusAuto(new List<int> { item.TenderId });
-            if (result.Flag)
-                activeTimeElapses.Remove(item);
+            if(item.Bids.Count == 0)
+            {
+                var result = await TenderService.UpdateStatusAuto(new List<int> { item.TenderId });
+                if (result.Flag)
+                    activeTimeElapses.Remove(item);
+            }
+            else
+            {
+                
+            }
         }
         StateHasChanged();
     }

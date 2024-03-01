@@ -95,7 +95,6 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
 
         public async Task<ServiceResponses.GeneralResponse> SubmitTenderBid(TenderBidDTO dto, ApplicationUser currentUser)
         {
-            _unitOfWork.BeginTransaction();
             var tender = await _tenderRepository
                 .AsNoTracking()
                 .Where(t => t.Id == dto.TenderId)
@@ -125,11 +124,8 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 TransportPrice = dto.TransportPrice
             };
             _tenderBidRepository.Add(newTenderBid);
+            _tenderBidRepository.SaveChange();
 
-            tender.TenderStatus = TenderStatuses.ToAssign;
-            _tenderRepository.Update(tender);
-            _unitOfWork.SaveChanges();
-            _unitOfWork.Commit();
             return new ServiceResponses.GeneralResponse(true, "Tạo đặt giá thành công");
         }
     }
