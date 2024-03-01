@@ -316,7 +316,7 @@
             {
                 var result = await TenderService.UpdateStatusAuto(new List<int> { item.TenderId });
                 if (result.Flag)
-                    activeTimeElapses.Remove(item);
+                    await CallSearch();
             }
             else
             {

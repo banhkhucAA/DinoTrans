@@ -3,7 +3,7 @@
 <button style="border:none" @onclick="OpenDialog" class="button-offers">
     <img class="img-active-tenders" src="/images/hammerBid.png" alt="Hammer">
 </button>
-<dialog style="position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); min-width:700px; min-height:370px" id="make-offer">
+<dialog style="position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); min-width:700px; min-height:370px" id="make-offer-@TenderId">
     <div class="card">
         <div class="card-header text-center">
             <img src="/images/hammerBid.png" style="min-width:50px;min-height:50px;max-width:100px;max-height:100px;">
@@ -41,13 +41,11 @@
     public ApplicationUser _applicationUser;
     public string PriceDisplay = "";
     public bool IsPriceSet = false;
-    protected override async Task OnParametersSetAsync()
-    {
-        newTenderBid.TenderId = TenderId;
-    }
+
     public async Task OpenDialog()
     {
-        await js.InvokeVoidAsync("OpenDialog", "make-offer");
+        newTenderBid.TenderId = TenderId;
+        await js.InvokeVoidAsync("OpenDialog", $"make-offer-{TenderId}");
     }
     public void ChangeValue(ChangeEventArgs e)
     {
@@ -62,7 +60,7 @@
     async void Close()
     {
         newTenderBid = new();
-        await js.InvokeVoidAsync("CloseDialog", "make-offer");
+        await js.InvokeVoidAsync("CloseDialog", $"make-offer-{TenderId}");
     }
 
     public async Task Bid()
@@ -72,8 +70,8 @@
         var result = await TenderBidService.SubmitTenderBid(newTenderBid, _applicationUser);
         if (result.Flag)
         {
-            await ChangeData.InvokeAsync();
             Close();
+            await ChangeData.InvokeAsync();
         }
         else
             await js.InvokeVoidAsync("alert", result.Message);
