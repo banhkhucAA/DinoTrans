@@ -4,6 +4,8 @@
 @inject NavigationManager nav
 @inject AuthenticationStateProvider AuthState
 @inject IUserService UserService
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager nav
 @using System.Timers
 <PageTitle>TendersActive</PageTitle>
 <div class="card">
@@ -139,6 +141,7 @@
     </div>
 </div>
 @code {
+    private HubConnection hubConnection;
     public List<TenderActiveDTO> listActive { get; set; } = new();
     public ApplicationUser _user { get; set; }
     public List<ActiveTimeElapse> activeTimeElapses { get; set; } = new();
@@ -217,6 +220,28 @@
             }
         }
         await CallSearch();
+
+        // Thiết lập kết nối với SignalR Hub
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7017/tenderoffershub") // Thay đổi URL của SignalR Hub của bạn ở đây
+            .Build();
+
+        hubConnection.On<List<TenderBid>>("ReceiveNewBids", (newBids) =>
+        {
+        // Xử lý sự kiện nhận được từ SignalR server
+            foreach (var item in activeTimeElapses)
+            {
+                if (item.TenderId == newBids.First().TenderId)
+                {
+                    item.Bids = newBids;
+                    break;
+                }
+            }
+            StateHasChanged(); // Cập nhật UI
+        });
+
+
+        await hubConnection.StartAsync();
     }
 
     public void TenderDetails(int TenderId)
