@@ -1,5 +1,7 @@
 ﻿@inject IJSRuntime js
 @inject ITenderBidService TenderBidService
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager nav
 @if ((companyRole == CompanyRoleEnum.Admin || companyRole == CompanyRoleEnum.Shipper) && @listBids.Count > 0)
 {
     <button style="border:none" @onclick="OpenDialog" class="button-offers">
@@ -64,6 +66,7 @@ else
     </div>
 </dialog>
 @code {
+    private HubConnection hubConnection;
     [Parameter]
     public List<TenderBid> listBids { get; set; }
     [Parameter]
@@ -76,6 +79,20 @@ else
     protected override async Task OnInitializedAsync()
     {
         if (listBids == null) listBids = new();
+
+        // Thiết lập kết nối với SignalR Hub
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(nav.ToAbsoluteUri("/tenderoffershub")) // Thay đổi URL của SignalR Hub của bạn ở đây
+            .Build();
+
+        hubConnection.On<List<TenderBid>>("ReceiveNewBids", (newBids) =>
+        {
+            // Xử lý sự kiện nhận được từ SignalR server
+            listBids = newBids;
+            StateHasChanged(); // Cập nhật UI
+        });
+
+        await hubConnection.StartAsync();
     }
     public async Task OpenDialog()
     {

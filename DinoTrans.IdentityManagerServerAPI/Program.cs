@@ -94,7 +94,7 @@ builder.Services.AddScoped<ITenderBidService,  TenderBidService>();
 builder.Services.AddSingleton<TenderServiceFactory>();
 
 builder.Services.AddHostedService<TenderBackgroundService>();
-
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -118,6 +118,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.MapHub<TenderOffersHub>("/tenderoffershub");
 
 app.MapControllers();
 
