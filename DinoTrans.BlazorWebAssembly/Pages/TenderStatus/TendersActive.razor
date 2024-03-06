@@ -114,11 +114,11 @@
                                     </button>
                                     @if (authState != null && authState.User.Identity.IsAuthenticated && (companyRole == CompanyRoleEnum.Admin || companyRole == CompanyRoleEnum.Shipper))
                                     {
-                                        <WithdrawDialog TenderId="item.TenderId" ChangeData="HandleEvent"></WithdrawDialog>
+                                        <WithdrawDialog TenderId="item.TenderId" ChangeData="HandleCallBack"></WithdrawDialog>
                                     }
                                     @if (authState != null && authState.User.Identity.IsAuthenticated && (companyRole == CompanyRoleEnum.Carrier))
                                     {
-                                        <DialogBid TenderId="item.TenderId" ChangeData="HandleCallBack"></DialogBid>
+                                        <DialogBid TenderId="item.TenderId" ChangeData="HandleEvent"></DialogBid>
                                     }
                                 </span>
                             </td>
@@ -150,23 +150,7 @@
     public AuthenticationState? authState = null;
     public CompanyRoleEnum companyRole = new();
     public bool IsActiveScreen { get; set; }
-    public class ActiveTimeElapse
-    {
-        public int TenderId { get; set; }
-        public string TenderName { get; set; }
-        public List<ContructionMachine> ConstructionMachines { get; set; }
-        public string From { get; set; }
-        public string To { get; set; }
-        public DateTime PickUpDate { get; set; }
-        public DateTime DeliveryDate { get; set; }
-        public string Status { get; set; }
-        public double TimeRemaining { get; set; }
-        public List<TenderBid> Bids { get; set; }
-        public int CompanyShipperId { get; set; }
-        public string CompanyShipperName { get; set; }
-        public Timer Timer { get; set; }
-        public string TimeLeft { get; set; }
-    }
+
     public async Task HandleCallBack()
     {
         searchDTO.pageIndex = 1;
@@ -176,6 +160,7 @@
     {
         searchDTO.pageIndex = 1;
         await CallSearch();
+        await hubConnection.InvokeAsync("SendNewBids", activeTimeElapses);
     }
     private async Task OnPageChangedAsync(int newPageNumber)
     {
