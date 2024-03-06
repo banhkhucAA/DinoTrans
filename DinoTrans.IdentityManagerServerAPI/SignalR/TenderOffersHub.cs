@@ -1,13 +1,14 @@
-﻿using DinoTrans.Shared.Entities;
+﻿using DinoTrans.Shared.DTOs.TendersActive;
+using DinoTrans.Shared.Entities;
 using Microsoft.AspNetCore.SignalR;
 
 namespace DinoTrans.IdentityManagerServerAPI.SignalR
 {
     public class TenderOffersHub : Hub
     {
-        public async Task SendNewBids(List<TenderBid> newBids)
+        public async Task SendNewBid(TenderBid tenderBid)
         {
-            await Clients.All.SendAsync("ReceiveNewBids", newBids);
+            await Clients.All.SendAsync("ReceiveNewBid", tenderBid);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
             throw new NotImplementedException();
         }
 
-        public async Task<ServiceResponses.GeneralResponse> SubmitTenderBid(TenderBidDTO dto, ApplicationUser currentUser)
+        public async Task<ResponseModel<TenderBid>> SubmitTenderBid(TenderBidDTO dto, ApplicationUser currentUser)
         {
             string token = await _localStorageService.GetItemAsStringAsync("token");
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
@@ -37,10 +37,14 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
 
             // Đọc phản hồi từ API
             if (!response.IsSuccessStatusCode)
-                return new ServiceResponses.GeneralResponse(false, "Lỗi xảy ra");
+                return new ResponseModel<TenderBid>
+                {
+                    Message = "Có lỗi xảy ra",
+                    Success = false
+                };    
 
             var apiResponse = await response.Content.ReadAsStringAsync();
-            return Generics.DeserializeJsonString<ServiceResponses.GeneralResponse>(apiResponse);
+            return Generics.DeserializeJsonString<ResponseModel<TenderBid>>(apiResponse);
         }
 
         public async Task<ServiceResponses.GeneralResponse> ChooseTenderBid(int TenderBidId, ApplicationUser currentUser)

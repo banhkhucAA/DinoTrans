@@ -156,11 +156,11 @@
         searchDTO.pageIndex = 1;
         await CallSearch();
     }
-    public async Task HandleEvent()
+    public async Task HandleEvent(TenderBid newTenderBid)
     {
         searchDTO.pageIndex = 1;
+        await hubConnection.InvokeAsync("SendNewBid", newTenderBid);
         await CallSearch();
-        await hubConnection.InvokeAsync("SendNewBids", activeTimeElapses);
     }
     private async Task OnPageChangedAsync(int newPageNumber)
     {
@@ -211,14 +211,13 @@
             .WithUrl("https://localhost:7017/tenderoffershub") // Thay đổi URL của SignalR Hub của bạn ở đây
             .Build();
 
-        hubConnection.On<List<TenderBid>>("ReceiveNewBids", (newBids) =>
+        hubConnection.On<TenderBid>("ReceiveNewBid", (signalRActiveTimeElapses) =>
         {
-        // Xử lý sự kiện nhận được từ SignalR server
-            foreach (var item in activeTimeElapses)
+            foreach(var item in activeTimeElapses)
             {
-                if (item.TenderId == newBids.First().TenderId)
+                if (item.Bids.Select(b => b.TenderId).FirstOrDefault() == signalRActiveTimeElapses.TenderId)
                 {
-                    item.Bids = newBids;
+                    item.Bids.Add(signalRActiveTimeElapses);
                     break;
                 }
             }

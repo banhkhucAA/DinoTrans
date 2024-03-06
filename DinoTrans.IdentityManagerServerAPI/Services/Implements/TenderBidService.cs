@@ -93,7 +93,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             };
         }
 
-        public async Task<ServiceResponses.GeneralResponse> SubmitTenderBid(TenderBidDTO dto, ApplicationUser currentUser)
+        public async Task<ResponseModel<TenderBid>> SubmitTenderBid(TenderBidDTO dto, ApplicationUser currentUser)
         {
             var tender = await _tenderRepository
                 .AsNoTracking()
@@ -103,7 +103,11 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             if (tender == null)
             {
                 _unitOfWork.Rollback();
-                return new ServiceResponses.GeneralResponse(false, "Không tìm thấy thầu");
+                return new ResponseModel<TenderBid>
+                {
+                    Success = false,
+                    Message = "Không tìm thấy thầu"
+                }; 
             }
 
             var tenderBidExist = _tenderBidRepository
@@ -114,7 +118,11 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             if (tenderBidExist)
             {
                 _unitOfWork.Rollback();
-                return new ServiceResponses.GeneralResponse(false, "Công ty của bạn đã đặt giá cho thầu này rồi");
+                return new ResponseModel<TenderBid>
+                {
+                    Message = "Công ty của bạn đã đặt giá cho thầu này rồi",
+                    Success = false,
+                };
             }
 
             var newTenderBid = new TenderBid
@@ -126,7 +134,11 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             _tenderBidRepository.Add(newTenderBid);
             _tenderBidRepository.SaveChange();
 
-            return new ServiceResponses.GeneralResponse(true, "Tạo đặt giá thành công");
+            return new ResponseModel<TenderBid>
+            {
+                Success = true,
+                Data = newTenderBid
+            };
         }
     }
 }

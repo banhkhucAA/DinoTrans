@@ -38,7 +38,7 @@
     public int TenderId { get; set; }
     public TenderBidDTO newTenderBid { get; set; } = new();
     [Parameter]
-    public EventCallback ChangeData { get; set; }
+    public EventCallback<TenderBid> ChangeData { get; set; }
     public ApplicationUser _applicationUser;
     public string PriceDisplay = "";
     public bool IsPriceSet = false;
@@ -69,10 +69,10 @@
         if (!IsPriceSet)
             await js.InvokeVoidAsync("alert", "Vui lòng nhập đúng số tiền");
         var result = await TenderBidService.SubmitTenderBid(newTenderBid, _applicationUser);
-        if (result.Flag)
+        if (result.Success)
         {
             Close();
-            await ChangeData.InvokeAsync();
+            await ChangeData.InvokeAsync(result.Data);
         }
         else
             await js.InvokeVoidAsync("alert", result.Message);
