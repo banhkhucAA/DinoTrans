@@ -231,7 +231,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                     var AnyBids = _tenderBidRepository
                         .AsNoTracking()
                         .Any(t => t.TenderId == item.Id);
-                    if (AnyBids)
+                    if (AnyBids && (item.EndDate - DateTime.Now).TotalHours > 24)
                         result.Remove(item);
                 }
             }
@@ -432,6 +432,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             var listTenderToAssignDTO = new List<TenderActiveDTO>();
             foreach (var item in listToAssign)
             {
+                var timeRemains = (item.EndDate - DateTime.Now).TotalSeconds > 0 ? (item.EndDate - DateTime.Now).TotalSeconds:0;
                 var newTenderToAssignDTO = new TenderActiveDTO
                 {
                     TenderId = item.Id,
@@ -441,7 +442,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                     PickUpDate = (DateTime)item.PickUpDate,
                     DeliveryDate = (DateTime)item.DeiliverDate,
                     Status = item.TenderStatus.ToString(),
-                    TimeRemaining = 0,
+                    TimeRemaining = timeRemains,
                     CompanyShipperId = item.CompanyShipperId,
                     CompanyShipperName = item.CompanyShipper!.CompanyName
                 };

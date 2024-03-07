@@ -133,7 +133,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             };
             _tenderBidRepository.Add(newTenderBid);
             _tenderBidRepository.SaveChange();
-
+            newTenderBid.CompanyCarrier = _companyRepository.AsNoTracking().Where(c => c.Id == currentUser.CompanyId).FirstOrDefault();
             return new ResponseModel<TenderBid>
             {
                 Success = true,

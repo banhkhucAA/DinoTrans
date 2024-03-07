@@ -6,6 +6,10 @@ window.OpenDialog = function (ModalId) {
     document.getElementById(ModalId).showModal();
 }
 
+window.OpenDialog1 = function (ModalId) {
+    document.getElementById(ModalId).style.display = "block";
+}
+
 window.CloseDialog = function (ModalId) {
     document.getElementById(ModalId).close();
 }

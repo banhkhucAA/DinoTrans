@@ -215,13 +215,13 @@
         {
             foreach(var item in activeTimeElapses)
             {
-                if (item.Bids.Select(b => b.TenderId).FirstOrDefault() == signalRActiveTimeElapses.TenderId)
+                if (item.TenderId == signalRActiveTimeElapses.TenderId)
                 {
                     item.Bids.Add(signalRActiveTimeElapses);
                     break;
                 }
             }
-            StateHasChanged(); // Cập nhật UI
+            StateHasChanged();
         });
 
 
@@ -301,7 +301,13 @@
                         Bids = item.Bids,
                         CompanyShipperId = item.CompanyShipperId,
                         CompanyShipperName = item.CompanyShipperName,
+                        Timer = new(1000)
                     });
+                }
+                foreach (var item in activeTimeElapses)
+                {
+                    item.Timer.Elapsed += (sender, EventArgs) => CountDown(item);
+                    item.Timer.Start();
                 }
             }
             else
@@ -320,6 +326,7 @@
         item.TimeLeft = $"{hours}h:{minutes}m:{seconds}s";
         if (hours <= 0 && minutes <= 0 && seconds <=0)
         {
+            item.TimeLeft = "Hết hạn";
             item.Timer.Stop();
             if(item.Bids.Count == 0)
             {

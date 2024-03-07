@@ -1,7 +1,10 @@
 ﻿@inject IJSRuntime js
 @inject ITenderBidService TenderBidService
 
-<button class="btn btn-outline-success" @onclick="Submit">Chọn đề nghị</button>
+@if (!IsActiveScreen)
+{
+    <button class="btn btn-outline-success" @onclick="Submit">Chọn đề nghị</button>
+}
 
 <dialog style="position:fixed; top:50%; left:50%; transform: translate(-50%, -50%); min-width:500px; min-height:150px" id="confirm-select-TenderBid-@TenderBidId">
     <div class="card">
@@ -25,6 +28,8 @@
     [Parameter]
     public int TenderBidId { get; set; }
     [Parameter]
+    public bool IsActiveScreen { get; set; }
+    [Parameter]
     public string CompanyName { get; set; }
     public ApplicationUser _currentUser;
     [Parameter]
@@ -45,7 +50,7 @@
         if (result.Flag)
         {
             Close();
-            Finish.InvokeAsync();
+            await Finish.InvokeAsync();
         }
         await js.InvokeVoidAsync("alert", result.Message);
     }
