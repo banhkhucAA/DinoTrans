@@ -127,17 +127,19 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
 
                 // Thêm vai trò cho người dùng
 
-                if(userDTO.Role == "Quản trị viên công ty") userDTO.Role = Role.CompanyAdministrator;
+                if (userDTO.Role == "Quản trị viên công ty") userDTO.Role = Role.CompanyAdministrator;
+                else if (userDTO.Role == "Admin của DinoTrans") 
+                    userDTO.Role = Role.DinoTransAdmin;
                 var findRole = await _roleManager.FindByNameAsync(userDTO.Role);
                 if (findRole is null)
                 {
                     _unitOfWork.Rollback();
                     return new GeneralResponse(false, "Role name doesn't exist");
                 }
-                if (findRole.Name != Role.CompanyAdministrator)
+                /*if (findRole.Name != Role.CompanyAdministrator)
                 {
                     return new GeneralResponse(false, "Forbidden");
-                }
+                }*/
                 await _userManager.AddToRoleAsync(newUser, userDTO.Role);
 
                 _unitOfWork.SaveChanges();
