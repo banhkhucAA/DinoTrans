@@ -17,6 +17,7 @@ namespace DinoTrans.Shared.DTOs.Report
         public float PercentSubmitForTender { get;set; }
         public float PercentWithdrawTender { get;set; }
         public float TotalSuccessTenderMoney { get;set; }
+        public int CompletedTenderNumber { get;set; }
         public ApplicationUser AdminInfo { get;set; }
     }
 }

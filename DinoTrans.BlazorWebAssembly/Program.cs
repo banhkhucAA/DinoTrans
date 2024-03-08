@@ -31,6 +31,8 @@ builder.Services.AddScoped<ITenderService, TenderClientService>();
 builder.Services.AddScoped<IConstructionMachineService, ConstructionMachineClientService>();
 builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
 builder.Services.AddScoped<ITenderBidService, TenderBidClientService>();
+builder.Services.AddScoped<IDashboardService, DashboardServiceClient>();
+
 
 
 builder.Services.AddMudServices();

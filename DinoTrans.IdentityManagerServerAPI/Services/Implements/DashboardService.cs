@@ -83,6 +83,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 .FirstOrDefaultAsync();
             var user = await _userRepository
                 .AsNoTracking()
+                .Include(u => u.Company)
                 .Where(u => u.Id == adminId)
                 .FirstOrDefaultAsync();
 
@@ -98,6 +99,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                     PercentSubmitForTender = percentSubmitForTender,
                     PercentWithdrawTender = percentWithdrawTender,
                     TotalSuccessTenderMoney = (float) moneyInCompletedTenders,
+                    CompletedTenderNumber = completedTenders,
                     AdminInfo = user!
                 }
             };

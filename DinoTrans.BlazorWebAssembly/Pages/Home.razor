@@ -1,5 +1,6 @@
 ﻿@page "/"
-
+@inject IDashboardService DashboardService
+@inject IJSRuntime js
 <PageTitle>Home</PageTitle>
 
 <div class="card">
@@ -9,29 +10,50 @@
     </div>
     <div class="card-header">
         <div class="col-md-12 row">
-            <div class="col-md-5">
+            <div class="col-md-5" style="padding-right:5px; background-color:white;">
                 <div class="row">
-                    <div class="col-md-4" style="border:1px solid lightgrey;background-color:white; color:#2fac66">1</div>
-                    <div class="col-md-4" style="border:1px solid lightgrey;background-color:white; color:#2fac66">2</div>
-                    <div class="col-md-4" style="border:1px solid lightgrey;background-color:white; color:#2fac66">3</div>
+                    <div class="col-md-4" style="border:1px solid lightgrey; color:#2fac66">@dashboardForShipper.ActiveTenderNumber</div>
+                    <div class="col-md-4" style="border:1px solid lightgrey; color:#2fac66">@dashboardForShipper.ToAssignTenderNumber</div>
+                    <div class="col-md-4" style="border:1px solid lightgrey; color:#2fac66">@dashboardForShipper.InExecutionTenderNumber</div>
                 </div>
                 <div class="row">
-                    <div class="col-md-4" style="border:1px solid lightgrey;background-color:white; color:#2fac66">4</div>
-                    <div class="col-md-4" style="border:1px solid lightgrey;background-color:white; color:#2fac66">5</div>
-                    <div class="col-md-4" style="border:1px solid lightgrey;background-color:white; color:#2fac66">6</div>
+                    <div class="col-md-4" style="border:1px solid lightgrey; color:#2fac66">@dashboardForShipper.ConstructionMachineNumber</div>
+                    <div class="col-md-4" style="border:1px solid lightgrey; color:#2fac66">@dashboardForShipper.WithdrawTenderNumber</div>
+                    <div class="col-md-4" style="border:1px solid lightgrey; color:#2fac66">@dashboardForShipper.PercentWithdrawTender</div>
                 </div>
                 <div class="row">
-                    <div class="col-md-4" style="border:1px solid lightgrey;background-color:white; color:#2fac66">7</div>
-                    <div class="col-md-4" style="border:1px solid lightgrey;background-color:white; color:#2fac66">8</div>
-                    <div class="col-md-4" style="border:1px solid lightgrey;background-color:white; color:#2fac66">9</div>
+                    <div class="col-md-4" style="border:1px solid lightgrey; color:#2fac66">@dashboardForShipper.PercentSubmitForTender</div>
+                    <div class="col-md-4" style="border:1px solid lightgrey; color:#2fac66">@dashboardForShipper.TotalSuccessTenderMoney</div>
+                    <div class="col-md-4" style="border:1px solid lightgrey; color:#2fac66">@dashboardForShipper.CompletedTenderNumber</div>
                 </div>
             </div>
-            <div class="col-md-5"></div>
-            <div class="col-md-2"></div>
+            <div class="col-md-5" style="padding-right:5px; background-color:white;"></div>
+            <div class="col-md-2" style="background-color:white;">
+                <img src="./images/logo2.png" alt="Logo" style="max-width: 120px;" />
+                <div>
+                    <b>@dashboardForShipper!.AdminInfo!.Company!.CompanyName</b>
+                    <div>Tổng giám đốc điều hành và đồng sáng lập</div>
+                    <div>Chúng tôi là người liên lạc của bạn, chúng tôi sẽ hỗ trợ giải đáp thắc mắc mọi vấn đề liên quan tới vận chuyển và máy xây dựng</div>
+                    <div>Số điện thoại bàn: @dashboardForShipper!.AdminInfo!.PhoneNumber</div>
+                    <div>Số điện thoại di động: @dashboardForShipper!.AdminInfo!.Company.PhoneNumber</div>
+                    <div>Email: @dashboardForShipper!.AdminInfo!.Company.Email</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 @code{
-
+    private readonly ApplicationUser applicationUser;
+    public DashboardForShipper dashboardForShipper;
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await DashboardService.GetDashBoardForShipper(applicationUser);
+        if (result.Success)
+            dashboardForShipper = result.Data;
+        else
+        {
+            await js.InvokeVoidAsync("alert", result.Message);
+        }
+    }
 }
