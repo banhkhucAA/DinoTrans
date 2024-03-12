@@ -42,7 +42,18 @@
     public ApplicationUser _applicationUser;
     public string PriceDisplay = "";
     public bool IsPriceSet = false;
-
+    public TenderBid TBid = new();
+    [Parameter]
+    public int CompanyId { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        var tenderBids = await TenderBidService.GetTenderBidsByTenderId(TenderId);
+        if(tenderBids.Success)
+        {
+            TBid = tenderBids.Data.Where(tb => tb.CompanyCarrierId == CompanyId).FirstOrDefault();
+            if (TBid != null) PriceDisplay = TBid.TransportPrice.ToString("N0");
+        }
+    }
     public async Task OpenDialog()
     {
         newTenderBid.TenderId = TenderId;

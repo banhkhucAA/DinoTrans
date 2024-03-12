@@ -64,12 +64,12 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 .Where(c => c.CompanyShipperId == _currentUser.CompanyId)
                 .Count();
 
-            var percentSubmitForTender = (float) _tenderRepository
+            var percentSubmitForTender = tenders.Count() != 0 ? ((float) _tenderRepository
                 .AsNoTracking()
                 .Where(t => _tenderBidRepository.AsNoTracking().Any(tb => tb.TenderId == t.Id))
-                .Count() / tenders.Count() * 100;
+                .Count() / tenders.Count() * 100) : 0;
 
-            var percentWithdrawTender = (float) withdrawTenders / tenders.Count();
+            var percentWithdrawTender = tenders.Count() != 0 ?((float) withdrawTenders / tenders.Count()):0;
 
             var moneyInCompletedTenders = tenders
                 .Where(t => t.TenderStatus == TenderStatuses.Completed)
@@ -101,7 +101,8 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                     TotalSuccessTenderMoney = (float) moneyInCompletedTenders,
                     CompletedTenderNumber = completedTenders,
                     AdminInfo = user!
-                }
+                },
+                Success = true
             };
         }
     }

@@ -22,9 +22,23 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
             _localStorageService = localStorageService;
         }
 
-        public Task<ResponseModel<List<TenderBid>>> GetTenderBidsByTenderId(int TenderId)
+        public async Task<ResponseModel<List<TenderBid>>> GetTenderBidsByTenderId(int TenderId)
         {
-            throw new NotImplementedException();
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var response = await _httpClient
+                .GetAsync($"{BaseUrl}/GetTenderBidsByTenderId?TenderId={TenderId}");
+
+            // Đọc phản hồi từ API
+            if (!response.IsSuccessStatusCode)
+                return new ResponseModel<List<TenderBid>>
+                {
+                    Message = "Có lỗi xảy ra",
+                    Success = false
+                };
+
+            var apiResponse = await response.Content.ReadAsStringAsync();
+            return Generics.DeserializeJsonString<ResponseModel<List<TenderBid>>>(apiResponse);
         }
 
         public async Task<ResponseModel<TenderBid>> SubmitTenderBid(TenderBidDTO dto, ApplicationUser currentUser)
