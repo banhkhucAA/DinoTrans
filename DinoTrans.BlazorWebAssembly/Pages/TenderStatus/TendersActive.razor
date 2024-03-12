@@ -118,7 +118,7 @@
                                     }
                                     @if (authState != null && authState.User.Identity.IsAuthenticated && (companyRole == CompanyRoleEnum.Carrier))
                                     {
-                                        <DialogBid TenderId="item.TenderId" ChangeData="HandleEvent"></DialogBid>
+                                        <DialogBid CompanyId="CompanyId" TenderId="item.TenderId" ChangeData="HandleEvent"></DialogBid>
                                     }
                                 </span>
                             </td>
@@ -150,7 +150,7 @@
     public AuthenticationState? authState = null;
     public CompanyRoleEnum companyRole = new();
     public bool IsActiveScreen { get; set; }
-
+    public int CompanyId { get; set; } = new();
     public async Task HandleCallBack()
     {
         searchDTO.pageIndex = 1;
@@ -198,6 +198,7 @@
         if (authState.User.Identity.IsAuthenticated)
         {
             var companyId = int.Parse(authState.User.FindFirstValue("CompanyId"));
+            CompanyId = companyId;
             var response = await UserService.GetCompanyRole(companyId);
             if (response.Success)
             {

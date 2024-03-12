@@ -119,14 +119,39 @@
                     </div>
                 </div>
                 <br />
-            }
-            <br />
-            <div class="card-footer">
-                <div class="float-end">
-                    <button class="btn btn-outline-success" @onclick="BackToActive">&lt Quay lại</button>
-                </div>
-            </div>
+            }         
         }
+        <br />
+        <label class="form-label">
+            Tài liệu đính kèm
+        </label>
+        <hr />
+         <div>
+            @if (docs.Count > 0)
+            {
+                foreach (var item in docs)
+                {
+                    int indexOfUnderscore = item.DocumentName.IndexOf('_');
+
+                    if (indexOfUnderscore != -1)
+                    {
+                        // Lấy chuỗi sau dấu `_` đầu tiên
+                        string afterUnderscore = item.DocumentName.Substring(indexOfUnderscore + 1);
+                        <div>
+                            <img src="/images/PDF_file_icon.svg.png" style="max-width:20px; max-height:20px;" />
+                            <a href="@item.Document" target="_blank">@afterUnderscore</a>
+                            <br />
+                        </div>
+                    }
+                }
+            }
+         </div>
+        <br />
+        <div class="card-footer">
+            <div class="float-end">
+                <button class="btn btn-outline-success" @onclick="BackToActive">&lt Quay lại</button>
+            </div>
+        </div>
     </div>
 </div>
 @code {
@@ -138,6 +163,12 @@
     public string TenderPickUpDate = "";
     public string TenderDeliveryDate = "";
     public string TenderCode = "";
+    public class DocsDisplay
+    {
+        public string Document = "";
+        public string DocumentName = "";
+    }
+    public List<DocsDisplay> docs = new List<DocsDisplay>();
     protected override async Task OnInitializedAsync()
     {
         var result = await TenderService.GetTenderById(TenderId);
@@ -149,6 +180,25 @@
             TenderPickUpDate = $"{tenderDetailsDTO!.PickUpDate!.Value.Day.ToString()}.{tenderDetailsDTO!.PickUpDate!.Value.Month.ToString()}.{tenderDetailsDTO!.PickUpDate!.Value.Year.ToString()}, {tenderDetailsDTO!.PickUpDate!.Value.Hour.ToString()}h:{tenderDetailsDTO!.PickUpDate!.Value.Minute.ToString()}p";
             TenderCode = $"#000{tenderDetailsDTO.TenderId}";
             TenderDeliveryDate = $"{tenderDetailsDTO!.DeiliverDate!.Value.Day.ToString()}.{tenderDetailsDTO!.DeiliverDate!.Value.Month.ToString()}.{tenderDetailsDTO!.DeiliverDate!.Value.Year.ToString()}, {tenderDetailsDTO!.DeiliverDate!.Value.Hour.ToString()}h:{tenderDetailsDTO!.DeiliverDate!.Value.Minute.ToString()}p";
+
+            if (tenderDetailsDTO.Documentations != null)
+            {
+                var DocumentDeserializeJson = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(tenderDetailsDTO.Documentations);
+                foreach (var item in DocumentDeserializeJson!)
+                {
+                    foreach (KeyValuePair<string, string> pair in item)
+                    {
+                        var document = Uri.EscapeDataString(pair.Value);
+                        var test = $"\\TenderDocuments\\Tender_{tenderDetailsDTO.TenderId}\\";
+                        var documentsName = pair.Value.ToString().Replace(test, "");
+                        docs.Add(new DocsDisplay
+                            {
+                                Document = document,
+                                DocumentName = documentsName.Replace(test, "")
+                            });
+                    }
+                }
+            }
         }
         else
         {

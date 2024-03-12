@@ -13,6 +13,12 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
         private readonly IConfiguration _configuration;
         private readonly ILocalStorageService _localStorageService;
         private const string BaseUrl = "api/Dashboard";
+        public DashboardServiceClient(HttpClient httpClient, IConfiguration configuration, ILocalStorageService localStorageService)
+        {
+            _httpClient = httpClient;
+            _configuration = configuration;
+            _localStorageService = localStorageService;
+        }
 
         public async Task<ResponseModel<DashboardForShipper>> GetDashBoardForShipper(ApplicationUser _currentUser)
         {

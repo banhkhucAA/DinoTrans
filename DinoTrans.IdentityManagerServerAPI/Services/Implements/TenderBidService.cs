@@ -88,7 +88,7 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             }    
             return new ResponseModel<List<TenderBid>>
             {
-                Success = false,
+                Success = true,
                 Data = tenderBids
             };
         }
