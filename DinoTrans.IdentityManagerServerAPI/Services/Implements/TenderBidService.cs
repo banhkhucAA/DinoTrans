@@ -70,6 +70,43 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             return new ServiceResponses.GeneralResponse(true, "Chọn thầu thành công");
         }
 
+        public async Task<ResponseModel<TenderBid>> DeleteTenderBid(int TenderBidId)
+        {
+            var tenderBid = await _tenderBidRepository
+                .Queryable()
+                .Include(c => c.CompanyCarrier)
+                .Where(t => t.Id == TenderBidId)
+                .FirstOrDefaultAsync();
+
+            if (tenderBid == null)
+                return new ResponseModel<TenderBid>
+                {
+                    Success = false,
+                    Message = "Không tìm thấy đặt giá để xóa"
+                };
+
+            var deletedBid = new TenderBid
+            {
+                Id = tenderBid.Id,
+                TenderId = tenderBid.TenderId,
+                CompanyCarrierId = tenderBid.CompanyCarrierId,
+                TransportPrice = tenderBid.TransportPrice,
+                ShipperFee = tenderBid.ShipperFee,
+                CarrierFee = tenderBid.CarrierFee,
+                IsSelected = tenderBid.IsSelected,
+                CompanyCarrier = tenderBid.CompanyCarrier
+            };
+
+            _tenderBidRepository.Delete(tenderBid);
+            _tenderBidRepository.SaveChange();
+
+            return new ResponseModel<TenderBid>
+            {
+                Success = true,
+                Data = deletedBid
+            };
+        }
+
         public async Task<ResponseModel<List<TenderBid>>> GetTenderBidsByTenderId(int TenderId)
         {
             var tenderBids = await _tenderBidRepository
@@ -138,6 +175,34 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
             {
                 Success = true,
                 Data = newTenderBid
+            };
+        }
+
+        public async Task<ResponseModel<TenderBid>> UpdateTenderBid(UpdateTenderBidDTO dto)
+        {
+            var tenderBid = await _tenderBidRepository
+                .Queryable()
+                .Include(t => t.CompanyCarrier)
+                .Where(tb => tb.Id == dto.TenderBidId)
+                .FirstOrDefaultAsync();
+
+            if (tenderBid == null) 
+            {
+                return new ResponseModel<TenderBid>
+                {
+                    Success = false,
+                    Message = "Không tồn tại TenderBid"
+                };
+            }
+
+            tenderBid.TransportPrice = dto.TransportPrice;
+            _tenderBidRepository.Update(tenderBid);
+            _tenderBidRepository.SaveChange();
+
+            return new ResponseModel<TenderBid>
+            {
+                Success = true,
+                Data = tenderBid
             };
         }
     }

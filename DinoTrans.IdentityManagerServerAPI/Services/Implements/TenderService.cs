@@ -451,8 +451,12 @@ namespace DinoTrans.IdentityManagerServerAPI.Services.Implements
                 newTenderToAssignDTO.ConstructionMachines = constructionMachines.Data;
                 var Bids = await _tenderBidService.GetTenderBidsByTenderId(item.Id);
                 newTenderToAssignDTO.Bids = Bids.Data;
-                if(newTenderToAssignDTO.Bids.Count > 0)
-                    listTenderToAssignDTO.Add(newTenderToAssignDTO);
+                if (newTenderToAssignDTO.Bids.Count > 0)
+                {
+                    if((currentUserCompany!.Role == CompanyRoleEnum.Carrier && newTenderToAssignDTO.Bids.Any(tb => tb.CompanyCarrierId == currentUser!.Id))
+                        || (currentUserCompany!.Role == CompanyRoleEnum.Shipper))
+                        listTenderToAssignDTO.Add(newTenderToAssignDTO);
+                }
             }
 
             var listToAssignNotPaging = listTenderToAssignDTO.Where(c => dto.SearchText.IsNullOrEmpty()

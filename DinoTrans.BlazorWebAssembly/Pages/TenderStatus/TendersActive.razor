@@ -105,7 +105,7 @@
                                 <td class="table-tender">Hết hạn</td>
                             }
                             <td class="table-tender">
-                                <ListTenderBidDialog IsActiveScreen="@IsActiveScreen" companyRole=" companyRole" listBids="@item.Bids" Finish="HandleCallBack"></ListTenderBidDialog>
+                                <ListTenderBidDialog IsRerenderChild="IsRerenderChild" RerenderChild="HandleRerenderChild" IsActiveScreen="@IsActiveScreen" companyRole=" companyRole" listBids="@item.Bids" Finish="HandleCallBack"></ListTenderBidDialog>
                             </td>
                             <td class="table-tender">
                                 <span>
@@ -151,12 +151,17 @@
     public CompanyRoleEnum companyRole = new();
     public bool IsActiveScreen { get; set; }
     public int CompanyId { get; set; } = new();
+    public bool IsRerenderChild { get; set; } = false;
     public async Task HandleCallBack()
     {
         searchDTO.pageIndex = 1;
         await CallSearch();
     }
-    public async Task HandleEvent(TenderBid newTenderBid)
+    public void HandleRerenderChild(bool RerenderChild)
+    {
+        IsRerenderChild = RerenderChild;
+    }
+    public async Task HandleEvent(ActionTenderBid newTenderBid)
     {
         searchDTO.pageIndex = 1;
         await hubConnection.InvokeAsync("SendNewBid", newTenderBid);
@@ -212,17 +217,42 @@
             .WithUrl("https://localhost:7017/tenderoffershub") // Thay đổi URL của SignalR Hub của bạn ở đây
             .Build();
 
-        hubConnection.On<TenderBid>("ReceiveNewBid", (signalRActiveTimeElapses) =>
+        hubConnection.On<ActionTenderBid>("ReceiveNewBid", (signalRActiveTimeElapses) =>
         {
             foreach(var item in activeTimeElapses)
             {
-                if (item.TenderId == signalRActiveTimeElapses.TenderId)
+                if (item.TenderId == signalRActiveTimeElapses.TenderBid.TenderId)
                 {
-                    item.Bids.Add(signalRActiveTimeElapses);
-                    break;
+                    if (item.Bids.Select(b => b.Id).Contains(signalRActiveTimeElapses.TenderBid.Id))
+                    {
+                        var updatedBid = item.Bids.Where(b => b.Id == signalRActiveTimeElapses.TenderBid.Id).FirstOrDefault();
+                        if (updatedBid != null)
+                        {
+                            updatedBid.Id = signalRActiveTimeElapses.TenderBid.Id;
+                            updatedBid.TenderId = signalRActiveTimeElapses.TenderBid.TenderId;
+                            updatedBid.CompanyCarrierId = signalRActiveTimeElapses.TenderBid.CompanyCarrierId;
+                            updatedBid.TransportPrice = signalRActiveTimeElapses.TenderBid.TransportPrice;
+                            updatedBid.ShipperFee = signalRActiveTimeElapses.TenderBid.ShipperFee;
+                            updatedBid.CarrierFee = signalRActiveTimeElapses.TenderBid.CarrierFee;
+                            updatedBid.IsSelected = signalRActiveTimeElapses.TenderBid.IsSelected;
+                            updatedBid.CompanyCarrier = signalRActiveTimeElapses.TenderBid.CompanyCarrier;
+                            break;
+                        }
+                    }
+                    else if (signalRActiveTimeElapses.ActionType == TenderActionType.Add)
+                    {
+                        item.Bids.Add(signalRActiveTimeElapses.TenderBid);
+                        break;
+                    }
+                    else if (signalRActiveTimeElapses.ActionType == TenderActionType.Delete)
+                    {
+                        item.Bids.Remove(signalRActiveTimeElapses.TenderBid);
+                        break;
+                    }
                 }
             }
             StateHasChanged();
+            IsRerenderChild = true;
         });
 
 

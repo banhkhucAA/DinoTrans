@@ -60,5 +60,19 @@ namespace DinoTrans.IdentityManagerServerAPI.Controllers
             var result = await _tenderBidService.GetTenderBidsByTenderId(TenderId);
             return Ok(result);
         }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateTenderBid(UpdateTenderBidDTO dto)
+        {
+            var result = await _tenderBidService.UpdateTenderBid(dto);
+            return Ok(result);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteTenderBid([FromQuery] int TenderBidId)
+        {
+            var result = await _tenderBidService.DeleteTenderBid(TenderBidId);
+            return Ok(result);
+        }
     }
 }

@@ -76,5 +76,44 @@ namespace DinoTrans.BlazorWebAssembly.Services.Implements
             var apiResponse = await response.Content.ReadAsStringAsync();
             return Generics.DeserializeJsonString<ServiceResponses.GeneralResponse>(apiResponse);
         }
+
+        public async Task<ResponseModel<TenderBid>> UpdateTenderBid(UpdateTenderBidDTO dto)
+        {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var response = await _httpClient
+                .PutAsync($"{BaseUrl}/UpdateTenderBid",
+                Generics.GenerateStringContent(Generics.SerializeObj(dto)));
+
+            // Đọc phản hồi từ API
+            if (!response.IsSuccessStatusCode)
+                return new ResponseModel<TenderBid>
+                {
+                    Success = false,
+                    Message = "Có lỗi xảy ra"
+                };
+
+            var apiResponse = await response.Content.ReadAsStringAsync();
+            return Generics.DeserializeJsonString<ResponseModel<TenderBid>>(apiResponse);
+        }
+
+        public async Task<ResponseModel<TenderBid>> DeleteTenderBid(int TenderBidId)
+        {
+            string token = await _localStorageService.GetItemAsStringAsync("token");
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var response = await _httpClient
+                .DeleteAsync($"{BaseUrl}/DeleteTenderBid?TenderBidId={TenderBidId}");
+
+            // Đọc phản hồi từ API
+            if (!response.IsSuccessStatusCode)
+                return new ResponseModel<TenderBid>
+                {
+                    Success = false,
+                    Message = "Có lỗi xảy ra"
+                };
+
+            var apiResponse = await response.Content.ReadAsStringAsync();
+            return Generics.DeserializeJsonString<ResponseModel<TenderBid>>(apiResponse);
+        }
     }
 }

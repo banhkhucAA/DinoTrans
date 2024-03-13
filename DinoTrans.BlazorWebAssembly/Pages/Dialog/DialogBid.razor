@@ -28,7 +28,16 @@
                 <button class="btn btn-outline-danger ms-2" type="submit" @onclick="Close">Hủy</button>
             </div>
             <div class="form-group col-md-6">
-                <button style="max-width:100px" class="btn btn-outline-success float-end me-2" type="submit" @onclick="Bid">Đặt giá</button>
+                @if (!AnyBids)
+                {
+                    <button style="max-width:100px" class="btn btn-outline-success float-end me-2" type="submit" @onclick="Bid">Đặt giá</button>
+                }else
+                {
+                    <div class="float-end">
+                        <ConfirmDeleteBid TenderBidId="existedTenderBid.Id" Finish="FinishDeleteBid"></ConfirmDeleteBid>
+                        <button style="max-width:100px" class="btn btn-outline-success float-end me-2" type="submit" @onclick="UpdateBid">Cập nhật</button>
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -38,20 +47,28 @@
     public int TenderId { get; set; }
     public TenderBidDTO newTenderBid { get; set; } = new();
     [Parameter]
-    public EventCallback<TenderBid> ChangeData { get; set; }
+    public EventCallback<ActionTenderBid> ChangeData { get; set; }
     public ApplicationUser _applicationUser;
     public string PriceDisplay = "";
     public bool IsPriceSet = false;
+    public bool AnyBids = false;
     public TenderBid TBid = new();
+    public TenderBid existedTenderBid = new TenderBid();
     [Parameter]
     public int CompanyId { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
         var tenderBids = await TenderBidService.GetTenderBidsByTenderId(TenderId);
         if(tenderBids.Success)
         {
             TBid = tenderBids.Data.Where(tb => tb.CompanyCarrierId == CompanyId).FirstOrDefault();
-            if (TBid != null) PriceDisplay = TBid.TransportPrice.ToString("N0");
+            if (TBid != null)
+            {
+                PriceDisplay = TBid.TransportPrice.ToString("N0");
+                AnyBids = true;
+                existedTenderBid = TBid;
+            }
         }
     }
     public async Task OpenDialog()
@@ -63,11 +80,40 @@
     {
         if (float.TryParse(e.Value.ToString(), out float transportPrice))
         {
-            newTenderBid.TransportPrice = transportPrice;
+            if (!AnyBids)
+            {
+                newTenderBid.TransportPrice = transportPrice;
+                PriceDisplay = newTenderBid.TransportPrice.ToString("N0");
+            }
+            else 
+            {
+                existedTenderBid.TransportPrice = transportPrice;
+                PriceDisplay = existedTenderBid.TransportPrice.ToString("N0");
+            }
             IsPriceSet = true;
-            PriceDisplay = newTenderBid.TransportPrice.ToString("N0");
         }
         else IsPriceSet = false;
+    }
+    async void UpdateBid()
+    {
+        var result = await TenderBidService.UpdateTenderBid(new UpdateTenderBidDTO
+        {
+            TenderBidId = existedTenderBid.Id,
+            TransportPrice = existedTenderBid.TransportPrice
+        });
+        if (result.Success)
+        {
+            Close();
+            await ChangeData.InvokeAsync(new ActionTenderBid
+                {
+                    TenderBid = result.Data,
+                    ActionType = TenderActionType.Update
+                });
+        }
+        else
+        {
+            await js.InvokeVoidAsync("alert", result.Message);
+        }
     }
     async void Close()
     {
@@ -83,9 +129,21 @@
         if (result.Success)
         {
             Close();
-            await ChangeData.InvokeAsync(result.Data);
+            await ChangeData.InvokeAsync(new ActionTenderBid
+            {
+                TenderBid = result.Data,
+                ActionType = TenderActionType.Add
+            });
         }
         else
+        {
             await js.InvokeVoidAsync("alert", result.Message);
+        }
+    }
+
+    public async Task FinishDeleteBid(ActionTenderBid bid)
+    {
+        Close();
+        await ChangeData.InvokeAsync(bid);
     }
 }
